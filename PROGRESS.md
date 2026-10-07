@@ -79,3 +79,29 @@ Gates:
 - [x] single `dist\CourtDesk.exe` runs from an empty dir (exit 3 = Phase-8 selftest hook reached)
 - [x] app.manifest launch-bisected: compat GUIDs byte-verified, exe activates (was SxS 14001)
 - [ ] commit `phase-0: preflight and scaffold`
+
+## Phase 6 - Printing (done, 2026-10-07)
+
+- `Printing/`: `RosterPaginator` (pure geometry: pageH 703, table header 36,
+  page-1 header 132, running title 30, footer 30, summary 26, signature 118),
+  `RosterDocumentBuilder` (A4 landscape 1122.5x793.7 DIP, Tahoma, black on
+  white, 1pt borders, code columns م/الاسم/رقم القضية/التهمة/المحكمة-الدائرة/
+  مكان الحجز/ملاحظات = 6/22/13/21/17/10/11 %), `PrintService` (A4 landscape
+  `PrintTicket`, direct print, `roster_prints` logging, `PrintOutcome` result).
+- `Application/Ports/IPrintService.cs` + `IRosterPrintLog.cs`: UI reaches
+  printing only through the port (SPEC §4.5 layering), preview window lives in
+  UI, `PrintService` never references UI.
+- `SqliteRosterPrintLog`: append-only roster_prints rows (date, count, ids,
+  operator). `PrintPreviewWindow` with custom big buttons (طباعة / اختيار طابعة
+  تانية / إغلاق); sidebar print + preview wired through `UiCoordinator`.
+- Framework notes: this profile has no `PageContent.Page` (use `.Child`), no
+  `FixedDocument.PageWidth/PageHeight`, no `DocumentPaginator.WriteTo`, and
+  `XpsDocumentWriter` lives in `System.Windows.Xps` and is not IDisposable;
+  `FixedPage.FlowDirection` getter always returns LTR, so RTL is asserted on
+  the page children instead.
+- Gates: `Category=Printing` 9/9 (paginator invariants for N=0..200 with random
+  row heights: no overflow, header row repeated, signature exactly once on the
+  last page, row order and count preserved; roster set R(D) incl. decided and
+  excl. undone/REOPEN; per-court counts sum to the roster; print log append);
+  roster PNGs for N = 1, 12, 40 rendered and reviewed (artifacts/roster);
+  full suite 114/114 green.

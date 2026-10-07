@@ -26,6 +26,8 @@
     <Reference Include="PresentationCore" />
     <Reference Include="WindowsBase" />
     <Reference Include="System.Xaml" />
+    <Reference Include="ReachFramework" />
+    <Reference Include="System.Printing" />
     <None Include="..\..\vendor\managed\System.Data.SQLite.dll" Link="System.Data.SQLite.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

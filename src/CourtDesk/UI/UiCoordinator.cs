@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using CourtDesk.Application;
+using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 using CourtDesk.Resources;
 using CourtDesk.UI.Dialogs;
@@ -29,6 +30,8 @@ namespace CourtDesk.UI
             public TodayService Today;
             public IClock Clock;
             public HistoryViewModel History;
+        public CourtDesk.Printing.PrintService Printing;
+        public RosterService Rosters;
         }
 
         public CompositionLike C { get; private set; }
@@ -40,7 +43,8 @@ namespace CourtDesk.UI
         {
             LastPrintWasPreview = preview;
             LastPrintRequestedUtc = C.Clock.UtcNow;
-            PrintRequested(preview, default(LocalDate));
+            PrintRequested(preview, C.Clock.Today);
+            DoPrint(preview, C.Clock.Today);
         }
 
         public void PrintDate(bool preview, LocalDate date)
@@ -48,10 +52,48 @@ namespace CourtDesk.UI
             LastPrintWasPreview = preview;
             LastPrintRequestedUtc = C.Clock.UtcNow;
             PrintRequested(preview, date);
+            DoPrint(preview, date);
         }
 
         public event Action<bool, LocalDate> PrintRequested;
 
+        private void DoPrint(bool preview, LocalDate date)
+        {
+            if (C.Printing == null)
+            {
+                return;
+            }
+            RosterModel model = C.Rosters.Build(date);
+            if (model.Count == 0)
+            {
+                CourtDesk.UI.Dialogs.MessageDialog.Show(null,
+                    CourtDesk.Resources.Strings.PrintEmpty,
+                    CourtDesk.Resources.Strings.PrintEmpty);
+                return;
+            }
+            bool direct = !preview && C.Settings.Get(SettingKeys.PrintDirect) != "0";
+            PrintOutcome outcome = C.Printing.PrintRoster(model, direct);
+            switch (outcome)
+            {
+                case PrintOutcome.Printed:
+                    CourtDesk.UI.Dialogs.MessageDialog.Show(null,
+                        CourtDesk.Resources.Strings.PrintSent,
+                        CourtDesk.Resources.Strings.PrintSent);
+                    break;
+                case PrintOutcome.PreviewRequested:
+                case PrintOutcome.NoPrinter:
+                case PrintOutcome.Failed:
+                    if (outcome != PrintOutcome.PreviewRequested && C.Printing.LastError != null)
+                    {
+                        CourtDesk.UI.Dialogs.MessageDialog.Show(null,
+                            CourtDesk.Resources.Strings.PrintFail,
+                            C.Printing.LastError);
+                    }
+                    new CourtDesk.UI.Dialogs.PrintPreviewWindow(
+                        C.Printing.BuildDocument(model)).ShowDialog();
+                    break;
+            }
+        }
         public DefendantEditDialog OpenEdit(int id)
         {
             Defendant existing = id == 0 ? null : C.Defendants.Get(id);

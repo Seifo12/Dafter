@@ -34,6 +34,7 @@ namespace CourtDesk.Bootstrap
         public RecoveryResult Recovery;
         public MainViewModel Main;
         public CourtDesk.UI.UiCoordinator Coordinator;
+        public CourtDesk.Printing.PrintService PrintService;
     }
 
     public static class CompositionRoot
@@ -92,6 +93,8 @@ namespace CourtDesk.Bootstrap
             Schedule = new ScheduleViewModel(c.ScheduleService, clock),
             History = new HistoryViewModel(db, events, defendants)
         };
+c.PrintService = new CourtDesk.Printing.PrintService(db,
+                new CourtDesk.Persistence.SqliteRosterPrintLog(), c.RosterService);
             c.Coordinator = new CourtDesk.UI.UiCoordinator(new CourtDesk.UI.UiCoordinator.CompositionLike
             {
                 Defendants = c.DefendantService,
@@ -102,6 +105,8 @@ namespace CourtDesk.Bootstrap
                 Schedule = c.ScheduleService,
                 Today = c.TodayService,
                 Clock = clock,
+                Printing = c.PrintService,
+                Rosters = c.RosterService,
                 History = new CourtDesk.UI.ViewModels.HistoryViewModel(db, events, defendants)
             });
             db.DataChanged += delegate(long seq) { c.Main.RefreshAll(); };
