@@ -87,7 +87,11 @@ namespace CourtDesk.Bootstrap
                 delegate { return settings.Get(SettingKeys.LastFilter); },
                 delegate(string v) { settings.Set(SettingKeys.LastFilter, v); });
             var sidebar = new TodaySidebarViewModel(today);
-            c.Main = new MainViewModel(settings, clock, register, sidebar);
+            c.Main = new MainViewModel(settings, clock, register, sidebar)
+        {
+            Schedule = new ScheduleViewModel(c.ScheduleService, clock),
+            History = new HistoryViewModel(db, events, defendants)
+        };
             c.Coordinator = new CourtDesk.UI.UiCoordinator(new CourtDesk.UI.UiCoordinator.CompositionLike
             {
                 Defendants = c.DefendantService,

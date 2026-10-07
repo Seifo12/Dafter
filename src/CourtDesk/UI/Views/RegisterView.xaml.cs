@@ -2,6 +2,8 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using CourtDesk.Domain;
 using CourtDesk.Resources;
 using CourtDesk.UI.Controls;
 using CourtDesk.UI.ViewModels;
@@ -10,20 +12,129 @@ namespace CourtDesk.UI.Views
 {
     public partial class RegisterView : UserControl
     {
+        private bool _compact;
+        private bool _narrow;
+        private bool _chromeApplied;
+
         public RegisterView()
         {
             InitializeComponent();
-            DataContextChanged += delegate(object s, DependencyPropertyChangedEventArgs e) { BuildColumns(); };
-            Loaded += delegate(object s, RoutedEventArgs e) { BuildColumns(); };
+            DataContextChanged += delegate { BuildColumns(); };
+            Loaded += delegate { BuildColumns(); };
         }
-
-        public event Action<string> ActionRequested;
 
         public Action<int> AddRequested;
         public Action<int> EditRequested;
         public Action<int> DecideRequested;
         public Action<int> CardRequested;
         public Action<int> VoidRequested;
+
+public void SetCompact(bool compact)
+        {
+            SetCompact(compact, compact);
+        }
+
+        public void SetCompact(bool compact, bool narrow)
+        {
+            _compact = compact;
+            _narrow = narrow;
+            if (compact && AddStack != null && AddStack.Parent == null)
+            {
+                WrapActionContent();
+            }
+            ApplyButtonLayout(DecideButton, "IconGavel", Strings.ActionDecide);
+            ApplyButtonLayout(AddButton, "IconAdd", Strings.ActionAdd);
+            ApplyButtonLayout(EditButton, "IconEdit", Strings.ActionEdit);
+            ApplyButtonLayout(CardButton, "IconCard", Strings.ActionCard);
+            ApplyButtonLayout(VoidButton, "IconTrash", Strings.ActionVoid);
+            ActionBarRow.Height = compact ? 80 : 56;
+            if (Grid.Columns.Count > 3)
+            {
+                SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 74), narrow ? 40 : (compact ? 52 : 74));
+                SetWidth(Grid.Columns[1], narrow ? 100 : (compact ? 160 : 280), narrow ? 100 : (compact ? 160 : 280));
+                SetWidth(Grid.Columns[2], narrow ? 96 : (compact ? 130 : 210), narrow ? 96 : (compact ? 130 : 210));
+                SetWidth(Grid.Columns[3], narrow ? 116 : (compact ? 150 : 190), narrow ? 116 : (compact ? 150 : 190));
+                if (Grid.Columns.Count > 4)
+                {
+                    SetWidth(Grid.Columns[4], narrow ? 124 : (compact ? 144 : 176), narrow ? 124 : (compact ? 144 : 176));
+                }
+            }
+        }
+
+        private static void SetWidth(DataGridColumn col, double width, double min)
+        {
+            col.Width = new DataGridLength(width);
+            col.MinWidth = min;
+            double mx = col.MaxWidth;
+            if (double.IsNaN(mx) || double.IsInfinity(mx))
+            {
+                col.MaxWidth = width * 1.6;
+            }
+        }
+
+private void WrapActionContent()
+        {
+            var addContent = AddButton.Content as UIElement;
+            if (addContent != null
+                && System.Windows.Media.VisualTreeHelper.GetParent(addContent) == null)
+            {
+                AddButton.Content = AddStack;
+                AddStack.Children.Add(addContent);
+            }
+        }
+
+        private void ApplyButtonLayout(Button b, string iconKey, string label)
+        {
+            if (b == null)
+            {
+                return;
+            }
+            var panel = new StackPanel();
+            panel.Orientation = _compact ? Orientation.Vertical : Orientation.Horizontal;
+            panel.HorizontalAlignment = HorizontalAlignment.Center;
+            panel.VerticalAlignment = VerticalAlignment.Center;
+            var path = new System.Windows.Shapes.Path
+            {
+                Data = (Geometry)TryFindResource(iconKey),
+                Stroke = (Brush)TryFindResource(b.Tag as string == "void" ? "DangerBrush" : "InkBrush"),
+                StrokeThickness = 2.0,
+                Fill = Brushes.Transparent,
+                Width = 20,
+                Height = 20,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            if (b == DecideButton)
+            {
+                path.Stroke = (Brush)TryFindResource("WhiteBrush");
+            }
+            panel.Children.Add(path);
+            var text = new TextBlock
+            {
+                Text = label,
+                FontSize = _compact ? 18 : 18,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(_compact ? 0 : 8, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.NoWrap
+            };
+            text.SetResourceReference(TextBlock.FontFamilyProperty, "AppFont");
+            text.SetResourceReference(TextBlock.ForegroundProperty, b == DecideButton ? "WhiteBrush" : (b == VoidButton ? "DangerBrush" : "InkBrush"));
+            panel.Children.Add(text);
+            b.Content = panel;
+            if (_compact)
+            {
+                b.Width = _narrow ? 92 : 108;
+                b.Height = 72;
+                b.MinWidth = 0;
+            }
+            else
+            {
+                b.ClearValue(FrameworkElement.WidthProperty);
+                b.Height = 52;
+                b.MinWidth = 0;
+            }
+        }
 
         private RegisterViewModel Vm
         {
@@ -37,13 +148,24 @@ namespace CourtDesk.UI.Views
             {
                 return;
             }
-            AddTextColumn(Strings.GridIndex, "Number", 60, "name", true);
-            AddTextColumn(Strings.GridName, "Name", 190, "name", false);
-            AddTextColumn(Strings.GridCase, "CaseText", 120, "case", false);
-            AddTextColumn(Strings.GridCourt, "CourtText", 150, "court", false);
-            AddTextColumn(Strings.GridSession, "SessionText", 150, "session", false);
+            Grid.Columns.Add(IndexColumn());
+            var nameCol = new DataGridTemplateColumn();
+            nameCol.Header = Strings.GridCase;
+            nameCol.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+            nameCol.MinWidth = 280;
+            nameCol.CellTemplate = TwoLine("NameText", "MutedText", "Name", "CaseText");
+            nameCol.SortMemberPath = "Name";
+            Grid.Columns.Add(nameCol);
+            Grid.Columns.Add(MakeColumn(Strings.GridCourt, 210, "CourtText", "CourtText"));
+            var sessionCol = new DataGridTemplateColumn();
+            sessionCol.Header = Strings.GridSession;
+            sessionCol.Width = 190;
+            sessionCol.MinWidth = 190;
+            sessionCol.CellTemplate = TwoLine("GridStrong", "MutedText", "SessionLine1", "SessionLine2");
+            sessionCol.SortMemberPath = "SessionLine1";
+            Grid.Columns.Add(sessionCol);
             Grid.Columns.Add(StateColumn());
-            Grid.RowStyle = BuildRowStyle();
+            ApplyGridChrome();
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "Wide")
@@ -57,136 +179,206 @@ namespace CourtDesk.UI.Views
             };
             ApplyWide(vm.Wide);
             ApplyBands(vm);
-            AddButton.Click += delegate(object s, RoutedEventArgs e) { Fire("add"); };
-            EditButton.Click += delegate(object s, RoutedEventArgs e) { Fire("edit"); };
-            DecideButton.Click += delegate(object s, RoutedEventArgs e) { Fire("decide"); };
-            CardButton.Click += delegate(object s, RoutedEventArgs e) { Fire("card"); };
-            VoidButton.Click += delegate(object s, RoutedEventArgs e) { Fire("void"); };
-            SearchInput.Focus();
+            SetCompact(_compact);
+            Loaded += delegate { SearchInput.Focus(); };
         }
 
-        private void Fire(string what)
+        private void ApplyGridChrome()
         {
-            RegisterViewModel vm = Vm;
-            int id = vm != null && vm.Selected != null ? vm.Selected.Id : 0;
-            switch (what)
+            if (_chromeApplied)
             {
-                case "add":
-                    if (AddRequested != null)
-                    {
-                        AddRequested(id);
-                    }
-                    break;
-                case "edit":
-                    if (id == 0)
-                    {
-                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
-                        return;
-                    }
-                    if (EditRequested != null)
-                    {
-                        EditRequested(id);
-                    }
-                    break;
-                case "decide":
-                    if (id == 0)
-                    {
-                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
-                        return;
-                    }
-                    if (DecideRequested != null)
-                    {
-                        DecideRequested(id);
-                    }
-                    break;
-                case "card":
-                    if (id == 0)
-                    {
-                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
-                        return;
-                    }
-                    if (CardRequested != null)
-                    {
-                        CardRequested(id);
-                    }
-                    break;
-                case "void":
-                    if (id == 0)
-                    {
-                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
-                        return;
-                    }
-                    if (VoidRequested != null)
-                    {
-                        VoidRequested(id);
-                    }
-                    break;
+                return;
             }
+            _chromeApplied = true;
+            var header = new Style(typeof(System.Windows.Controls.Primitives.DataGridColumnHeader));
+            header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.HeightProperty, 44.0));
+            header.Setters.Add(new Setter(Control.FontFamilyProperty, UiRes.Font(this)));
+            header.Setters.Add(new Setter(Control.FontSizeProperty, 18.0));
+            header.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
+            header.Setters.Add(new Setter(Control.ForegroundProperty, UiRes.Brush(this, "InkBrush", "#1B2430")));
+            header.Setters.Add(new Setter(Control.BackgroundProperty, UiRes.Brush(this, "GridHeaderBgBrush", "#E8EDF3")));
+            header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.SeparatorBrushProperty, Brushes.Transparent));
+            header.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Right));
+            header.Setters.Add(new Setter(Control.VerticalContentAlignmentProperty, VerticalAlignment.Center));
+            header.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(0)));
+            Grid.ColumnHeaderStyle = header;
+
+            var row = new Style(typeof(DataGridRow));
+            row.Setters.Add(new Setter(DataGridRow.MinHeightProperty, 60.0));
+            row.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(0, 0, 0, 1)));
+            row.Setters.Add(new Setter(Control.BackgroundProperty, Brushes.Transparent));
+            row.Setters.Add(new Setter(Control.BorderBrushProperty, UiRes.Brush(this, "GridLineBrush", "#E1E6ED")));
+            row.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(0, 0, 0, 1)));
+            row.Setters.Add(new Setter(Control.BorderBrushProperty, UiRes.Brush(this, "GridLineBrush", "#E1E6ED")));
+            AddRowTriggers(row);
+            Grid.RowStyle = row;
+
+            var cell = new Style(typeof(DataGridCell));
+            cell.Setters.Add(new Setter(DataGridCell.BorderThicknessProperty, new Thickness(0)));
+            cell.Setters.Add(new Setter(DataGridCell.FocusVisualStyleProperty, null));
+            cell.Setters.Add(new Setter(Control.BackgroundProperty, Brushes.Transparent));
+            cell.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(0)));
+            cell.Setters.Add(new Setter(Control.PaddingProperty, new Thickness(12, 4, 12, 4)));
+            cell.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Right));
+            cell.Setters.Add(new Setter(Control.VerticalContentAlignmentProperty, VerticalAlignment.Center));
+            Grid.CellStyle = cell;
+        }
+
+        private void AddRowTriggers(Style row)
+        {
+            var hover = new Trigger();
+            hover.Property = UIElement.IsMouseOverProperty;
+            hover.Value = true;
+            hover.Setters.Add(new Setter(Control.BackgroundProperty, UiRes.Brush(this, "HoverBrush", "#EEF4FB")));
+            row.Triggers.Add(hover);
+            var selected = new Trigger();
+            selected.Property = DataGridRow.IsSelectedProperty;
+            selected.Value = true;
+            selected.Setters.Add(new Setter(Control.BackgroundProperty, UiRes.Brush(this, "SelectedBgBrush", "#D6E8FA")));
+            selected.Setters.Add(new Setter(Control.BorderBrushProperty, UiRes.Brush(this, "PrimaryBrush", "#084A8F")));
+            selected.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(2)));
+            row.Triggers.Add(selected);
+        }
+
+        private DataGridTemplateColumn IndexColumn()
+        {
+            var col = new DataGridTemplateColumn();
+            col.Header = Strings.GridIndex;
+            col.Width = 74;
+            col.MinWidth = 74;
+            col.MaxWidth = 74;
+            col.SortMemberPath = "Number";
+            var grid = new FrameworkElementFactory(typeof(Grid));
+            var c0 = new FrameworkElementFactory(typeof(ColumnDefinition));
+            c0.SetValue(ColumnDefinition.WidthProperty, new GridLength(6));
+            var c1 = new FrameworkElementFactory(typeof(ColumnDefinition));
+            c1.SetValue(ColumnDefinition.WidthProperty, new GridLength(1, GridUnitType.Star));
+            grid.AppendChild(c0);
+            grid.AppendChild(c1);
+            var stripe = new FrameworkElementFactory(typeof(Border));
+            stripe.SetValue(Border.BorderThicknessProperty, new Thickness(0, 0, 6, 0));
+            stripe.SetBinding(Border.BorderBrushProperty, new Binding("StripeBrush"));
+            stripe.SetValue(System.Windows.Controls.Grid.ColumnProperty, 0);
+            grid.AppendChild(stripe);
+            var num = new FrameworkElementFactory(typeof(TextBlock));
+            num.SetBinding(TextBlock.TextProperty, new Binding("Number"));
+            num.SetValue(TextBlock.FontSizeProperty, 22.0);
+            num.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
+            num.SetValue(TextBlock.FontFamilyProperty, UiRes.Font(this));
+            num.SetValue(TextBlock.ForegroundProperty, UiRes.Brush(this, "MutedBrush", "#46505E"));
+            num.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Center);
+            num.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            num.SetValue(System.Windows.Controls.Grid.ColumnProperty, 1);
+            grid.AppendChild(num);
+            col.CellTemplate = new DataTemplate(typeof(Grid)) { VisualTree = grid };
+            return col;
+        }
+
+        private DataGridTextColumn MakeColumn(string header, double width, string path, string sortKey)
+        {
+            var col = new DataGridTextColumn();
+            col.Header = header;
+            col.Binding = new Binding(path);
+            col.Width = width;
+            col.MinWidth = width;
+            var style = new Style(typeof(TextBlock));
+            style.Setters.Add(new Setter(TextBlock.FontSizeProperty, 20.0));
+            style.Setters.Add(new Setter(TextBlock.FontFamilyProperty, UiRes.Font(this)));
+            style.Setters.Add(new Setter(TextBlock.ForegroundProperty, UiRes.Brush(this, "InkBrush", "#1B2430")));
+            style.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
+            style.Setters.Add(new Setter(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center));
+            col.ElementStyle = style;
+            col.SortMemberPath = sortKey;
+            return col;
+        }
+
+        private DataTemplate TwoLine(string topStyle, string bottomStyle, string top, string bottom)
+        {
+            var grid = new FrameworkElementFactory(typeof(Grid));
+            var rows = new FrameworkElementFactory(typeof(RowDefinition));
+            rows.SetValue(RowDefinition.HeightProperty, new GridLength(1, GridUnitType.Star));
+            var rows2 = new FrameworkElementFactory(typeof(RowDefinition));
+            rows2.SetValue(RowDefinition.HeightProperty, new GridLength(1, GridUnitType.Star));
+            grid.AppendChild(rows);
+            grid.AppendChild(rows2);
+            var t1 = new FrameworkElementFactory(typeof(TextBlock));
+            t1.SetBinding(TextBlock.TextProperty, new Binding(top));
+            t1.SetValue(TextBlock.StyleProperty, TryStyle(topStyle));
+            t1.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            t1.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 0, 2));
+            t1.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
+            t1.SetValue(System.Windows.Controls.Grid.RowProperty, 0);
+            grid.AppendChild(t1);
+            var t2 = new FrameworkElementFactory(typeof(TextBlock));
+            t2.SetBinding(TextBlock.TextProperty, new Binding(bottom));
+            t2.SetValue(TextBlock.StyleProperty, TryStyle(bottomStyle));
+            t2.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            t2.SetValue(FrameworkElement.MarginProperty, new Thickness(0));
+            t2.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
+            t2.SetValue(System.Windows.Controls.Grid.RowProperty, 1);
+            grid.AppendChild(t2);
+            return new DataTemplate(typeof(Grid)) { VisualTree = grid };
+        }
+
+        private Style TryStyle(string key)
+        {
+            object o = TryFindResource(key);
+            return o as Style;
+        }
+
+        private DataGridTemplateColumn StateColumn()
+        {
+            var col = new DataGridTemplateColumn();
+            col.Header = Strings.GridState;
+            col.Width = 176;
+            col.MinWidth = 176;
+            col.MaxWidth = 176;
+            var factory = new FrameworkElementFactory(typeof(StatusChip));
+            factory.SetBinding(StatusChip.StateKeyProperty, new Binding("StateKey"));
+            factory.SetBinding(StatusChip.WordProperty, new Binding("StateWord"));
+            factory.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+            factory.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 8, 0));
+            col.CellTemplate = new DataTemplate(typeof(StatusChip)) { VisualTree = factory };
+            return col;
         }
 
         private void ApplyWide(bool wide)
         {
-            WideButton.Content = wide ? Strings.GridWideOff : Strings.GridWideOn;
             bool hasCharges = false;
-            bool hasCustody = false;
             foreach (DataGridColumn c in Grid.Columns)
             {
-                if (HeaderText(c) == Strings.GridCharges)
+                if ((c.Header as string) == Strings.GridCharges)
                 {
                     hasCharges = true;
-                }
-                if (HeaderText(c) == Strings.GridCustody)
-                {
-                    hasCustody = true;
                 }
             }
             if (wide && !hasCharges)
             {
-                int at = Grid.Columns.Count - 1;
-                Grid.Columns.Insert(at, MakeTextColumn(Strings.GridCharges, "CourtText", 180));
-                Grid.Columns.Insert(at + 1, MakeTextColumn(Strings.GridCustody, "CourtText", 130));
+                Grid.Columns.Insert(4, MakeColumn(Strings.GridCharges, 220, "ChargesText", "ChargesText"));
+                Grid.Columns.Add(MakeColumn(Strings.GridCustody, 170, "CustodyText", "CustodyText"));
+                Grid.Columns[3].MinWidth = 170;
             }
             if (!wide && hasCharges)
             {
                 for (int i = Grid.Columns.Count - 1; i >= 0; i--)
                 {
-                    string h = HeaderText(Grid.Columns[i]);
+                    string h = Grid.Columns[i].Header as string;
                     if (h == Strings.GridCharges || h == Strings.GridCustody)
                     {
                         Grid.Columns.RemoveAt(i);
                     }
                 }
+                Grid.Columns[3].MinWidth = _compact ? 150 : 190;
             }
-        }
-
-        private static string HeaderText(DataGridColumn col)
-        {
-            string s = col.Header as string;
-            if (s != null)
-            {
-                return s;
-            }
-            Button b = col.Header as Button;
-            if (b != null)
-            {
-                return b.Content as string;
-            }
-            return null;
         }
 
         private void ApplyBands(RegisterViewModel vm)
         {
-            HintBand.Visibility = vm.HintVisible ? Visibility.Visible : Visibility.Collapsed;
             if (vm.EmptyResult)
             {
-                if (vm.EmptyInFilter)
-                {
-                    EmptyText.Text = string.Format(Strings.SearchNoneInFilter, FilterLabel(), vm.AllCount);
-                }
-                else
-                {
-                    EmptyText.Text = Strings.SearchNone;
-                }
+                EmptyText.Text = vm.EmptyInFilter
+                    ? string.Format(Strings.SearchNoneInFilter, FilterLabel(), vm.AllCount)
+                    : Strings.SearchNone;
                 EmptyText.Visibility = Visibility.Visible;
             }
             else
@@ -198,104 +390,74 @@ namespace CourtDesk.UI.Views
         private string FilterLabel()
         {
             RegisterViewModel vm = Vm;
-            if (vm == null)
-            {
-                return "";
-            }
+            if (vm == null) return "";
             foreach (FilterChipItem chip in vm.Chips)
             {
-                if (chip.Checked)
-                {
-                    return chip.Label;
-                }
+                if (chip.Checked) return chip.Label;
             }
             return "";
         }
 
-        private void AddTextColumn(string header, string path, double width, string sortKey, bool index)
+        private void WideToggleClick(object sender, RoutedEventArgs e)
         {
-            DataGridTextColumn col = MakeTextColumn(header, path, width);
-            col.Header = HeaderButton(header, sortKey);
-            Grid.Columns.Add(col);
-        }
-
-        private static DataGridTextColumn MakeTextColumn(string header, string path, double width)
-        {
-            var col = new DataGridTextColumn();
-            col.Header = header;
-            col.Binding = new Binding(path);
-            col.Width = width;
-            var style = new Style(typeof(TextBlock));
-            style.Setters.Add(new Setter(TextBlock.FontSizeProperty, (double)20));
-            style.Setters.Add(new Setter(TextBlock.TextWrappingProperty, TextWrapping.Wrap));
-            style.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
-            style.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(8, 4, 8, 4)));
-            style.Setters.Add(new Setter(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center));
-            col.ElementStyle = style;
-            return col;
-        }
-
-        private Button HeaderButton(string header, string sortKey)
-        {
-            var b = new Button();
-            b.Content = header;
-            b.FontSize = 20;
-            b.FontWeight = FontWeights.Bold;
-            b.FontFamily = CourtDesk.UI.UiRes.Font(this);
-            b.Background = System.Windows.Media.Brushes.Transparent;
-            b.BorderThickness = new Thickness(0);
-            b.Cursor = System.Windows.Input.Cursors.Hand;
-            b.Tag = sortKey;
-            b.Click += delegate(object s, RoutedEventArgs e)
+            RegisterViewModel vm = Vm;
+            if (vm != null)
             {
-                RegisterViewModel vm = Vm;
-                if (vm != null)
-                {
-                    vm.SortCommand.Execute(sortKey);
-                }
-            };
-            return b;
+                vm.Wide = !vm.Wide;
+            }
         }
 
-        private DataGridTemplateColumn StateColumn()
+        private void ClearClick(object sender, RoutedEventArgs e)
         {
-            var col = new DataGridTemplateColumn();
-            col.Header = HeaderButton(Strings.GridState, "state");
-            col.Width = 150;
-            var factory = new FrameworkElementFactory(typeof(StatusChip));
-            factory.SetBinding(StatusChip.StateKeyProperty, new Binding("StateKey"));
-            factory.SetBinding(StatusChip.WordProperty, new Binding("StateWord"));
-            col.CellTemplate = new DataTemplate(typeof(StatusChip)) { VisualTree = factory };
-            return col;
-        }
-
-        private Style BuildRowStyle()
-        {
-            var style = new Style(typeof(DataGridRow));
-            style.Setters.Add(new Setter(DataGridRow.MinHeightProperty, (double)56));
-            AddTint(style, "TODAY", "TodayBgBrush");
-            AddTint(style, "OVERDUE", "OverdueBgBrush");
-            return style;
-            AddTint(style, "OVERDUE", "OverdueBgBrush");
-            return style;
-        }
-
-        private void AddTint(Style style, string key, string brushKey)
-        {
-            var trigger = new MultiDataTrigger();
-            trigger.Conditions.Add(new Condition
+            RegisterViewModel vm = Vm;
+            if (vm != null)
             {
-                Binding = new Binding("StateKey"),
-                Value = key
-            });
-            trigger.Conditions.Add(new Condition
+                vm.SearchText = "";
+                SearchInput.Focus();
+            }
+        }
+
+        private void ActionClick(object sender, RoutedEventArgs e)
+        {
+            var b = sender as Button;
+            if (b == null || b.Tag == null)
             {
-                Binding = new Binding("IsSelected") { RelativeSource = RelativeSource.Self },
-                Value = false
-            });
-            trigger.Setters.Add(new Setter(DataGridRow.BackgroundProperty,
-                CourtDesk.UI.UiRes.Brush(this, brushKey, brushKey == "TodayBgBrush" ? "#FFF1B8" : "#FFD9D4")));
-            style.Triggers.Add(trigger);
+                return;
+            }
+            string what = (string)b.Tag;
+            RegisterViewModel vm = Vm;
+            int id = vm != null && vm.Selected != null ? vm.Selected.Id : 0;
+            switch (what)
+            {
+                case "add":
+                    if (AddRequested != null) AddRequested(id);
+                    break;
+                case "edit":
+                    if (NeedRow(vm, id)) { if (EditRequested != null) EditRequested(id); }
+                    break;
+                case "decide":
+                    if (NeedRow(vm, id)) { if (DecideRequested != null) DecideRequested(id); }
+                    break;
+                case "card":
+                    if (NeedRow(vm, id)) { if (CardRequested != null) CardRequested(id); }
+                    break;
+                case "void":
+                    if (NeedRow(vm, id)) { if (VoidRequested != null) VoidRequested(id); }
+                    break;
+            }
+        }
+
+        private static bool NeedRow(RegisterViewModel vm, int id)
+        {
+            if (id != 0)
+            {
+                return true;
+            }
+            if (vm != null)
+            {
+                vm.ShowHint(Strings.HintSelectRow);
+            }
+            return false;
         }
     }
 }

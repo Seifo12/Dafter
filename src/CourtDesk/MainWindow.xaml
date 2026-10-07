@@ -6,9 +6,9 @@
         xmlns:views="clr-namespace:CourtDesk.UI.Views"
         Title="{x:Static res:Strings.AppTitle}"
         FlowDirection="RightToLeft" xml:lang="ar-EG"
-        WindowState="Maximized" MinWidth="1024" MinHeight="700">
-  <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-  <Grid x:Name="Root" x:FieldModifier="public" MinHeight="600">
+        WindowState="Maximized" MinWidth="1024" MinHeight="700"
+        Background="{StaticResource CanvasBrush}">
+  <Grid x:Name="Root" x:FieldModifier="public">
     <Grid.LayoutTransform>
       <ScaleTransform x:Name="RootScale" ScaleX="1" ScaleY="1" />
     </Grid.LayoutTransform>
@@ -20,21 +20,22 @@
     <shell:TopBar Grid.Row="0" DataContext="{Binding}" x:Name="Bar" />
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" x:Name="SidebarColumn" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <views:TodaySidebar Grid.Column="0" DataContext="{Binding Sidebar}" />
-      <ContentControl Grid.Column="1" x:Name="Host">
-        <views:RegisterView DataContext="{Binding Register}" x:Name="RegisterView" x:FieldModifier="public" />
-      </ContentControl>
+      <views:TodaySidebar Grid.Column="0" DataContext="{Binding Sidebar}" x:Name="Sidebar" />
+      <Grid Grid.Column="1" x:Name="ContentHost" x:FieldModifier="public">
+        <views:RegisterView DataContext="{Binding Register}" x:Name="RegisterView"
+                            x:FieldModifier="public" />
+      </Grid>
     </Grid>
-    <StatusBar Grid.Row="2" FontSize="20" MinHeight="48" FontFamily="{StaticResource AppFont}">
-      <DockPanel LastChildFill="True">
-        <TextBlock Text="{Binding StatusRecords}" Margin="12,0" />
-        <TextBlock Text="{Binding StatusExit}" Margin="12,0" />
-        <TextBlock Text="{Binding StatusUsb}" Margin="12,0" />
-      </DockPanel>
-    </StatusBar>
+    <Border Grid.Row="2" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}"
+            BorderThickness="0,1,0,0" Height="32" MinHeight="32" x:Name="StatusRow">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+        <TextBlock Text="{Binding StatusRecords}" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding StatusExit}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding StatusUsb}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
+      </StackPanel>
+    </Border>
   </Grid>
-  </ScrollViewer>
 </Window>

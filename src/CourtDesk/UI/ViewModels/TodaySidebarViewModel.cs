@@ -15,6 +15,7 @@ namespace CourtDesk.UI.ViewModels
         public string Line3 { get; set; }
         public string ResultSentence { get; set; }
         public string AccentKey { get; set; }
+        public System.Windows.Media.Brush Accent { get; set; }
         public long EventId { get; set; }
         public bool ShowUndo { get; set; }
     }
@@ -23,15 +24,21 @@ namespace CourtDesk.UI.ViewModels
     {
         private readonly TodayService _today;
         private string _dateLong = "";
+        private string _dateLineText = "";
         private string _progress = "";
         private double _progressValue;
         private string _tomorrow = "";
         private bool _hasOverdue;
         private string _overdueHeader = "";
         private bool _empty = true;
+        private string _tab = "today";
+        private string _todayTabText = "";
+        private string _overdueTabText = "";
         private readonly ObservableCollection<SessionCard> _overdue = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _pending = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _decided = new ObservableCollection<SessionCard>();
+        private readonly ObservableCollection<SessionCard> _decidedAll = new ObservableCollection<SessionCard>();
+        private int _moreDecided;
 
         public TodaySidebarViewModel(TodayService today)
         {
@@ -42,6 +49,14 @@ namespace CourtDesk.UI.ViewModels
             PrintCommand = new RelayCommand(delegate(object o) { OnPrint(false); });
             PreviewCommand = new RelayCommand(delegate(object o) { OnPrint(true); });
             CardCommand = new RelayCommand(delegate(object o) { OnCard(o); });
+            TabCommand = new RelayCommand(delegate(object o)
+            {
+                string key = o as string;
+                if (!string.IsNullOrEmpty(key))
+                {
+                    Tab = key;
+                }
+            });
             Refresh();
         }
 
@@ -54,6 +69,36 @@ namespace CourtDesk.UI.ViewModels
         public ICommand PrintCommand { get; private set; }
         public ICommand PreviewCommand { get; private set; }
         public ICommand CardCommand { get; private set; }
+        public ICommand TabCommand { get; private set; }
+
+        public string Tab
+        {
+            get { return _tab; }
+            set
+            {
+                if (Set(ref _tab, value ?? "today", "Tab"))
+                {
+                    Raise("TodayTabText");
+                    Raise("OverdueTabText");
+                    RefreshLists();
+                }
+            }
+        }
+
+        public string TodayTabText
+        {
+            get { return _todayTabText; }
+        }
+
+        public string DateLineText
+        {
+            get { return _dateLineText; }
+        }
+
+        public string OverdueTabText
+        {
+            get { return _overdueTabText; }
+        }
 
         public event Action<SessionCard> RecordRequested;
         public event Action<SessionCard> UndoRequested;
@@ -111,8 +156,7 @@ namespace CourtDesk.UI.ViewModels
             _overdue.Clear();
             foreach (DefendantRow row in snap.Overdue)
             {
-                int days = LocalDate.DaysBetween(
-                    row.D.SessionDate.Value, snap.Date);
+                int days = LocalDate.DaysBetween(row.D.SessionDate.Value, snap.Date);
                 _overdue.Add(new SessionCard
                 {
                     Id = row.D.Id,
@@ -135,10 +179,10 @@ namespace CourtDesk.UI.ViewModels
                     AccentKey = "TODAY"
                 });
             }
-            _decided.Clear();
+            _decidedAll.Clear();
             foreach (DecidedRow row in snap.Decided)
             {
-                _decided.Add(new SessionCard
+                _decidedAll.Add(new SessionCard
                 {
                     Id = row.D.Id,
                     Name = row.D.FullName,
@@ -146,17 +190,84 @@ namespace CourtDesk.UI.ViewModels
                     Line3 = row.NextSessionDate ?? "",
                     ResultSentence = row.DecisionCode + " ← " + (row.NextSessionDate ?? ""),
                     AccentKey = AccentFor(row.DecisionCode),
+                    Accent = AccentBrush(AccentFor(row.DecisionCode)),
                     EventId = row.EventId,
                     ShowUndo = true
                 });
             }
+            ApplyDecidedCollapse();
+            _dateLineText = _dateLong + " · " + string.Format(CourtDesk.Resources.Strings.TomorrowShort, snap.TomorrowCount);
             Raise("DateLong");
+            Raise("DateLineText");
             Raise("Progress");
             Raise("ProgressValue");
             Raise("Tomorrow");
             Raise("HasOverdue");
             Raise("OverdueHeader");
             Raise("Empty");
+            RefreshLists();
+        }
+
+        private void RefreshLists()
+        {
+            _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
+            _overdueTabText = string.Format(CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);
+            if (_pending.Count == 0 && _overdue.Count > 0 && _tab == "today")
+            {
+                Tab = "overdue";
+                return;
+            }
+            if (_overdue.Count == 0 && _tab == "overdue")
+            {
+                Tab = "today";
+            }
+        }
+
+        public int MoreDecided
+        {
+            get { return _moreDecided; }
+        }
+
+        public string MoreDecidedText
+        {
+            get
+            {
+                return _moreDecided > 0
+                    ? string.Format(CourtDesk.Resources.Strings.SideMoreDecided, _moreDecided)
+                    : "";
+            }
+        }
+
+        private void ApplyDecidedCollapse()
+        {
+            int limit = 5;
+            _decided.Clear();
+            int shown = 0;
+            foreach (SessionCard c in _decidedAll)
+            {
+                if (shown >= limit)
+                {
+                    break;
+                }
+                _decided.Add(c);
+                shown++;
+            }
+            _moreDecided = Math.Max(0, _decidedAll.Count - shown);
+            Raise("MoreDecided");
+            Raise("MoreDecidedText");
+            Raise("HasDecided");
+        }
+
+        private static System.Windows.Media.Brush AccentBrush(string key)
+        {
+            switch (key)
+            {
+                case "RELEASED": return CourtDesk.UI.UiRes.Brush(null, "ReleasedFgBrush", "#1B6E2D");
+                case "JUDGED": return CourtDesk.UI.UiRes.Brush(null, "JudgedFgBrush", "#5B3FA3");
+                case "TODAY": return CourtDesk.UI.UiRes.Brush(null, "TodayFgBrush", "#8A5A00");
+                case "OVERDUE": return CourtDesk.UI.UiRes.Brush(null, "OverdueFgBrush", "#A32D2D");
+                default: return CourtDesk.UI.UiRes.Brush(null, "UpcomingFgBrush", "#0B5CAD");
+            }
         }
 
         private static string AccentFor(string code)

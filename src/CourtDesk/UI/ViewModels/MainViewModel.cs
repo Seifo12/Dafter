@@ -49,6 +49,8 @@ namespace CourtDesk.UI.ViewModels
 
         public RegisterViewModel Register { get; private set; }
         public TodaySidebarViewModel Sidebar { get; private set; }
+        public ScheduleViewModel Schedule { get; set; }
+        public HistoryViewModel History { get; set; }
         public ICommand NavCommand { get; private set; }
         public ICommand ZoomInCommand { get; private set; }
         public ICommand ZoomOutCommand { get; private set; }

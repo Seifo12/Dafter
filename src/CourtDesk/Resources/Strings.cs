@@ -4,12 +4,12 @@ namespace CourtDesk.Resources
     {
         public const string AppTitle = "سجل المحبوسين والجلسات";
 
-        public const string NavRegister = "السجل الرئيسي";
-        public const string NavSchedule = "جدول الجلسات";
-        public const string NavHistory = "سجل القرارات";
-        public const string NavBackup = "النسخ الاحتياطي والإعدادات";
+        public const string NavRegister = "السجل";
+        public const string NavSchedule = "الجدول";
+        public const string NavHistory = "القرارات";
+        public const string NavBackup = "النسخ والإعدادات";
         public const string NavHelp = "مساعدة";
-        public const string NavExit = "إغلاق البرنامج";
+        public const string NavExit = "خروج";
 
         public const string FontSmaller = "حرف أصغر";
         public const string FontLarger = "حرف أكبر";
@@ -26,17 +26,17 @@ namespace CourtDesk.Resources
         public const string FilterJudged = "صدر فيهم حكم";
         public const string FilterNoDate = "بدون ميعاد جلسة";
 
-        public const string ActionAdd = "إضافة متهم جديد";
-        public const string ActionEdit = "تعديل البيانات";
-        public const string ActionDecide = "تسجيل قرار الجلسة";
-        public const string ActionCard = "بطاقة المتهم وسجله";
-        public const string ActionVoid = "إلغاء السجل (إدخال خاطئ)";
+        public const string ActionAdd = "إضافة متهم";
+        public const string ActionEdit = "تعديل";
+        public const string ActionDecide = "تسجيل قرار";
+        public const string ActionCard = "بطاقة المتهم";
+        public const string ActionVoid = "إلغاء السجل";
 
         public const string HintSelectRow = "اختار متهم من الجدول الأول.";
 
         public const string GridIndex = "م";
         public const string GridName = "الاسم";
-        public const string GridCase = "رقم القضية";
+        public const string GridCase = "الاسم والقضية";
         public const string GridCourt = "المحكمة / الدائرة";
         public const string GridSession = "ميعاد الجلسة";
         public const string GridState = "الحالة";
@@ -50,11 +50,11 @@ namespace CourtDesk.Resources
 
         public const string StatusDetained = "محبوس";
         public const string StatusReleased = "مُفرج عنه";
-        public const string StatusJudged = "صدر حكم";
+        public const string StatusJudged = "حكم";
 
-        public const string StateToday = "جلسة اليوم";
-        public const string StateOverdue = "فاتت الجلسة";
-        public const string StateUpcoming = "جلسة قادمة";
+        public const string StateToday = "اليوم";
+        public const string StateOverdue = "فاتت";
+        public const string StateUpcoming = "قادمة";
         public const string StateNoDate = "بدون ميعاد";
 
         public const string OverdueDays = "فاتت من {0} يوم";
@@ -66,11 +66,11 @@ namespace CourtDesk.Resources
         public const string SideOverdue = "جلسات فاتت من غير قرار ({0})";
         public const string SideTomorrow = "جلسات بكرة: {0}";
         public const string SideEmpty = "مفيش جلسات النهارده.";
-        public const string SideRecord = "تسجيل القرار";
-        public const string SideQueue = "سجّل قرارات الجلسات واحد ورا التاني";
+        public const string SideRecord = "سجّل القرار";
+        public const string SideQueue = "سجّل بالترتيب";
         public const string SideUndo = "تراجع";
-        public const string SidePrint = "طباعة كشف الترحيل (A4)";
-        public const string SidePreview = "معاينة قبل الطباعة";
+        public const string SidePrint = "طباعة كشف الترحيل";
+        public const string SidePreview = "معاينة";
 
         public const string PrintSent = "تم إرسال الكشف للطابعة.";
         public const string PrintFail = "مش قادرين نطبع (مفيش طابعة أو الطابعة مش شغالة). فتحنا لك المعاينة.";
@@ -196,6 +196,15 @@ namespace CourtDesk.Resources
         public const string ExitNo = "لأ، ارجع";
 
         public const string Ok = "تمام";
+        public const string SideTabToday = "اليوم ({0})";
+        public const string SideTabOverdue = "فاتت ({0})";
+        public const string FontLabel = "حجم الحرف";
+        public const string GridDataTitle = "بيانات القضية";
+        public const string SidePrintShort = "طباعة كشف الترحيل";
+        public const string CustodyHeld = "محتجز محموم";
+        public const string CustodyFree = "غير محتجز";
+        public const string SideMoreDecided = "(` {0}) + واحدفًًًأخرًص";
+        public const string TomorrowShort = "بكرة: {0}";
         public const string OperatorUnknown = "غير مسجل";
         public const string SplashWait = "برجاء الانتظار…";
 

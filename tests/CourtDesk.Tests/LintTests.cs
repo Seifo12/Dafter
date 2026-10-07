@@ -80,11 +80,16 @@ namespace CourtDesk.Tests
         public void ButtonAndInputHeights()
         {
             string controls = File.ReadAllText(Path.Combine(SrcRoot(), "UI", "Styles", "Controls.xaml"));
-            AssertMinHeight(controls, "BigButton", 56);
-            AssertMinHeight(controls, "PrimaryButton", 64);
-            AssertMinHeight(controls, "PrintButton", 72);
-            AssertMinHeight(controls, "SmallButton", 48);
-            AssertMinHeight(controls, "FilterChip", 48);
+            AssertMinHeight(controls, "PrimaryButton", 56);
+            AssertMinHeight(controls, "SecondaryButton", 56);
+            AssertMinHeight(controls, "QuietButton", 48);
+            AssertMinHeight(controls, "DangerQuietButton", 48);
+            AssertMinHeight(controls, "HeaderUtilityButton", 48);
+            AssertMinHeight(controls, "NavTab", 48);
+            AssertMinHeight(controls, "NavTabCompact", 48);
+            AssertMinHeight(controls, "SidebarTab", 48);
+            AssertMinHeight(controls, "SecondaryToggle", 48);
+            AssertMinHeight(controls, "FilterChip", 40);
             AssertMinHeight(controls, "InputBox", 56);
         }
 
@@ -104,17 +109,21 @@ namespace CourtDesk.Tests
             {
                 colors[m.Groups[1].Value] = m.Groups[2].Value;
             }
-            AssertRatio(colors, "Ink", "Surface", 7.0);
-            AssertRatio(colors, "InkMuted", "Surface", 7.0);
-            AssertRatio(colors, "Surface", "Primary", 4.5);
-            AssertRatio(colors, "Surface", "Danger", 4.5);
-            AssertRatio(colors, "Border", "Surface", 4.5);
-            AssertRatio(colors, "TodayAccent", "Surface", 3.0);
-            AssertRatio(colors, "OverdueAccent", "Surface", 3.0);
-            AssertRatio(colors, "UpcomingAccent", "Surface", 3.0);
-            AssertRatio(colors, "ReleasedAccent", "Surface", 3.0);
-            AssertRatio(colors, "JudgedAccent", "Surface", 3.0);
-            AssertRatio(colors, "NoDateAccent", "Surface", 3.0);
+            AssertRatio(colors, "Ink", "Card", 7.0);
+            AssertRatio(colors, "Muted", "Card", 4.5);
+            AssertRatio(colors, "White", "Primary", 4.5);
+            AssertRatio(colors, "White", "Header", 7.0);
+            AssertRatio(colors, "Card", "Primary", 4.5);
+            AssertRatio(colors, "Card", "DangerQuiet", 4.5);
+            AssertRatio(colors, "CardBorder", "Card", 1.3);
+            AssertRatio(colors, "TodayFg", "TodayBg", 4.5);
+            AssertRatio(colors, "OverdueFg", "OverdueBg", 4.5);
+            AssertRatio(colors, "UpcomingFg", "UpcomingBg", 4.5);
+            AssertRatio(colors, "ReleasedFg", "ReleasedBg", 4.5);
+            AssertRatio(colors, "JudgedFg", "JudgedBg", 4.5);
+            AssertRatio(colors, "NoDateFg", "NoDateBg", 4.5);
+            AssertRatio(colors, "Ink", "Canvas", 7.0);
+            AssertRatio(colors, "Muted", "Canvas", 4.5);
         }
 
         private static void AssertRatio(Dictionary<string, string> colors, string fg, string bg, double min)

@@ -50,56 +50,47 @@ namespace CourtDesk.UI.Controls
                 return;
             }
             string key = StateKey ?? "NO_DATE";
-            Brush bg;
-            Brush accent;
+            string bg;
+            string fg;
             string icon;
             switch (key)
             {
                 case "TODAY":
-                    bg = CourtDesk.UI.UiRes.Brush(this, "TodayBgBrush", "#FFF1B8");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "TodayAccentBrush", "#8A5A00");
-                    icon = "IconClock";
+                    bg = "TodayBgBrush"; fg = "TodayFgBrush"; icon = "IconClock";
                     break;
                 case "OVERDUE":
-                    bg = CourtDesk.UI.UiRes.Brush(this, "OverdueBgBrush", "#FFD9D4");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "OverdueAccentBrush", "#B3261E");
-                    icon = "IconAlert";
+                    bg = "OverdueBgBrush"; fg = "OverdueFgBrush"; icon = "IconWarning";
                     break;
                 case "UPCOMING":
-                    bg = CourtDesk.UI.UiRes.Brush(this, "UpcomingBgBrush", "#D6E8FA");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "UpcomingAccentBrush", "#0B5CAD");
-                    icon = "IconArrow";
+                    bg = "UpcomingBgBrush"; fg = "UpcomingFgBrush"; icon = "IconClock";
                     break;
                 case "RELEASED":
-                    bg = CourtDesk.UI.UiRes.Brush(this, "ReleasedBgBrush", "#D5EFDA");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "ReleasedAccentBrush", "#1B6E2D");
-                    icon = "IconCheck";
+                    bg = "ReleasedBgBrush"; fg = "ReleasedFgBrush"; icon = "IconCheck";
                     break;
                 case "JUDGED":
-                    bg = CourtDesk.UI.UiRes.Brush(this, "JudgedBgBrush", "#E4DDF4");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "JudgedAccentBrush", "#5B3FA3");
-                    icon = "IconScales";
+                    bg = "JudgedBgBrush"; fg = "JudgedFgBrush"; icon = "IconScales";
                     break;
                 default:
-                    bg = CourtDesk.UI.UiRes.Brush(this, "NoDateBgBrush", "#EDEDED");
-                    accent = CourtDesk.UI.UiRes.Brush(this, "NoDateAccentBrush", "#4A4A4A");
-                    icon = "IconDashedCircle";
+                    bg = "NoDateBgBrush"; fg = "NoDateFgBrush"; icon = "IconCalendar";
                     break;
             }
-            BackBorder.Background = bg;
-            BackBorder.BorderBrush = accent;
+            string fallbackBg = key == "TODAY" ? "#FFF1B8"
+                : key == "OVERDUE" ? "#FFD9D4"
+                : key == "UPCOMING" ? "#D6E8FA"
+                : key == "RELEASED" ? "#D5EFDA"
+                : key == "JUDGED" ? "#E4DDF4" : "#EDEDED";
+            string fallbackFg = key == "TODAY" ? "#8A5A00"
+                : key == "OVERDUE" ? "#A32D2D"
+                : key == "UPCOMING" ? "#0B5CAD"
+                : key == "RELEASED" ? "#1B6E2D"
+                : key == "JUDGED" ? "#5B3FA3" : "#46505E";
+            BackBorder.Background = CourtDesk.UI.UiRes.Brush(this, bg, fallbackBg);
+            BackBorder.BorderBrush = CourtDesk.UI.UiRes.Brush(this, fg, fallbackFg);
             WordText.Text = Word;
-            WordText.Foreground = CourtDesk.UI.UiRes.Brush(this, "InkBrush", "#151515");
+            WordText.Foreground = CourtDesk.UI.UiRes.Brush(this, "InkBrush", "#1B2430");
             GlyphPath.Data = CourtDesk.UI.UiRes.Geometry(this, icon);
-            GlyphPath.Stroke = accent;
-            if (key == "OVERDUE")
-            {
-                GlyphPath.Fill = accent;
-            }
-            else
-            {
-                GlyphPath.Fill = Brushes.Transparent;
-            }
+            GlyphPath.Stroke = CourtDesk.UI.UiRes.Brush(this, fg, fallbackFg);
+            GlyphPath.Fill = Brushes.Transparent;
         }
     }
 }

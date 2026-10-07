@@ -33,6 +33,25 @@ namespace CourtDesk.UI
 
         public CompositionLike C { get; private set; }
 
+        public bool LastPrintWasPreview { get; private set; }
+        public System.DateTime LastPrintRequestedUtc { get; private set; }
+
+        public void PrintToday(bool preview)
+        {
+            LastPrintWasPreview = preview;
+            LastPrintRequestedUtc = System.DateTime.UtcNow;
+            PrintRequested(preview, default(LocalDate));
+        }
+
+        public void PrintDate(bool preview, LocalDate date)
+        {
+            LastPrintWasPreview = preview;
+            LastPrintRequestedUtc = System.DateTime.UtcNow;
+            PrintRequested(preview, date);
+        }
+
+        public event Action<bool, LocalDate> PrintRequested;
+
         public DefendantEditDialog OpenEdit(int id)
         {
             Defendant existing = id == 0 ? null : C.Defendants.Get(id);

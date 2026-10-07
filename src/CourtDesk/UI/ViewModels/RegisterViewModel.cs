@@ -17,6 +17,11 @@ namespace CourtDesk.UI.ViewModels
         public string SessionText { get; set; }
         public string StateKey { get; set; }
         public string StateWord { get; set; }
+        public string SessionLine1 { get; set; }
+        public string SessionLine2 { get; set; }
+        public System.Windows.Media.Brush StripeBrush { get; set; }
+        public string ChargesText { get; set; }
+        public string CustodyText { get; set; }
     }
 
     public sealed class FilterChipItem : ObservableObject
@@ -292,32 +297,57 @@ namespace CourtDesk.UI.ViewModels
         private RegisterRow ToRow(int number, SearchRow hit)
         {
             Defendant d = hit.D;
-            string session = "";
+            string session1 = "";
+            string session2 = "";
             if (d.SessionDate.HasValue)
             {
                 LocalDate s = d.SessionDate.Value;
-                session = ArabicDateFormat.FormatLong(s,
-                    CourtDesk.Resources.Strings.Weekdays,
-                    CourtDesk.Resources.Strings.Months)
-                    + "\n" + ArabicDateFormat.FormatShort(s);
+                session1 = ArabicDateFormat.FormatShort(s);
+                session2 = CourtDesk.Resources.Strings.Weekdays[(int)s.DayOfWeek];
             }
             string court = hit.Source.CourtName ?? "";
             if (!string.IsNullOrEmpty(hit.Source.CircuitName))
             {
-                court += "\n" + hit.Source.CircuitName;
+                court = court.Length == 0 ? hit.Source.CircuitName : court + " / " + hit.Source.CircuitName;
             }
-            string stateWord = StateWordOf(hit.State);
+            if (court.Length == 0)
+            {
+                court = "—";
+            }
+            string caseText = string.Format(CourtDesk.Resources.Strings.CaseFormat, d.CaseNumber, d.CaseYear);
             return new RegisterRow
             {
                 Id = d.Id,
                 Number = number,
                 Name = d.FullName,
-                CaseText = string.Format(CourtDesk.Resources.Strings.CaseFormat, d.CaseNumber, d.CaseYear),
+                CaseText = caseText,
                 CourtText = court,
-                SessionText = session,
+                SessionText = session2,
+                SessionLine1 = session1,
+                SessionLine2 = session2,
                 StateKey = hit.State,
-                StateWord = stateWord
+                StateWord = StateWordOf(hit.State),
+                StripeBrush = StripeOf(hit.State),
+                ChargesText = d.Charges ?? "",
+                CustodyText = (d.CustodyLocationId.HasValue || d.DetainedSince.HasValue)
+                    ? CourtDesk.Resources.Strings.CustodyHeld
+                    : CourtDesk.Resources.Strings.CustodyFree
             };
+        }
+
+        private System.Windows.Media.Brush StripeOf(string state)
+        {
+            System.Windows.Media.Brush b;
+            switch (state)
+            {
+                case DisplayStates.Today: b = CourtDesk.UI.UiRes.Brush(null, "TodayFgBrush", "#8A5A00"); break;
+                case DisplayStates.Overdue: b = CourtDesk.UI.UiRes.Brush(null, "OverdueFgBrush", "#A32D2D"); break;
+                case DisplayStates.Upcoming: b = CourtDesk.UI.UiRes.Brush(null, "UpcomingFgBrush", "#0B5CAD"); break;
+                case DisplayStates.Released: b = CourtDesk.UI.UiRes.Brush(null, "ReleasedFgBrush", "#1B6E2D"); break;
+                case DisplayStates.Judged: b = CourtDesk.UI.UiRes.Brush(null, "JudgedFgBrush", "#5B3FA3"); break;
+                default: b = CourtDesk.UI.UiRes.Brush(null, "NoDateFgBrush", "#46505E"); break;
+            }
+            return b;
         }
 
         private static string StateWordOf(string state)
