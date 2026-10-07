@@ -129,7 +129,7 @@ namespace CourtDesk.Tests
                 { "Application", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Resources" } },
                 { "Persistence", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application.Ports", "CourtDesk.Persistence" } },
                 { "Printing", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Printing", "CourtDesk.Resources" } },
-                { "Platform", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application.Ports", "CourtDesk.Platform", "CourtDesk.Resources" } },
+                { "Platform", new string[] { "System", "Microsoft.Win32", "CourtDesk.Domain", "CourtDesk.Application.Ports", "CourtDesk.Platform", "CourtDesk.Resources" } },
                 { "UI", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Resources", "CourtDesk.UI" } }
             };
             string root = Path.Combine(RepoRoot(), "src", "CourtDesk");

@@ -13,6 +13,7 @@ namespace CourtDesk.Bootstrap
     {
         public DbGateway Db;
         public IClock Clock;
+        public string Home;
         public SettingsService Settings;
         public IDefendantStore Defendants;
         public IEventStore Events;
@@ -88,6 +89,7 @@ namespace CourtDesk.Bootstrap
                 delegate { return settings.Get(SettingKeys.LastFilter); },
                 delegate(string v) { settings.Set(SettingKeys.LastFilter, v); });
             var sidebar = new TodaySidebarViewModel(today);
+            c.Home = home;
             c.Main = new MainViewModel(settings, clock, register, sidebar)
         {
             Schedule = new ScheduleViewModel(c.ScheduleService, clock),

@@ -105,3 +105,29 @@ Gates:
   excl. undone/REOPEN; per-court counts sum to the roster; print log append);
   roster PNGs for N = 1, 12, 40 rendered and reviewed (artifacts/roster);
   full suite 114/114 green.
+## Phase 7 - Resilience & platform (done, 2026-10-07)
+
+- `Platform/`: `SingleInstanceGuard` (named mutex, second copy exits 5),
+  `FileLogger` (daily `logs/app-YYYYMMDD.log`, keeps 30), `CrashHandler`
+  (AppDomain + dispatcher unhandled -> log, Arabic notice, exit 9),
+  `PowerEvents` (session ending / power / display, exit snapshot on logout),
+  `DesktopShortcut` (WScript.Shell late-bound .lnk), `InputLanguageAssist`
+  (Arabic-Indic digit normalization on input).
+- `Application/BackupScheduler`: Tier-B rolling timer (30 min default),
+  Tier-C exit snapshot, `SessionEnding` hook; exit snapshot skipped when
+  `change_seq` unchanged.
+- UI: `UsbBackupDialog`, `RestoreDialog`, `ClockWarningDialog`,
+  `BackupSettingsView` (USB + restore + direct-print + postpone offsets),
+  `HelpWindow`; wired from `App.xaml.cs` (guard, logger, crash handler,
+  scheduler, power events, recovery notice, clock sanity check).
+- Bug found by the scripted restore scenario: `RestoreSwap.Install` opens a
+  second connection on the live DB, which blocks forever while the gateway
+  holds `locking_mode=EXCLUSIVE`. Restore now closes the DB first and the app
+  exits afterwards; the test asserts a roster restored from a snapshot.
+- Framework notes: `SystemEvents` lives in `Microsoft.Win32`; `InputScope` and
+  `XmlLanguage` are not usable in this profile, so the digit mapping is done in
+  `PreviewTextInput` instead.
+- Gates: `Category=Resilience` 9/9 (auto snapshot verified, ring <= 10, exit
+  snapshot once per change_seq, session ending, restore round-trip keeps the
+  roster and invariants, file logger, single instance, digit normalization,
+  clock regression flagged); full suite 123/123 green.

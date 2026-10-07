@@ -1,0 +1,23 @@
+<Window x:Class="CourtDesk.UI.Dialogs.ClockWarningDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="clr-namespace:CourtDesk.Resources"
+        Title="{x:Static res:Strings.ClockOpen}"
+        FlowDirection="RightToLeft" WindowStartupLocation="CenterOwner"
+        Background="{StaticResource CanvasBrush}"
+        Width="760" SizeToContent="Height" MinWidth="640" ResizeMode="NoResize">
+  <StackPanel Margin="20">
+    <Border Style="{StaticResource WarnBand}" Padding="16" Margin="0,0,0,16">
+      <StackPanel Orientation="Horizontal">
+        <Path Data="{StaticResource IconWarning}" Stroke="{StaticResource OverdueFgBrush}"
+              StrokeThickness="2" Fill="Transparent" Width="32" Height="32"
+              VerticalAlignment="Top" Margin="0,0,12,0" />
+        <TextBlock x:Name="BodyText" Style="{StaticResource BaseText}" TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button x:Name="OkButton" Style="{StaticResource PrimaryButton}" MinWidth="220" Height="56"
+              IsDefault="True" Click="OkClick" Content="{x:Static res:Strings.ClockOk}" />
+    </StackPanel>
+  </StackPanel>
+</Window>

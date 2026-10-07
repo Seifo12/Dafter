@@ -43,7 +43,22 @@ namespace CourtDesk.UI.ViewModels
                     h();
                 }
             });
-            HelpCommand = new RelayCommand(delegate(object o) { CurrentSection = "help"; });
+            BackupCommand = new RelayCommand(delegate(object o)
+            {
+                Action b = BackupRequested;
+                if (b != null)
+                {
+                    b();
+                }
+            });
+            HelpCommand = new RelayCommand(delegate(object o)
+            {
+                Action h = HelpRequested;
+                if (h != null)
+                {
+                    h();
+                }
+            });
             _currentView = register;
         }
 
@@ -58,6 +73,9 @@ namespace CourtDesk.UI.ViewModels
         public ICommand HelpCommand { get; private set; }
 
         public event Action CloseRequested;
+        public event Action HelpRequested;
+        public event Action BackupRequested;
+        public ICommand BackupCommand { get; private set; }
 
         public string AppTitle
         {

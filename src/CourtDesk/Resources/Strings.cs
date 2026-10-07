@@ -218,6 +218,13 @@ namespace CourtDesk.Resources
         public const string CardHistoryTitle = "سجل القرارات";
         public const string PrintSend = "طباع";
         public const string PreviewTitle = "معاينة قبل الطباع";
+        public const string CrashUserMessage = "حفظ شوه. تم حفظ اللي في البرنامج. من اللي فاتكر";
+        public const string BkTier = "النوع";
+        public const string BkFile = "اسم الملف";
+        public const string BkSize = "الحجم";
+        public const string BkDate = "تاريخ النسخ";
+        public const string FormYes = "نعم";
+        public const string FormNo = "لا";
         public const string OperatorUnknown = "غير مسجل";
         public const string SplashWait = "برجاء الانتظار…";
 

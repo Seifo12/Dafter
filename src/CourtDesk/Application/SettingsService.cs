@@ -19,6 +19,7 @@ namespace CourtDesk.Application
         public const string PrintDirect = "print_direct";
         public const string UsbBackupReminderDays = "usb_backup_reminder_days";
         public const string LastUsbBackupUtc = "last_usb_backup_utc";
+        public const string PostponeOffsets = "postpone_offsets";
         public const string SecondaryBackupDir = "secondary_backup_dir";
         public const string ShortcutCreated = "shortcut_created";
     }
