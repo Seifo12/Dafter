@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <FontFamily x:Key="AppFont">Tahoma, Segoe UI, Arial</FontFamily>
+
+  <Style x:Key="BaseText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+  </Style>
+  <Style x:Key="HintText" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="Foreground" Value="{StaticResource InkMutedBrush}" />
+  </Style>
+  <Style x:Key="CardName" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style x:Key="TitleDialog" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="28" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style x:Key="TitleSection" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style x:Key="TitleWindow" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="30" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style x:Key="GridHeaderText" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style x:Key="ChipText" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style x:Key="ButtonText" TargetType="TextBlock" BasedOn="{StaticResource BaseText}">
+    <Setter Property="FontSize" Value="22" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+</ResourceDictionary>

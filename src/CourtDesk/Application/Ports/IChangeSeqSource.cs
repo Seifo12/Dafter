@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CourtDesk.Application
+namespace CourtDesk.Application.Ports
 {
     public interface IChangeSeqSource
     {

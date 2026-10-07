@@ -121,6 +121,76 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void LayeringMatrix()
+        {
+            var rules = new Dictionary<string, string[]>
+            {
+                { "Domain", new string[] { "System", "CourtDesk.Domain" } },
+                { "Application", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Resources" } },
+                { "Persistence", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application.Ports", "CourtDesk.Persistence" } },
+                { "Printing", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Printing", "CourtDesk.Resources" } },
+                { "Platform", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application.Ports", "CourtDesk.Platform", "CourtDesk.Resources" } },
+                { "UI", new string[] { "System", "CourtDesk.Domain", "CourtDesk.Application", "CourtDesk.Resources", "CourtDesk.UI" } }
+            };
+            string root = Path.Combine(RepoRoot(), "src", "CourtDesk");
+            var hits = new List<string>();
+            foreach (string f in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories))
+            {
+                if (f.IndexOf("\\obj\\", StringComparison.OrdinalIgnoreCase) >= 0
+                    || f.IndexOf("\\bin\\", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    continue;
+                }
+                string rel = f.Substring(root.Length + 1);
+                int slash = rel.IndexOf('\\');
+                string folder = slash < 0 ? "Root" : rel.Substring(0, slash);
+                if (folder == "Bootstrap" || folder == "Root" || folder == "Resources"
+                    || folder == "Properties" || !rules.ContainsKey(folder))
+                {
+                    continue;
+                }
+                string[] allowed = rules[folder];
+                foreach (string line in File.ReadAllLines(f))
+                {
+                    string t = line.Trim();
+                    if (!t.StartsWith("using ", StringComparison.Ordinal) || t.IndexOf('(') >= 0)
+                    {
+                        continue;
+                    }
+                    string ns = t.Substring(6).Trim().TrimEnd(';');
+                    int eq = ns.IndexOf('=');
+                    if (eq >= 0)
+                    {
+                        ns = ns.Substring(eq + 1).Trim();
+                    }
+                    bool ok = false;
+                    foreach (string a in allowed)
+                    {
+                        if (ns == a || ns.StartsWith(a + ".", StringComparison.Ordinal))
+                        {
+                            ok = true;
+                            break;
+                        }
+                    }
+                    if (!ok)
+                    {
+                        hits.Add(rel + ": " + ns);
+                    }
+                }
+            }
+            Assert.True(hits.Count == 0, "layering violations: " + string.Join("; ", hits));
+        }
+
+        [Fact]
+        public void ProgramReferencesNoSqliteTypes()
+        {
+            string program = Path.Combine(RepoRoot(), "src", "CourtDesk", "Program.cs");
+            string text = File.ReadAllText(program);
+            Assert.False(text.IndexOf("SQLite", StringComparison.Ordinal) >= 0, "Program.cs must not reference SQLite types");
+            Assert.False(text.IndexOf("System.Data", StringComparison.Ordinal) >= 0, "Program.cs must not reference System.Data");
+        }
+
+        [Fact]
         public void NoSqliteOutsidePersistenceAndBootstrap()
         {
             var hits = new List<string>();

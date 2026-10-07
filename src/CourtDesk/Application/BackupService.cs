@@ -272,6 +272,19 @@ try
             return result;
         }
 
+        public string LastExitBackupUtc()
+        {
+            List<BackupCandidate> all = ListLocalBackups();
+            foreach (BackupCandidate c in all)
+            {
+                if (c.Tier == "exit")
+                {
+                    return DbGatewayFormat.Utc(c.WrittenUtc);
+                }
+            }
+            return null;
+        }
+
         public int UsbAgeDays()
         {
             string raw = _settings.LastUsbBackupUtc();

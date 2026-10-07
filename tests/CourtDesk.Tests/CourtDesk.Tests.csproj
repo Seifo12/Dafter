@@ -22,6 +22,10 @@
       <HintPath>..\..\vendor\managed\System.Data.SQLite.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
     <None Include="..\..\vendor\managed\System.Data.SQLite.dll" Link="System.Data.SQLite.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading;
-using CourtDesk.Application;
 using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 

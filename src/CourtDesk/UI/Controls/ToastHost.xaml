@@ -1,0 +1,21 @@
+<UserControl x:Class="CourtDesk.UI.Controls.ToastHost"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:CourtDesk.Resources"
+             FlowDirection="RightToLeft">
+  <ItemsControl x:Name="List">
+    <ItemsControl.ItemTemplate>
+      <DataTemplate>
+        <Border Style="{StaticResource WarnBand}" Margin="6,6,6,0">
+          <DockPanel LastChildFill="True">
+            <Button Content="{x:Static res:Strings.Ok}" Style="{StaticResource SmallButton}"
+                    DockPanel.Dock="Right" MinWidth="100" Margin="12,0,0,0"
+                    Command="{Binding Dismiss}" />
+            <TextBlock Text="{Binding Text}" Style="{StaticResource BaseText}"
+                       VerticalAlignment="Center" TextWrapping="Wrap" />
+          </DockPanel>
+        </Border>
+      </DataTemplate>
+    </ItemsControl.ItemTemplate>
+  </ItemsControl>
+</UserControl>

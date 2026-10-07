@@ -1,0 +1,77 @@
+<UserControl x:Class="CourtDesk.UI.Views.RegisterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:CourtDesk.Resources"
+             xmlns:ctl="clr-namespace:CourtDesk.UI.Controls"
+             FlowDirection="RightToLeft">
+  <DockPanel LastChildFill="True">
+    <Border DockPanel.Dock="Top" Padding="6" Background="{StaticResource SurfaceBrush}">
+      <DockPanel LastChildFill="True">
+        <Button Content="{x:Static res:Strings.SearchClear}" Style="{StaticResource SmallButton}"
+                DockPanel.Dock="Right" Command="{Binding ClearSearchCommand}" MinWidth="100" />
+        <Button x:Name="WideButton" Style="{StaticResource SmallButton}" DockPanel.Dock="Right"
+                Margin="0,0,8,0" Command="{Binding WideCommand}" MinWidth="160" />
+        <Grid>
+          <TextBox x:Name="SearchInput" Style="{StaticResource InputBox}"
+                   Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                   MinHeight="60" FontSize="22" VerticalContentAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.SearchPlaceholder}"
+                     VerticalAlignment="Center" Margin="20,0" IsHitTestVisible="False"
+                     FontFamily="{StaticResource AppFont}" FontSize="18"
+                     Foreground="{StaticResource InkMutedBrush}">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock" BasedOn="{StaticResource HintText}">
+                <Setter Property="Visibility" Value="Collapsed" />
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding Text, ElementName=SearchInput}" Value="">
+                    <Setter Property="Visibility" Value="Visible" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
+        </Grid>
+      </DockPanel>
+    </Border>
+    <Grid DockPanel.Dock="Top" Margin="6,0">
+      <ItemsControl ItemsSource="{Binding Chips}" Margin="0,4,0,0">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <ToggleButton Content="{Binding Text}" Style="{StaticResource FilterChip}"
+                          IsChecked="{Binding Checked, Mode=OneWay}"
+                          Command="{Binding DataContext.ChipCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          CommandParameter="{Binding Key}" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+    <WrapPanel DockPanel.Dock="Top" Margin="6,0">
+      <Button x:Name="AddButton" Content="{x:Static res:Strings.ActionAdd}" Style="{StaticResource SmallButton}" Tag="add" />
+      <Button x:Name="EditButton" Content="{x:Static res:Strings.ActionEdit}" Style="{StaticResource SmallButton}" Tag="edit" />
+      <Button x:Name="DecideButton" Content="{x:Static res:Strings.ActionDecide}" Style="{StaticResource SmallButton}" Tag="decide" />
+      <Button x:Name="CardButton" Content="{x:Static res:Strings.ActionCard}" Style="{StaticResource SmallButton}" Tag="card" />
+      <Button x:Name="VoidButton" Content="{x:Static res:Strings.ActionVoid}" Style="{StaticResource DangerButton}" Tag="void" />
+    </WrapPanel>
+    <Border DockPanel.Dock="Top" Style="{StaticResource WarnBand}" x:Name="HintBand" Visibility="Collapsed">
+      <TextBlock Text="{Binding Hint}" Style="{StaticResource BaseText}" TextWrapping="Wrap" />
+    </Border>
+    <TextBlock DockPanel.Dock="Top" x:Name="EmptyText" Style="{StaticResource BaseText}"
+               Margin="12" TextWrapping="Wrap" Visibility="Collapsed" />
+    <DataGrid x:Name="Grid" x:FieldModifier="public" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+              AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+              SelectionUnit="FullRow" GridLinesVisibility="All" HeadersVisibility="Column"
+              AlternatingRowBackground="{StaticResource SurfaceAltBrush}"
+              RowBackground="{StaticResource SurfaceBrush}"
+              FontFamily="{StaticResource AppFont}" FontSize="20"
+              ColumnHeaderHeight="52"
+              VirtualizingStackPanel.IsVirtualizing="True"
+              VirtualizingStackPanel.VirtualizationMode="Recycling"
+              ScrollViewer.CanContentScroll="True"
+              CanUserSortColumns="False" Margin="6" />
+  </DockPanel>
+</UserControl>

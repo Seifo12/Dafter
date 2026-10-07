@@ -12,6 +12,11 @@ Append-only log: `date · decision · reason`. [FIXED] items from SPEC are not r
 - 2026-10-07 · last_exit_backup_seq stores pre-backup seq + 1 · reason: the marker write itself bumps change_seq exactly once; skip-iff-equal then holds.
 - 2026-10-07 · Lookup add returns existing id on normalized-name match · reason: inline combos must never crash on dupes (§5.4 lookups editable, never deleted).
 - 2026-10-07 · Never round-trip files containing Arabic through PowerShell Get/Set-Content · reason: it mojibakes literals (ServiceTests.cs had to be rewritten); use Read/Write/Edit tools.
+- 2026-10-07 · TopBar uses two rows (identity+date+tools, then 4 nav buttons) · reason: the single 76 px row overflowed at 1024 wide; §7.2 minimum size beats the ASCII sketch.
+- 2026-10-07 · Whole page wrapped in a vertical ScrollViewer · reason: §7.2 allows vertical scrolling at 125/150 % zoom, forbids horizontal page scroll.
+- 2026-10-07 · UiRes lookup helper with literal fallbacks · reason: StatusChip/column headers resolve brushes before app resources exist in tests; keeps rendering deterministic.
+- 2026-10-07 · CourtDesk.Resources.Strings is readable from every layer · reason: leaf constants file; the layering test allow-lists it everywhere while Arabic literals stay banned outside it.
+- 2026-10-07 · BuildDate is a stamped constant (2026-10-07), refreshed at packaging · reason: SPEC §6.5 needs a compile-time constant; deterministic builds carry no timestamp.
 - 2026-10-07 · SessionEvent + EventTypes live in Domain (not in SPEC file list) · reason: pure data needed by Application, Persistence, UI; no I/O.
 - 2026-10-07 · Tests run fully serial (CollectionBehavior disable) · reason: kill-loop crash tests flaked under xUnit cross-class parallelism (capacity, not product); serial is deterministic.
 - 2026-10-07 · Blanket File.Copy ban in product code · reason: SPEC App.C.5 — live DB never copied with the file system; snapshots/USB use streams + atomic rename.

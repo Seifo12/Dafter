@@ -56,6 +56,11 @@ namespace CourtDesk.Tests
 
         public static RecoveryResult Open(string home, FakeClock clock)
         {
+            return DatabaseRecovery.OpenWithRecovery(home, (IClock)clock, null);
+        }
+
+        public static RecoveryResult Open(string home, IClock clock)
+        {
             return DatabaseRecovery.OpenWithRecovery(home, clock, null);
         }
 

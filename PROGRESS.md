@@ -1,5 +1,25 @@
 # PROGRESS.md
 
+## Phase 4 — UI shell, read-only (done)
+
+- Styles: Colors (tokens per §7.3), Typography (font stack + sizes), Icons
+  (StreamGeometry), Controls (button/input/chip heights, double focus ring,
+  wide scrollbars). RTL enforced by lint on every window/user-control root.
+- Shell: MainWindow (top bar / persistent sidebar / content host / status bar,
+  whole-page vertical scroll for 125–150 % zoom), TopBar, SplashWindow.
+- Views: RegisterView (search, chips with counts, action bar, wide toggle,
+  sortable virtualized DataGrid, TODAY/OVERDUE row tints, status chips),
+  TodaySidebar (header, progress, OVERDUE block, pending/decided cards, print
+  + preview buttons). Controls: StatusChip (colour + icon + word), ToastHost.
+- App wiring: App.xaml merges dictionaries, SoftwareOnly rendering, ar-EG with
+  Western digits, CompositionRoot builds all services, splash → main.
+- Bugs found by rendering/screens then fixed: ProgressBar TwoWay on read-only
+  property, AppFont lookups outside app resources, ShutdownMode killing the
+  render loop, LayoutTransform binding not inheriting DataContext.
+- Gates: UI 13/13, Screens 1/1 (PNG review), lint (no text <18, RTL roots,
+  button/input heights, contrast pairs), full suite 92/92 incl. 300+300 kills.
+- PNGs reviewed: reg-0/3/200 rows at 1366, 1024 and 150 %.
+
 ## Phase 3 — Application services (done)
 
 - Services: DefendantService (create/edit/void/restore + validation + dup warn),
