@@ -13,6 +13,7 @@ namespace CourtDesk.Application.Ports
         void MarkUndone(ISession s, long eventId, long undoId);
         List<SessionEvent> ListByDefendant(ISession s, int defendantId);
         List<SessionEvent> ListDecisionsOn(ISession s, string heldDateIso);
+        List<SessionEvent> ListAllNewestFirst(ISession s);
         int CountAll(ISession s);
     }
 }

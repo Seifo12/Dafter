@@ -1,0 +1,65 @@
+<UserControl x:Class="CourtDesk.UI.Views.ScheduleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:CourtDesk.Resources"
+             FlowDirection="RightToLeft">
+  <Grid Margin="12">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="2*" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <DockPanel Grid.Column="0" Margin="0,0,12,0">
+      <StackPanel DockPanel.Dock="Top">
+        <TextBlock Text="{x:Static res:Strings.NavSchedule}" Style="{StaticResource TitleWindow}" />
+        <StackPanel Orientation="Horizontal">
+          <Button Content="{x:Static res:Strings.WizBack}" Style="{StaticResource SmallButton}" MinWidth="140"
+                  Command="{Binding PrevWeekCommand}" />
+          <Button Content="{x:Static res:Strings.DateToday}" Style="{StaticResource SmallButton}" MinWidth="140"
+                  Command="{Binding TodayCommand}" />
+          <Button Content="{x:Static res:Strings.WizNext}" Style="{StaticResource SmallButton}" MinWidth="140"
+                  Command="{Binding NextWeekCommand}" />
+        </StackPanel>
+        <TextBlock Text="{Binding SelectedText}" Style="{StaticResource TitleSection}" Margin="0,8,0,8" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+          <Button Content="{x:Static res:Strings.SidePrint}" Style="{StaticResource PrimaryButton}"
+                  MinWidth="260" Command="{Binding PrintCommand}" />
+          <Button Content="{x:Static res:Strings.ActionEdit}" Style="{StaticResource BigButton}"
+                  MinWidth="220" Command="{Binding EditCommand}"
+                  CommandParameter="{Binding SelectedItem, ElementName=DayGrid}" />
+        </StackPanel>
+      </StackPanel>
+      <DataGrid x:Name="DayGrid" ItemsSource="{Binding Day}" AutoGenerateColumns="False" IsReadOnly="True"
+                SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column"
+                GridLinesVisibility="All" FontFamily="{StaticResource AppFont}" FontSize="20"
+                ColumnHeaderHeight="52"
+                RowBackground="{StaticResource SurfaceBrush}"
+                AlternatingRowBackground="{StaticResource SurfaceAltBrush}"
+                ScrollViewer.CanContentScroll="True"
+                VirtualizingStackPanel.IsVirtualizing="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="{x:Static res:Strings.GridName}" Binding="{Binding D.FullName}" Width="200" />
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCase}" Width="140">
+            <DataGridTextColumn.Binding>
+              <Binding Path="D.CaseNumber" StringFormat="{}{0} لسنة {1}" />
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCourt}" Binding="{Binding CourtName}" Width="180" />
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCustody}" Binding="{Binding CustodyName}" Width="140" />
+        </DataGrid.Columns>
+      </DataGrid>
+      <TextBlock DockPanel.Dock="Bottom" Text="{Binding EmptyText}" Style="{StaticResource BaseText}" />
+    </DockPanel>
+    <DockPanel Grid.Column="1">
+      <TextBlock DockPanel.Dock="Top" Text="الأيام الجاية" Style="{StaticResource TitleSection}" Margin="0,0,0,8" />
+      <ItemsControl ItemsSource="{Binding Upcoming}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="6">
+              <TextBlock Text="{Binding Text}" Style="{StaticResource BaseText}" />
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </DockPanel>
+  </Grid>
+</UserControl>

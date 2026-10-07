@@ -21,6 +21,21 @@ namespace CourtDesk.Persistence
         List<SessionEvent> IEventStore.ListByDefendant(ISession s, int d) { return ListByDefendant((DbContext)s, d); }
         List<SessionEvent> IEventStore.ListDecisionsOn(ISession s, string d) { return ListDecisionsOn((DbContext)s, d); }
         int IEventStore.CountAll(ISession s) { return CountAll((DbContext)s); }
+        List<SessionEvent> IEventStore.ListAllNewestFirst(ISession s) { return ListAllNewestFirst((DbContext)s); }
+
+        public List<SessionEvent> ListAllNewestFirst(DbContext ctx)
+        {
+            var out_ = new List<SessionEvent>();
+            using (var cmd = new SQLiteCommand("SELECT " + Cols + " FROM session_events ORDER BY id DESC", ctx.Connection))
+            using (SQLiteDataReader r = cmd.ExecuteReader())
+            {
+                while (r.Read())
+                {
+                    out_.Add(ReadRow(r));
+                }
+            }
+            return out_;
+        }
 
         public bool ExistsByRequestUuid(DbContext ctx, string uuid)
         {

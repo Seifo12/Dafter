@@ -76,7 +76,7 @@ namespace CourtDesk
                 return;
             }
             _composition = c;
-            var main = new MainWindow(c.Main);
+            var main = new MainWindow(c.Main, c);
             main.Closed += delegate(object s, System.EventArgs ev)
             {
                 try

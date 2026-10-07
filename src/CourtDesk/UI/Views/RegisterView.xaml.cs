@@ -19,6 +19,12 @@ namespace CourtDesk.UI.Views
 
         public event Action<string> ActionRequested;
 
+        public Action<int> AddRequested;
+        public Action<int> EditRequested;
+        public Action<int> DecideRequested;
+        public Action<int> CardRequested;
+        public Action<int> VoidRequested;
+
         private RegisterViewModel Vm
         {
             get { return DataContext as RegisterViewModel; }
@@ -61,10 +67,60 @@ namespace CourtDesk.UI.Views
 
         private void Fire(string what)
         {
-            Action<string> h = ActionRequested;
-            if (h != null)
+            RegisterViewModel vm = Vm;
+            int id = vm != null && vm.Selected != null ? vm.Selected.Id : 0;
+            switch (what)
             {
-                h(what);
+                case "add":
+                    if (AddRequested != null)
+                    {
+                        AddRequested(id);
+                    }
+                    break;
+                case "edit":
+                    if (id == 0)
+                    {
+                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
+                        return;
+                    }
+                    if (EditRequested != null)
+                    {
+                        EditRequested(id);
+                    }
+                    break;
+                case "decide":
+                    if (id == 0)
+                    {
+                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
+                        return;
+                    }
+                    if (DecideRequested != null)
+                    {
+                        DecideRequested(id);
+                    }
+                    break;
+                case "card":
+                    if (id == 0)
+                    {
+                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
+                        return;
+                    }
+                    if (CardRequested != null)
+                    {
+                        CardRequested(id);
+                    }
+                    break;
+                case "void":
+                    if (id == 0)
+                    {
+                        vm.ShowHint(CourtDesk.Resources.Strings.HintSelectRow);
+                        return;
+                    }
+                    if (VoidRequested != null)
+                    {
+                        VoidRequested(id);
+                    }
+                    break;
             }
         }
 

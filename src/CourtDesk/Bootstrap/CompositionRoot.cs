@@ -33,6 +33,7 @@ namespace CourtDesk.Bootstrap
         public CsvExportService CsvExport;
         public RecoveryResult Recovery;
         public MainViewModel Main;
+        public CourtDesk.UI.UiCoordinator Coordinator;
     }
 
     public static class CompositionRoot
@@ -87,6 +88,18 @@ namespace CourtDesk.Bootstrap
                 delegate(string v) { settings.Set(SettingKeys.LastFilter, v); });
             var sidebar = new TodaySidebarViewModel(today);
             c.Main = new MainViewModel(settings, clock, register, sidebar);
+            c.Coordinator = new CourtDesk.UI.UiCoordinator(new CourtDesk.UI.UiCoordinator.CompositionLike
+            {
+                Defendants = c.DefendantService,
+                Decisions = c.DecisionService,
+                Undo = c.UndoService,
+                Lookups = c.LookupService,
+                Settings = settings,
+                Schedule = c.ScheduleService,
+                Today = c.TodayService,
+                Clock = clock,
+                History = new CourtDesk.UI.ViewModels.HistoryViewModel(db, events, defendants)
+            });
             db.DataChanged += delegate(long seq) { c.Main.RefreshAll(); };
             RefreshStatus(c);
             return c;

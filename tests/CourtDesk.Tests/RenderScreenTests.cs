@@ -126,7 +126,133 @@ namespace CourtDesk.Tests
                 Render(outDir, "reg-200-1366", 1366, 768, 100, delegate(Seed s) { s.Bulk(200); });
                 Render(outDir, "reg-3-1024", 1024, 768, 100, delegate(Seed s) { s.Mixed(); });
                 Render(outDir, "reg-3-150", 1366, 768, 150, delegate(Seed s) { s.Mixed(); });
+                RenderWizard(outDir);
             });
+        }
+
+        private static void RenderWizard(string outDir)
+        {
+            string home = TestDb.NewHome();
+            try
+            {
+                var clock = new FixedClock();
+                RecoveryResult rec = TestDb.Open(home, clock);
+                DbGateway db = rec.Gateway;
+                var defendants = new SqliteDefendantStore();
+                var events = new SqliteEventStore();
+                var settings = new SettingsService(db, new SqliteSettingsStore());
+                db.Write(s =>
+                {
+                    SeedData.SeedLookups((DbContext)s,
+                        CourtDesk.Resources.Strings.SeedCourts,
+                        CourtDesk.Resources.Strings.SeedCustody,
+                        CourtDesk.Resources.Strings.SeedReasons);
+                    return 0;
+                });
+                var svc = new DefendantService(db,
+                    (CourtDesk.Application.Ports.IDefendantStore)defendants,
+                    (CourtDesk.Application.Ports.IEventStore)events, clock, settings, new NullLogger());
+                var decide = new DecisionService(db,
+                    (CourtDesk.Application.Ports.IDefendantStore)defendants,
+                    (CourtDesk.Application.Ports.IEventStore)events, clock, settings);
+                var lookups = new LookupService(db, new SqliteLookupStore());
+                var undo = new UndoService(db,
+                    (CourtDesk.Application.Ports.IDefendantStore)defendants,
+                    (CourtDesk.Application.Ports.IEventStore)events, clock, settings);
+                int id = svc.Create(new DefendantInput
+                {
+                    FullName = "محمد عبد الله السيد",
+                    CaseNumber = "9001",
+                    CaseYear = "2026",
+                    Charges = "سرقة",
+                    SessionDate = new LocalDate(2026, 10, 7)
+                }, Guid.NewGuid().ToString("N"), true).Id;
+                var popups = new CourtDesk.UI.Dialogs.PopupHost();
+
+                ShotWizard(outDir, "wiz-1", delegate
+                {
+                    var vm = new CourtDesk.UI.ViewModels.DecisionWizardViewModel(decide, undo, svc, lookups, settings,
+                        clock, new System.Collections.Generic.List<int> { id }, 0);
+                    return new CourtDesk.UI.Dialogs.DecisionWizardDialog(vm, popups, clock);
+                });
+                ShotWizard(outDir, "wiz-2", delegate
+                {
+                    var vm = new CourtDesk.UI.ViewModels.DecisionWizardViewModel(decide, undo, svc, lookups, settings,
+                        clock, new System.Collections.Generic.List<int> { id }, 0);
+                    vm.Choose(DecisionCodes.RenewDetention);
+                    vm.PickDate(new LocalDate(2026, 10, 9));
+                    return new CourtDesk.UI.Dialogs.DecisionWizardDialog(vm, popups, clock);
+                });
+                ShotWizard(outDir, "wiz-3", delegate
+                {
+                    var vm = new CourtDesk.UI.ViewModels.DecisionWizardViewModel(decide, undo, svc, lookups, settings,
+                        clock, new System.Collections.Generic.List<int> { id }, 0);
+                    vm.Choose(DecisionCodes.RenewDetention);
+                    vm.NextCommand.Execute(null);
+                    return new CourtDesk.UI.Dialogs.DecisionWizardDialog(vm, popups, clock);
+                });
+                ShotWizard(outDir, "wiz-done", delegate
+                {
+                    var vm = new CourtDesk.UI.ViewModels.DecisionWizardViewModel(decide, undo, svc, lookups, settings,
+                        clock, new System.Collections.Generic.List<int> { id }, 0);
+                    vm.Choose(DecisionCodes.ReleaseBail);
+                    vm.Bail = "5000";
+                    return new CourtDesk.UI.Dialogs.DecisionWizardDialog(vm, popups, clock);
+                }, delegate(Window w) { ((CourtDesk.UI.Dialogs.DecisionWizardDialog)w).ViewModel.Save(); });
+                ShotWizard(outDir, "edit-dialog", delegate
+                {
+                    var vm = new CourtDesk.UI.ViewModels.DefendantEditViewModel(svc, lookups, clock, null);
+                    return new CourtDesk.UI.Dialogs.DefendantEditDialog(vm, lookups, clock, popups);
+                });
+                db.Close();
+            }
+            finally
+            {
+                TestDb.Wipe(home);
+            }
+        }
+
+        private static void ShotWizard(string outDir, string name, Func<Window> make)
+        {
+            ShotWizard(outDir, name, make, null);
+        }
+
+        private static void ShotWizard(string outDir, string name, Func<Window> make, Action<Window> afterShow)
+        {
+            Window w = null;
+            try
+            {
+                w = make();
+                w.Left = -32000;
+                w.Top = -32000;
+                w.ShowActivated = false;
+                w.Show();
+                w.UpdateLayout();
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Loaded, new Action(delegate { }));
+                if (afterShow != null)
+                {
+                    afterShow(w);
+                }
+                w.UpdateLayout();
+                int width = (int)Math.Round(w.Width);
+                int height = (int)Math.Round(w.Height);
+                var bmp = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+                bmp.Render(w);
+                var enc = new PngBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create(bmp));
+                using (var fs = new FileStream(Path.Combine(outDir, name + ".png"), FileMode.Create))
+                {
+                    enc.Save(fs);
+                }
+            }
+            finally
+            {
+                if (w != null)
+                {
+                    w.Close();
+                }
+            }
         }
 
         private static void Render(string outDir, string name, int w, int h, int scale, Action<Seed> seed)

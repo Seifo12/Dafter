@@ -5,10 +5,10 @@ namespace CourtDesk.Application.Ports
 {
     public sealed class DuplicateHit
     {
-        public int Id;
-        public string FullName;
-        public string CaseNumber;
-        public int CaseYear;
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string CaseNumber { get; set; }
+        public int CaseYear { get; set; }
     }
 
     public interface IDefendantStore

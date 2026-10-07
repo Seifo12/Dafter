@@ -4,34 +4,34 @@ namespace CourtDesk.Application.Ports
 {
     public sealed class CourtRow
     {
-        public int Id;
-        public string Name;
-        public int SortOrder;
-        public bool IsActive;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public sealed class CircuitRow
     {
-        public int Id;
-        public int CourtId;
-        public string Name;
-        public bool IsActive;
+        public int Id { get; set; }
+        public int CourtId { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public sealed class CustodyRow
     {
-        public int Id;
-        public string Name;
-        public int SortOrder;
-        public bool IsActive;
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public sealed class ReasonRow
     {
-        public int Id;
-        public string Label;
-        public int SortOrder;
-        public bool IsActive;
+        public int Id { get; set; }
+        public string Label { get; set; }
+        public int SortOrder { get; set; }
+        public bool IsActive { get; set; }
     }
 
     public interface ILookupStore
