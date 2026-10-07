@@ -61,6 +61,7 @@ namespace CourtDesk
             }
             _logger = new FileLogger(dir);
             new CrashHandler(this, _logger).Install();
+            EnsureStyleDictionaries();
             var splash = new SplashWindow();
             splash.Show();
             splash.ContentRendered += delegate(object s, System.EventArgs ev)
@@ -72,6 +73,38 @@ namespace CourtDesk
         private ILogger Log()
         {
             return (ILogger)_logger ?? (ILogger)new NullLogger();
+        }
+
+        private static void EnsureStyleDictionaries()
+        {
+            string[] dicts = new string[]
+            {
+                "UI/Styles/Colors.xaml",
+                "UI/Styles/Typography.xaml",
+                "UI/Styles/Icons.xaml",
+                "UI/Styles/Controls.xaml"
+            };
+            foreach (string d in dicts)
+            {
+                bool present = false;
+                foreach (System.Windows.ResourceDictionary m in
+                    System.Windows.Application.Current.Resources.MergedDictionaries)
+                {
+                    if (m.Source != null && m.Source.OriginalString.EndsWith(d))
+                    {
+                        present = true;
+                        break;
+                    }
+                }
+                if (present)
+                {
+                    continue;
+                }
+                var rd = new System.Windows.ResourceDictionary();
+                rd.Source = new System.Uri(
+                    "pack://application:,,,/CourtDesk;component/" + d);
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(rd);
+            }
         }
 
         private void BuildAndShow(string dir, SplashWindow splash)
