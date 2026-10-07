@@ -114,7 +114,7 @@
             <ItemsControl ItemsSource="{Binding DecidedCards}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Border Style="{StaticResource Card}" Height="56" Margin="0,0,0,8">
+                  <Border Style="{StaticResource Card}" Height="76" Margin="0,0,0,8">
                     <Grid>
                       <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="6" />

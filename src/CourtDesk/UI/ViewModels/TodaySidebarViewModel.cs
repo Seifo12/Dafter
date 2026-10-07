@@ -186,9 +186,9 @@ namespace CourtDesk.UI.ViewModels
                 {
                     Id = row.D.Id,
                     Name = row.D.FullName,
-                    Line2 = row.DecisionCode,
+                    Line2 = LabelOf(row.DecisionCode),
                     Line3 = row.NextSessionDate ?? "",
-                    ResultSentence = row.DecisionCode + " ← " + (row.NextSessionDate ?? ""),
+                    ResultSentence = LabelOf(row.DecisionCode) + " ← " + (row.NextSessionDate ?? ""),
                     AccentKey = AccentFor(row.DecisionCode),
                     Accent = AccentBrush(AccentFor(row.DecisionCode)),
                     EventId = row.EventId,
@@ -196,7 +196,8 @@ namespace CourtDesk.UI.ViewModels
                 });
             }
             ApplyDecidedCollapse();
-            _dateLineText = _dateLong + " · " + string.Format(CourtDesk.Resources.Strings.TomorrowShort, snap.TomorrowCount);
+            _dateLineText = _dateLong + " · " + string.Format(
+                CourtDesk.Resources.Strings.TomorrowShort, snap.TomorrowCount);
             Raise("DateLong");
             Raise("DateLineText");
             Raise("Progress");
@@ -221,6 +222,35 @@ namespace CourtDesk.UI.ViewModels
             {
                 Tab = "today";
             }
+        }
+
+        public static string LabelOf(string code)
+        {
+            if (code == DecisionCodes.RenewDetention)
+            {
+                return CourtDesk.Resources.Strings.DecRenew;
+            }
+            if (code == DecisionCodes.Postpone)
+            {
+                return CourtDesk.Resources.Strings.DecPostpone;
+            }
+            if (code == DecisionCodes.Release)
+            {
+                return CourtDesk.Resources.Strings.DecRelease;
+            }
+            if (code == DecisionCodes.ReleaseBail)
+            {
+                return CourtDesk.Resources.Strings.DecBail;
+            }
+            if (code == DecisionCodes.Judgment)
+            {
+                return CourtDesk.Resources.Strings.DecJudgment;
+            }
+            if (code == DecisionCodes.Reopen)
+            {
+                return CourtDesk.Resources.Strings.DecReopen;
+            }
+            return code ?? "";
         }
 
         public int MoreDecided

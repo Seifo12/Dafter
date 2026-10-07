@@ -150,3 +150,31 @@ Gates:
   474-499 ms; `dist\CourtDesk.exe` = 2,262,528 bytes (2.2 MB) with
   `.sha256` = 8efd00a1fb28fbbcc473707bb0b895c9ba89d4dda96482f67c090e8f328c8026;
   kit with PREREQUISITES.txt + README produced.
+## Phase 9 - Hardening & docs (done, 2026-10-07) - FINAL
+
+- `README.md`: prerequisites, build, deploy, target PCs, verify a deployment,
+  project layout, test commands and categories.
+- `docs/اقرأني.txt` (copied to `dist\kit` by `Make-Dist.ps1`): the Arabic
+  quick guide generated from the same wording as the in-app help.
+- `QA-CHECKLIST.md`: 11 sections of manual acceptance mapped to AC ids
+  (launch, records, decisions, search/grid, sidebar, printing, backups,
+  kill tests, accessibility, logging, deliverable).
+- `DECISIONS.md`: final phase decisions appended (addendum precedence, 3-tier
+  layout, grid chrome, print layering, atomic schema stamp, restore lock order,
+  native placement, digit handling).
+- PNG review of the current build (artifacts/screens, artifacts/audit,
+  artifacts/roster). Two defects found and fixed in review: the decided card
+  showed the raw decision code instead of its Arabic label, and the decided
+  card height clipped its second line (56 -> 76).
+- No dead code found: every production type is referenced by the composition
+  root, a view or a test.
+- Gates: full suite 123/123 green; `build.cmd` exit 0; `--selftest` exit 0 in
+  467 ms from an empty folder; `dist\CourtDesk.exe` = 2,262,528 bytes,
+  sha256 e397729ac04b0158434b3ce741eabed83ce67c765a8522bc5d4e5482b2f15a39.
+
+## Project status: all phases 0-9 complete
+
+Phases: 0 scaffold, 1 domain, 2 persistence, 3 application, 4 UI shell,
+4R UI addendum rework, 5 forms and wizard, 6 printing, 7 resilience and
+platform, 8 packaging, 9 hardening and docs. All phase gates recorded above
+pass; the product is a single 2.2 MB x86 exe that runs offline.

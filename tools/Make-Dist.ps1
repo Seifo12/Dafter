@@ -26,4 +26,9 @@ Data is per-user (%LOCALAPPDATA%\CourtDesk\); the officer must always use the sa
 Windows account (or set COURTDESK_HOME to a shared folder).
 '@ | Set-Content -LiteralPath (Join-Path $Kit 'PREREQUISITES.txt') -Encoding UTF8
 Copy-Item -LiteralPath (Join-Path $RepoRoot 'README.md') -Destination (Join-Path $Kit 'README.md') -Force
+$Guide = Join-Path $RepoRoot ([string][char]0x0627 + [char]0x0642 + [char]0x0631 + [char]0x0623 + [char]0x0646 + [char]0x064A + '.txt')
+if (Test-Path -LiteralPath $Guide) {
+  Copy-Item -LiteralPath $Guide -Destination (Join-Path $Kit ([System.IO.Path]::GetFileName($Guide))) -Force
+  Write-Host 'Arabic quick guide added.'
+}
 Write-Host 'kit ready.'
