@@ -44,6 +44,15 @@ namespace CourtDesk
                 }
             }
             string dir = DbPaths.ResolveHome(home == "next" ? null : home);
+            NativeExtractReport native = NativeExtractor.Extract(dir);
+            if (!native.Ok)
+            {
+                MessageBox.Show(CourtDesk.Resources.Strings.BusyOther,
+                    CourtDesk.Resources.Strings.AppTitle,
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(6);
+                return;
+            }
             _guard = new SingleInstanceGuard();
             if (!_guard.IsPrimary)
             {

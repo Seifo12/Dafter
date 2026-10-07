@@ -131,3 +131,22 @@ Gates:
   snapshot once per change_seq, session ending, restore round-trip keeps the
   roster and invariants, file logger, single instance, digit normalization,
   clock regression flagged); full suite 123/123 green.
+## Phase 8 - Packaging (done, 2026-10-07)
+
+- `Bootstrap/NativeExtractor.cs`: hash-verified extraction of the embedded
+  `vendor/x86/SQLite.Interop.dll` (SHA-256 pinned in code) to
+  `<home>/native/x86`, `SetDllDirectory`, plus a copy next to the exe.
+  The exe-side copy is required: `System.Data.SQLite` builds the native path
+  from the managed assembly location, which is empty when the assembly is
+  loaded from an embedded resource (fixed the selftest crash with
+  `ArgumentNullException path1`).
+- `Bootstrap/SelfTest.cs`: `--selftest` extracts natives, opens a home, runs
+  quick_check + invariants I1-I6, seeds lookups, create/decide/undo round trip,
+  verified snapshot, re-checks invariants, prints timings, exits 0.
+- `Program.cs`: real `--selftest` / `--home` argument handling.
+- `build.cmd` green end-to-end: restore (offline feed) -> 123/123 tests ->
+  publish -> selftest from an empty temp folder -> `Make-Dist.ps1`.
+- Gates: `build.cmd` exit 0; `--selftest` exit 0 from an empty folder in
+  474-499 ms; `dist\CourtDesk.exe` = 2,262,528 bytes (2.2 MB) with
+  `.sha256` = 8efd00a1fb28fbbcc473707bb0b895c9ba89d4dda96482f67c090e8f328c8026;
+  kit with PREREQUISITES.txt + README produced.
