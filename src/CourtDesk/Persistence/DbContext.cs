@@ -6,8 +6,8 @@ namespace CourtDesk.Persistence
     public class DbContext : ISession
     {
         internal readonly SQLiteConnection Connection;
-        public readonly string UtcNowIso;
-        public readonly string LocalDateIso;
+        public string UtcNowIso { get; private set; }
+        public string LocalDateIso { get; private set; }
         public readonly bool InWrite;
 
         internal DbContext(SQLiteConnection connection, string utcNowIso, string localDateIso, bool inWrite)

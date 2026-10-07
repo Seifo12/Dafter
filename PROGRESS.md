@@ -1,5 +1,21 @@
 # PROGRESS.md
 
+## Phase 3 — Application services (done)
+
+- Services: DefendantService (create/edit/void/restore + validation + dup warn),
+  DecisionService (§6.2 atomic + read-first idempotency + fault hooks),
+  UndoService (§6.3 + read-first), TodayService (cache by date+seq),
+  ScheduleService, SearchIndex (Spaced/Joined tokens, urgency sort),
+  LookupService (idempotent add by norm), SettingsService (Appendix B),
+  BackupService (auto ring, exit skip-if-unchanged, USB verify+rotate,
+  retention 60 + 12 months), RosterService (held-date set R(D)),
+  ClockSanityService, IntegrityService, CsvExportService (BOM/CRLF).
+- Ports: IDriveProvider, ILogger, IMetaStore, rows, IChangeSeqSource.
+- Bugs fixed via failing tests: ListDecidedOn column offset; exit seq+1
+  accounting; idempotent paths must not bump change_seq; lookup dupes return
+  existing id; File.Copy replaced by streams (Arch ban holds).
+- Gates: Services 17/17; non-Crash suite 74/74; 20k-row filter < 50 ms.
+
 ## Phase 2 — Persistence (done, 2026-10-07)
 
 - `Persistence/`: DbPaths, DbGateway (DbThread, BEGIN IMMEDIATE, meta bump,

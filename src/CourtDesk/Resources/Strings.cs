@@ -196,6 +196,7 @@ namespace CourtDesk.Resources
         public const string ExitNo = "لأ، ارجع";
 
         public const string Ok = "تمام";
+        public const string OperatorUnknown = "غير مسجل";
 
         public const string BkTitle = "النسخ الاحتياطي";
         public const string BkUsb = "حفظ نسخة على الفلاشة";

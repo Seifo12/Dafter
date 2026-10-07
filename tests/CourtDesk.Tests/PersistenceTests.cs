@@ -28,6 +28,11 @@ namespace CourtDesk.Tests
                 return _utc;
             }
         }
+
+        public void ResetTo(DateTime utc)
+        {
+            _utc = utc;
+        }
     }
 
     internal static class TestDb

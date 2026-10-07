@@ -23,6 +23,15 @@ namespace CourtDesk.Application.Ports
         int CountNoDate(ISession s);
         int CountActive(ISession s);
         List<Defendant> ListActive(ISession s);
+        List<DefendantRow> ListPendingOn(ISession s, string dateIso);
+        List<DefendantRow> ListOverdueRows(ISession s, string dateIso);
+        List<DecidedRow> ListDecidedOn(ISession s, string heldDateIso);
+        List<DefendantRow> ListActiveRows(ISession s);
+        List<DefendantRow> ListRowsByIds(ISession s, int[] ids);
+        List<Defendant> ListDeleted(ISession s);
+        string CourtName(ISession s, int? id);
+        string CircuitName(ISession s, int? id);
+        string CustodyName(ISession s, int? id);
         List<DuplicateHit> FindDuplicates(ISession s, string nameNorm, string caseNumber, int caseYear, int excludeId);
     }
 }

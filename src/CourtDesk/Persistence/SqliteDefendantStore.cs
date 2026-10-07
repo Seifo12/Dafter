@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Text;
 using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 
@@ -11,6 +12,10 @@ namespace CourtDesk.Persistence
             "case_type, charges, court_id, circuit_id, custody_location_id, session_date, status, " +
             "detained_since, notes, is_deleted, row_version";
 
+        private const string ColsD = "d.id, d.full_name, d.name_norm, d.national_id, d.case_number, d.case_year, " +
+            "d.case_type, d.charges, d.court_id, d.circuit_id, d.custody_location_id, d.session_date, d.status, " +
+            "d.detained_since, d.notes, d.is_deleted, d.row_version";
+
         Defendant IDefendantStore.GetById(ISession s, int id) { return GetById((DbContext)s, id); }
         int IDefendantStore.Insert(ISession s, Defendant d) { return Insert((DbContext)s, d); }
         bool IDefendantStore.UpdateFull(ISession s, Defendant d) { return UpdateFull((DbContext)s, d); }
@@ -21,6 +26,187 @@ namespace CourtDesk.Persistence
         int IDefendantStore.CountNoDate(ISession s) { return CountNoDate((DbContext)s); }
         int IDefendantStore.CountActive(ISession s) { return CountActive((DbContext)s); }
         List<Defendant> IDefendantStore.ListActive(ISession s) { return ListActive((DbContext)s); }
+        List<DefendantRow> IDefendantStore.ListPendingOn(ISession s, string d) { return ListPendingOn((DbContext)s, d); }
+        List<DefendantRow> IDefendantStore.ListOverdueRows(ISession s, string d) { return ListOverdueRows((DbContext)s, d); }
+        List<DecidedRow> IDefendantStore.ListDecidedOn(ISession s, string d) { return ListDecidedOn((DbContext)s, d); }
+        List<DefendantRow> IDefendantStore.ListActiveRows(ISession s) { return ListActiveRows((DbContext)s); }
+        List<DefendantRow> IDefendantStore.ListRowsByIds(ISession s, int[] ids) { return ListRowsByIds((DbContext)s, ids); }
+        List<Defendant> IDefendantStore.ListDeleted(ISession s) { return ListDeleted((DbContext)s); }
+        string IDefendantStore.CourtName(ISession s, int? id) { return CourtName((DbContext)s, id); }
+        string IDefendantStore.CircuitName(ISession s, int? id) { return CircuitName((DbContext)s, id); }
+        string IDefendantStore.CustodyName(ISession s, int? id) { return CustodyName((DbContext)s, id); }
+
+        public List<DefendantRow> ListPendingOn(DbContext ctx, string dateIso)
+        {
+            const string sql = "SELECT " + ColsD + ", c.name, cc.name, cu.name FROM defendants d " +
+                "LEFT JOIN courts c ON c.id = d.court_id " +
+                "LEFT JOIN circuits cc ON cc.id = d.circuit_id " +
+                "LEFT JOIN custody_locations cu ON cu.id = d.custody_location_id " +
+                "WHERE d.is_deleted = 0 AND d.status = 'DETAINED' AND d.session_date = @d " +
+                "ORDER BY COALESCE(c.sort_order, 9999), COALESCE(c.name_norm, ''), " +
+                "COALESCE(cc.name_norm, ''), d.name_norm";
+            return RowQuery(ctx, sql, "@d", dateIso);
+        }
+
+        public List<DefendantRow> ListOverdueRows(DbContext ctx, string dateIso)
+        {
+            const string sql = "SELECT " + ColsD + ", c.name, cc.name, cu.name FROM defendants d " +
+                "LEFT JOIN courts c ON c.id = d.court_id " +
+                "LEFT JOIN circuits cc ON cc.id = d.circuit_id " +
+                "LEFT JOIN custody_locations cu ON cu.id = d.custody_location_id " +
+                "WHERE d.is_deleted = 0 AND d.status = 'DETAINED' AND d.session_date < @d " +
+                "ORDER BY d.session_date ASC, d.name_norm";
+            return RowQuery(ctx, sql, "@d", dateIso);
+        }
+
+        public List<DecidedRow> ListDecidedOn(DbContext ctx, string heldDateIso)
+        {
+            var out_ = new List<DecidedRow>();
+            const string sql =
+                "SELECT d.id, d.full_name, d.name_norm, d.national_id, d.case_number, d.case_year, " +
+                "d.case_type, d.charges, d.court_id, d.circuit_id, d.custody_location_id, d.session_date, " +
+                "d.status, d.detained_since, d.notes, d.is_deleted, d.row_version, " +
+                "e.id, e.decision_code, e.next_session_date, e.court_name_at_event, e.circuit_name_at_event " +
+                "FROM session_events e JOIN defendants d ON d.id = e.defendant_id " +
+                "WHERE e.event_type = 'DECISION' AND e.decision_code <> 'REOPEN' " +
+                "AND e.session_date_held = @d AND e.undone_by_event_id IS NULL AND d.is_deleted = 0 " +
+                "ORDER BY e.id";
+            using (var cmd = new SQLiteCommand(sql, ctx.Connection))
+            {
+                cmd.Parameters.AddWithValue("@d", heldDateIso);
+                using (SQLiteDataReader r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        out_.Add(new DecidedRow
+                        {
+                            D = ReadRow(r),
+                            EventId = r.GetInt64(17),
+                            DecisionCode = Str(r, 18),
+                            NextSessionDate = Str(r, 19),
+                            CourtNameAtEvent = Str(r, 20),
+                            CircuitNameAtEvent = Str(r, 21)
+                        });
+                    }
+                }
+            }
+            return out_;
+        }
+
+        public List<DefendantRow> ListActiveRows(DbContext ctx)
+        {
+            const string sql = "SELECT " + ColsD + ", c.name, cc.name, cu.name FROM defendants d " +
+                "LEFT JOIN courts c ON c.id = d.court_id " +
+                "LEFT JOIN circuits cc ON cc.id = d.circuit_id " +
+                "LEFT JOIN custody_locations cu ON cu.id = d.custody_location_id " +
+                "WHERE d.is_deleted = 0 ORDER BY d.id";
+            return RowQuery(ctx, sql, null, null);
+        }
+
+        public List<DefendantRow> ListRowsByIds(DbContext ctx, int[] ids)
+        {
+            var out_ = new List<DefendantRow>();
+            if (ids == null || ids.Length == 0)
+            {
+                return out_;
+            }
+            var sb = new StringBuilder("SELECT ");
+            sb.Append(ColsD);
+            sb.Append(", c.name, cc.name, cu.name FROM defendants d ");
+            sb.Append("LEFT JOIN courts c ON c.id = d.court_id ");
+            sb.Append("LEFT JOIN circuits cc ON cc.id = d.circuit_id ");
+            sb.Append("LEFT JOIN custody_locations cu ON cu.id = d.custody_location_id WHERE d.id IN (");
+            for (int i = 0; i < ids.Length; i++)
+            {
+                if (i > 0)
+                {
+                    sb.Append(',');
+                }
+                sb.Append("@i").Append(i);
+            }
+            sb.Append(')');
+            using (var cmd = new SQLiteCommand(sb.ToString(), ctx.Connection))
+            {
+                for (int i = 0; i < ids.Length; i++)
+                {
+                    cmd.Parameters.AddWithValue("@i" + i, ids[i]);
+                }
+                using (SQLiteDataReader r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        out_.Add(new DefendantRow
+                        {
+                            D = ReadRow(r),
+                            CourtName = Str(r, 17),
+                            CircuitName = Str(r, 18),
+                            CustodyName = Str(r, 19)
+                        });
+                    }
+                }
+            }
+            return out_;
+        }
+
+        public List<Defendant> ListDeleted(DbContext ctx)
+        {
+            return Query(ctx, "SELECT " + Cols + " FROM defendants WHERE is_deleted = 1 ORDER BY id", null, null);
+        }
+
+        public string CourtName(DbContext ctx, int? id)
+        {
+            return NameOf(ctx, "courts", id);
+        }
+
+        public string CircuitName(DbContext ctx, int? id)
+        {
+            return NameOf(ctx, "circuits", id);
+        }
+
+        public string CustodyName(DbContext ctx, int? id)
+        {
+            return NameOf(ctx, "custody_locations", id);
+        }
+
+        private static string NameOf(DbContext ctx, string table, int? id)
+        {
+            if (!id.HasValue)
+            {
+                return null;
+            }
+            using (var cmd = new SQLiteCommand("SELECT name FROM " + table + " WHERE id = @id", ctx.Connection))
+            {
+                cmd.Parameters.AddWithValue("@id", id.Value);
+                object v = cmd.ExecuteScalar();
+                return v == null ? null : v.ToString();
+            }
+        }
+
+        private static List<DefendantRow> RowQuery(DbContext ctx, string sql, string param, string value)
+        {
+            var out_ = new List<DefendantRow>();
+            using (var cmd = new SQLiteCommand(sql, ctx.Connection))
+            {
+                if (param != null)
+                {
+                    cmd.Parameters.AddWithValue(param, value);
+                }
+                using (SQLiteDataReader r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        out_.Add(new DefendantRow
+                        {
+                            D = ReadRow(r),
+                            CourtName = Str(r, 17),
+                            CircuitName = Str(r, 18),
+                            CustodyName = Str(r, 19)
+                        });
+                    }
+                }
+            }
+            return out_;
+        }
         List<DuplicateHit> IDefendantStore.FindDuplicates(ISession s, string n, string c, int y, int e)
         {
             return FindDuplicates((DbContext)s, n, c, y, e);
@@ -129,7 +315,7 @@ namespace CourtDesk.Persistence
 
         public List<Defendant> ListDetainedOn(DbContext ctx, string dateIso)
         {
-            const string sql = "SELECT " + Cols + " FROM defendants d " +
+            const string sql = "SELECT " + ColsD + " FROM defendants d " +
                 "LEFT JOIN courts c ON c.id = d.court_id LEFT JOIN circuits cc ON cc.id = d.circuit_id " +
                 "WHERE d.is_deleted = 0 AND d.status = 'DETAINED' AND d.session_date = @d " +
                 "ORDER BY COALESCE(c.sort_order, 9999), COALESCE(c.name_norm, ''), " +

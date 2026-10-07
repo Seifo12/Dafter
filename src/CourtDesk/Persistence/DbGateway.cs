@@ -3,12 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Threading;
+using CourtDesk.Application;
 using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 
 namespace CourtDesk.Persistence
 {
-    public sealed class DbGateway : IDatabase, IDisposable
+    public sealed class DbGateway : IDatabase, IChangeSeqSource, IDisposable
     {
         private readonly string _dbPath;
         private readonly IClock _clock;
@@ -103,6 +104,11 @@ namespace CourtDesk.Persistence
             return Run(ctx => Meta.GetLong(ctx.Connection, "change_seq"));
         }
 
+        List<string> IChangeSeqSource.CheckInvariants()
+        {
+            return Run(ctx => IntegrityChecker.CheckInvariants(ctx.Connection));
+        }
+
         public string GetMaxSeenUtc()
         {
             return Run(ctx => Meta.Get(ctx.Connection, "max_seen_utc"));
@@ -112,7 +118,6 @@ namespace CourtDesk.Persistence
         {
             return Run(ctx => IntegrityChecker.CheckInvariants(ctx.Connection));
         }
-
         public void Close()
         {
             if (_disposed)

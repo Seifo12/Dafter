@@ -1,7 +1,21 @@
 using System.Data.SQLite;
+using CourtDesk.Application.Ports;
 
 namespace CourtDesk.Persistence
 {
+    public sealed class SqliteMetaStore : IMetaStore
+    {
+        public string GetMeta(ISession s, string key)
+        {
+            return Meta.Get(((DbContext)s).Connection, key);
+        }
+
+        public void SetMeta(ISession s, string key, string value)
+        {
+            Meta.Set(((DbContext)s).Connection, key, value);
+        }
+    }
+
     internal static class Meta
     {
         public static string Get(SQLiteConnection conn, string key)
