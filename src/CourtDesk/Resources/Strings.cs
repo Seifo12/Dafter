@@ -283,6 +283,26 @@ namespace CourtDesk.Resources
             "م", "اسم المتهم", "رقم القضية", "التهمة", "المحكمة / الدائرة", "مكان الحجز", "ملاحظات"
         };
 
+        public static readonly string[] SeedCourts = new string[]
+        {
+            "محكمة الجنح", "محكمة الجنايات", "النيابة العامة"
+        };
+
+        public static readonly string[] SeedCustody = new string[]
+        {
+            "حجز القسم"
+        };
+
+        public static readonly string[] SeedReasons = new string[]
+        {
+            "للاطلاع", "للمرافعة", "لسماع الشهود", "لحضور المتهم", "لتقديم مستندات", "للنطق بالحكم"
+        };
+
+        public static readonly string[] CaseTypes = new string[]
+        {
+            "جنحة", "جناية", "مخالفة", "إدارية", "أخرى"
+        };
+
         public static readonly string[] Weekdays = new string[]
         {
             "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"

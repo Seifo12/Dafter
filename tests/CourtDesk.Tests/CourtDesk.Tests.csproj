@@ -13,5 +13,20 @@
     <PackageReference Include="xunit" Version="2.6.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" />
     <ProjectReference Include="..\..\src\CourtDesk\CourtDesk.csproj" />
+    <ProjectReference Include="..\..\tools\CrashHarness\CrashHarness.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\vendor\managed\System.Data.SQLite.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <None Include="..\..\vendor\managed\System.Data.SQLite.dll" Link="System.Data.SQLite.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\vendor\native\x86\SQLite.Interop.dll" Link="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

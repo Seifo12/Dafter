@@ -1,5 +1,22 @@
 # PROGRESS.md
 
+## Phase 2 — Persistence (done, 2026-10-07)
+
+- `Persistence/`: DbPaths, DbGateway (DbThread, BEGIN IMMEDIATE, meta bump,
+  read-back verify), SqliteBootstrap (pragma order + verify), MigrationRunner +
+  `001_initial.sql` (SPEC §4.4 verbatim), IntegrityChecker (I1–I6),
+  4 SQLite stores, SeedData, SqliteBackupEngine (backup API → verify → atomic
+  rename), RestoreSwap (marker rollforward/rollback), DatabaseRecovery
+  (quarantine + newest-verified auto-restore).
+- `Application/Ports/`: IDatabase/ISession + store/engine ports (services use
+  ports only). `tools/CrashHarness`: source-linked crash loop (create/edit/
+  decide/undo + fsynced ack log).
+- Bugs fixed via failing tests first: pragma setter-vs-getter reads;
+  BackupDatabase 6-arg shape; NotADb enum name; test-only uuid/version mistakes.
+- Gates: Persistence 11/11; Crash 300 kills normal + 300 kills backup
+  (quick_check ok, I1–I6 hold, ack-subset holds, zero partial ops); full suite
+  59/59 green.
+
 ## Phase 1 — Domain (done, 2026-10-07)
 
 - `Domain/`: Defendant, DefendantSnapshot, DefendantStatus, DecisionCode,
