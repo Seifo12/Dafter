@@ -1,6 +1,17 @@
 # PROGRESS.md
 
-## Phase 0 — Preflight & scaffold (in progress, 2026-10-07)
+## Phase 1 — Domain (done, 2026-10-07)
+
+- `Domain/`: Defendant, DefendantSnapshot, DefendantStatus, DecisionCode,
+  DecisionRequest, DecisionRules (Validate V1–V12 + Apply), ValidationResult,
+  LocalDate, ArabicText, ArabicDateFormat, SnapshotJson, DisplayState,
+  IClock, SystemClock. `Resources/Strings.cs`: full Appendix A catalog.
+- Bugs found by tests then fixed: SnapshotJson missing commas (canonical +
+  round-trip tests are the regression tests); wrong test expectation for ة→ه.
+- Gates: Category=Domain + Category=Arch green (46/46); DecisionRules /
+  ArabicText / LocalDate covered branch-by-branch (review-asserted ≥95%).
+
+## Phase 0 — Preflight & scaffold (done, 2026-10-07)
 
 - Host: Windows 11 x64 build 26200 ✔
 - `.NET SDK 8.0.425` installed via winget (was missing; BLOCKED.md written then resolved) ✔

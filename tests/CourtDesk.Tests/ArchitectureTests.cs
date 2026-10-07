@@ -106,6 +106,21 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void NoSystemWebExceptSerializer()
+        {
+            var hits = new List<string>();
+            foreach (string f in SourceFiles(".cs"))
+            {
+                string text = File.ReadAllText(f).Replace("System.Web.Script.Serialization", "");
+                if (text.IndexOf("System.Web", StringComparison.Ordinal) >= 0)
+                {
+                    hits.Add(f);
+                }
+            }
+            Assert.True(hits.Count == 0, "System.Web outside Script.Serialization: " + string.Join("; ", hits));
+        }
+
+        [Fact]
         public void NoSqliteOutsidePersistenceAndBootstrap()
         {
             var hits = new List<string>();
