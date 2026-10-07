@@ -41,15 +41,15 @@ namespace CourtDesk.UI.ViewModels
 
     public sealed class OffsetButton
     {
-        public int Days;
+        public int Days { get; set; }
         public string Label { get { return string.Format(Strings.WizOffset, Days); } }
     }
 
     public sealed class WizardStage
     {
-        public string Number;
-        public string Sentence;
-        public string Value;
+        public string Number { get; set; }
+        public string Sentence { get; set; }
+        public string Value { get; set; }
     }
 
     public sealed class DecisionWizardViewModel : ObservableObject
@@ -279,6 +279,7 @@ namespace CourtDesk.UI.ViewModels
                 {
                     EvaluateWarnings();
                     Raise("ChosenLine");
+                    Raise("SelectedOffsetDays");
                     Raise("Review");
                 }
             }
@@ -403,6 +404,26 @@ namespace CourtDesk.UI.ViewModels
         public void PickOffset(int days)
         {
             NextDate = HeldDate().AddDays(days);
+        }
+
+        public int SelectedOffsetDays
+        {
+            get
+            {
+                if (!NextDate.HasValue)
+                {
+                    return -1;
+                }
+                int days = LocalDate.DaysBetween(HeldDate(), NextDate.Value);
+                foreach (OffsetButton b in _offsets)
+                {
+                    if (b.Days == days)
+                    {
+                        return days;
+                    }
+                }
+                return -1;
+            }
         }
 
         public void PickDate(LocalDate d)

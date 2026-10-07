@@ -10,9 +10,14 @@ namespace CourtDesk.UI.Controls
 {
     public sealed class LookupItem
     {
-        public int Id;
-        public string Name;
+        public int Id { get; set; }
+        public string Name { get; set; }
         public string Display { get { return Name; } }
+
+        public override string ToString()
+        {
+            return Name ?? "";
+        }
     }
 
     public sealed class LookupCombo : ComboBox

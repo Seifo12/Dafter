@@ -43,6 +43,7 @@ namespace CourtDesk.UI.Dialogs
                         break;
                     case "ChosenLine":
                         ChosenLine.Text = vm.ChosenLine;
+                        HighlightOffsets();
                         break;
                     case "Review":
                     case "ReviewSentence":
@@ -122,6 +123,11 @@ namespace CourtDesk.UI.Dialogs
             UndoButton.Visibility = _vm.Done ? Visibility.Visible : Visibility.Collapsed;
             StopQueueButton.Visibility = _vm.Done && _vm.InQueue ? Visibility.Visible : Visibility.Collapsed;
             NextPersonButton.Visibility = _vm.Done && _vm.InQueue ? Visibility.Visible : Visibility.Collapsed;
+            if (_vm.AtStep2 && !_vm.Done)
+            {
+                Dispatcher.BeginInvoke(new Action(delegate { HighlightOffsets(); }),
+                    System.Windows.Threading.DispatcherPriority.Loaded);
+            }
         }
 
         private void ApplyDetailPanels()
@@ -216,6 +222,30 @@ namespace CourtDesk.UI.Dialogs
                 return;
             }
             _vm.PickOffset((int)b.Tag);
+            HighlightOffsets();
+        }
+
+        private void HighlightOffsets()
+        {
+            int selected = _vm.SelectedOffsetDays;
+            var stack = new System.Collections.Generic.Stack<System.Windows.DependencyObject>();
+            stack.Push(OffsetsBox);
+            while (stack.Count > 0)
+            {
+                System.Windows.DependencyObject cur = stack.Pop();
+                var b = cur as System.Windows.Controls.Button;
+                if (b != null && b.Tag is int)
+                {
+                    bool on = selected >= 0 && (int)b.Tag == selected;
+                    b.Opacity = (selected < 0 || on) ? 1.0 : 0.62;
+                    b.FontWeight = on ? FontWeights.Bold : FontWeights.Normal;
+                }
+                int n = System.Windows.Media.VisualTreeHelper.GetChildrenCount(cur);
+                for (int i = 0; i < n; i++)
+                {
+                    stack.Push(System.Windows.Media.VisualTreeHelper.GetChild(cur, i));
+                }
+            }
         }
 
         private void ReasonClick(object sender, RoutedEventArgs e)

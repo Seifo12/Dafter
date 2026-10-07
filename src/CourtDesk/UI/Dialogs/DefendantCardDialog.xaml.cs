@@ -12,8 +12,8 @@ namespace CourtDesk.UI.Dialogs
 {
     public sealed class TimelineEntry
     {
-        public string Title;
-        public string Detail;
+        public string Title { get; set; }
+        public string Detail { get; set; }
     }
 
     public partial class DefendantCardDialog : Window

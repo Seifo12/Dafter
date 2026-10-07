@@ -10,8 +10,8 @@ namespace CourtDesk.UI.ViewModels
 {
     public sealed class FieldProblem
     {
-        public string Key;
-        public string Field;
+        public string Key { get; set; }
+        public string Field { get; set; }
     }
 
     public sealed class DefendantEditViewModel : ObservableObject
@@ -279,7 +279,7 @@ namespace CourtDesk.UI.ViewModels
             {
                 _problems.Add(new FieldProblem { Key = e, Field = FieldOf(e) });
             }
-            _summary = errs.Count == 0 ? "" : Strings.ValSummary;
+            _summary = errs.Count == 0 ? "" : Strings.ValSummary + " " + errs[0];
             Raise("Summary");
             Raise("HasProblems");
             Raise("FirstProblemField");

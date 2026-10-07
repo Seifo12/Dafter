@@ -37,14 +37,14 @@
                 ScrollViewer.CanContentScroll="True"
                 VirtualizingStackPanel.IsVirtualizing="True">
         <DataGrid.Columns>
-          <DataGridTextColumn Header="{x:Static res:Strings.GridName}" Binding="{Binding D.FullName}" Width="200" />
-          <DataGridTextColumn Header="{x:Static res:Strings.GridCase}" Width="140">
+          <DataGridTextColumn Header="{x:Static res:Strings.GridName}" Binding="{Binding D.FullName}" Width="2*" MinWidth="160" />
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCase}" Width="140" MinWidth="110">
             <DataGridTextColumn.Binding>
               <Binding Path="D.CaseNumber" />
             </DataGridTextColumn.Binding>
           </DataGridTextColumn>
-          <DataGridTextColumn Header="{x:Static res:Strings.GridCourt}" Binding="{Binding CourtName}" Width="180" />
-          <DataGridTextColumn Header="{x:Static res:Strings.GridCustody}" Binding="{Binding CustodyName}" Width="140" />
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCourt}" Binding="{Binding CourtName}" Width="2*" MinWidth="140" />
+          <DataGridTextColumn Header="{x:Static res:Strings.GridCustody}" Binding="{Binding CustodyName}" Width="*" MinWidth="110" />
         </DataGrid.Columns>
       </DataGrid>
       <TextBlock DockPanel.Dock="Bottom" Text="{Binding EmptyText}" Style="{StaticResource BaseText}" />

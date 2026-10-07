@@ -10,13 +10,13 @@ namespace CourtDesk.UI.ViewModels
 {
     public sealed class HistoryRow
     {
-        public int DefendantId;
-        public string When;
-        public string Defendant;
-        public string Event;
-        public string NextDate;
-        public string Operator;
-        public string Undone;
+        public int DefendantId { get; set; }
+        public string When { get; set; }
+        public string Defendant { get; set; }
+        public string Event { get; set; }
+        public string NextDate { get; set; }
+        public string Operator { get; set; }
+        public string Undone { get; set; }
     }
 
     public sealed class HistoryViewModel : ObservableObject

@@ -6,13 +6,13 @@ namespace CourtDesk.UI.Controls
 {
     public sealed class CalendarCell
     {
-        public LocalDate? Date;
-        public bool InMonth;
-        public bool IsWeekend;
-        public bool IsToday;
-        public bool IsSelected;
-        public bool Enabled;
-        public int Count;
+        public LocalDate? Date { get; set; }
+        public bool InMonth { get; set; }
+        public bool IsWeekend { get; set; }
+        public bool IsToday { get; set; }
+        public bool IsSelected { get; set; }
+        public bool Enabled { get; set; }
+        public int Count { get; set; }
         public string Number
         {
             get { return Date.HasValue ? Date.Value.Day.ToString() : ""; }

@@ -14,13 +14,13 @@
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,0,16,16">
       <Button x:Name="EditButton" Content="{x:Static res:Strings.ActionEdit}" Style="{StaticResource PrimaryButton}"
-              MinWidth="200" Click="EditClick" />
+              MinWidth="150" Click="EditClick" />
       <Button x:Name="DecideButton" Content="{x:Static res:Strings.ActionDecide}" Style="{StaticResource PrimaryButton}"
-              MinWidth="240" Click="DecideClick" />
+              MinWidth="180" Click="DecideClick" />
       <Button x:Name="UndoButton" Content="{x:Static res:Strings.WizUndo}" Style="{StaticResource PrimaryButton}"
-              MinWidth="240" Click="UndoClick" />
+              MinWidth="180" Click="UndoClick" />
       <Button x:Name="CloseButton" Content="{x:Static res:Strings.WizClose}" Style="{StaticResource PrimaryButton}"
-              MinWidth="180" IsCancel="True" Click="CloseClick" />
+              MinWidth="140" IsCancel="True" Click="CloseClick" />
     </StackPanel>
     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="16,8,16,8">
       <StackPanel>

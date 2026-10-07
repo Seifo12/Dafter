@@ -178,3 +178,23 @@ Phases: 0 scaffold, 1 domain, 2 persistence, 3 application, 4 UI shell,
 4R UI addendum rework, 5 forms and wizard, 6 printing, 7 resilience and
 platform, 8 packaging, 9 hardening and docs. All phase gates recorded above
 pass; the product is a single 2.2 MB x86 exe that runs offline.
+## Hotfix - field-to-property binding failures (done, 2026-10-07)
+
+Found by real use, reproduced in `DialogInteractionTests` (click every offset
+button, open the card after a decision, assert dropdown text):
+- `OffsetButton.Days` was a public field: `Tag="{Binding Days}"` never
+  resolved, so wizard offset clicks did nothing. Now a property; the chosen
+  offset is highlighted (bold + full opacity) and `ChosenLine` updates.
+- `TimelineEntry.Title/Detail` were fields: the card history bindings never
+  resolved, so the timeline rendered blank. Now properties.
+- Same latent failure converted everywhere it could bite: `CalendarCell`,
+  `HistoryRow`, `DayCountRow`, `FieldProblem`, `BackupRow`, `LookupItem`,
+  `WizardStage` (its `Number`/`Value` bindings were dead too).
+- `LookupItem.ToString()` returns the name: all lookup dropdowns showed the
+  class name before; the raw name had even been saved into `CaseType`.
+- Card bottom buttons overflowed the dialog (860 px in 788 px): MinWidths cut
+  to fit. Schedule grid columns are star-sized now. Edit dialog has a fixed
+  height with MaxHeight instead of unbounded SizeToContent.
+- `ValSummary` ended with a dangling "because:"; it now carries the first
+  error. Fixed 8 corrupted Arabic strings in `Strings.cs`.
+- Gates: 126/126 green; `build.cmd` exit 0; real-app screenshot verified.

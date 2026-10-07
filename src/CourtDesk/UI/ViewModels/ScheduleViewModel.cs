@@ -10,9 +10,9 @@ namespace CourtDesk.UI.ViewModels
 {
     public sealed class DayCountRow
     {
-        public LocalDate Date;
-        public string Text;
-        public int Count;
+        public LocalDate Date { get; set; }
+        public string Text { get; set; }
+        public int Count { get; set; }
     }
 
     public sealed class ScheduleViewModel : ObservableObject

@@ -141,10 +141,10 @@ namespace CourtDesk.UI.Dialogs
         private sealed class BackupRow
         {
             public BackupCandidate Candidate;
-            public string Tier;
-            public string FileName;
-            public string SizeText;
-            public string WrittenText;
+            public string Tier { get; set; }
+            public string FileName { get; set; }
+            public string SizeText { get; set; }
+            public string WrittenText { get; set; }
         }
     }
 }

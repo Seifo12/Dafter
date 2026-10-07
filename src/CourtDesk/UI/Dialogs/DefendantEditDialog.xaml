@@ -4,7 +4,7 @@
         xmlns:res="clr-namespace:CourtDesk.Resources"
         FlowDirection="RightToLeft" WindowStartupLocation="CenterOwner"
         Background="{StaticResource CanvasBrush}" ResizeMode="CanResize"
-        SizeToContent="Height" Width="900" MinWidth="760" MinHeight="640"
+        Width="900" Height="740" MinWidth="760" MinHeight="640" MaxHeight="860"
         Title="{Binding Title}">
   <DockPanel LastChildFill="True">
     <StackPanel DockPanel.Dock="Top" Margin="16,16,16,0">
