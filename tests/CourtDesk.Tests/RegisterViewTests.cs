@@ -41,7 +41,10 @@ namespace CourtDesk.Tests
                     view.Measure(new Size(1000, 700));
                     view.Arrange(new Rect(0, 0, 1000, 700));
                     view.UpdateLayout();
-                    Assert.True(view.Grid.Columns.Count >= 6);
+                    Assert.Equal(5, view.Grid.Columns.Count);
+                    env.Register.Wide = true;
+                    view.UpdateLayout();
+                    Assert.True(view.Grid.Columns.Count >= 7);
                 }
             });
         }
@@ -111,7 +114,7 @@ namespace CourtDesk.Tests
                     Assert.Equal(FlowDirection.RightToLeft, view.FlowDirection);
                     var buttons = new List<Button>();
                     CollectButtons(view, buttons);
-                    Assert.True(buttons.Count >= 8);
+                    Assert.True(buttons.Count >= 7);
                     foreach (Button b in buttons)
                     {
                         if (b.Content == null)
@@ -124,10 +127,26 @@ namespace CourtDesk.Tests
                         {
                             Assert.True(text.Length > 0, "empty button content");
                             Assert.True(ContainsArabic(text), "button without Arabic: " + text);
+                            continue;
                         }
+                        var labels = new List<TextBlock>();
+                        CollectText(b, labels);
+                        bool arabic = false;
+                        foreach (TextBlock t in labels)
+                        {
+                            if (!string.IsNullOrEmpty(t.Text) && ContainsArabic(t.Text))
+                            {
+                                arabic = true;
+                            }
+                        }
+                        Assert.True(arabic, "button without Arabic label: " + b.Name);
                     }
-                    Assert.Equal(CourtDesk.Resources.Strings.ActionAdd,
-                        FindButton(view, CourtDesk.Resources.Strings.ActionAdd).Content);
+                    Button add = FindButton(view, CourtDesk.Resources.Strings.ActionAdd);
+                    Assert.True(add != null, "add button not found");
+                    var addLabels = new List<TextBlock>();
+                    CollectText(add, addLabels);
+                    Assert.Contains(addLabels,
+                        delegate(TextBlock t) { return t.Text == CourtDesk.Resources.Strings.ActionAdd; });
                 }
             });
         }
@@ -218,6 +237,18 @@ namespace CourtDesk.Tests
                 {
                     return b;
                 }
+                if (b != null)
+                {
+                    var labels = new List<TextBlock>();
+                    CollectText(b, labels);
+                    foreach (TextBlock t in labels)
+                    {
+                        if (t.Text == content)
+                        {
+                            return b;
+                        }
+                    }
+                }
                 Button found = FindButton(child, content);
                 if (found != null)
                 {
@@ -225,6 +256,21 @@ namespace CourtDesk.Tests
                 }
             }
             return null;
+        }
+
+        private static void CollectText(DependencyObject root, List<TextBlock> outp)
+        {
+            int n = System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < n; i++)
+            {
+                DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+                TextBlock t = child as TextBlock;
+                if (t != null)
+                {
+                    outp.Add(t);
+                }
+                CollectText(child, outp);
+            }
         }
 
         private static bool ContainsArabic(string s)

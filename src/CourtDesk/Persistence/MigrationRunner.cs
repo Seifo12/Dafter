@@ -23,10 +23,9 @@ namespace CourtDesk.Persistence
             }
             if (v == 0)
             {
-                RunScript(conn, LoadEmbedded("001_initial.sql"));
-                SetUserVersion(conn, 1);
+                RunScript(conn, LoadEmbedded("001_initial.sql"), 1);
             }
-        }
+            }
 
         public static int GetUserVersion(SQLiteConnection conn)
         {
@@ -36,15 +35,12 @@ namespace CourtDesk.Persistence
             }
         }
 
-        private static void SetUserVersion(SQLiteConnection conn, int v)
+        private static void RunScript(SQLiteConnection conn, string sql)
         {
-            using (var cmd = new SQLiteCommand("PRAGMA user_version = " + v + ";", conn))
-            {
-                cmd.ExecuteNonQuery();
-            }
+            RunScript(conn, sql, 0);
         }
 
-        private static void RunScript(SQLiteConnection conn, string sql)
+        private static void RunScript(SQLiteConnection conn, string sql, int stampVersion)
         {
             using (SQLiteTransaction tx = conn.BeginTransaction())
             {
@@ -53,6 +49,14 @@ namespace CourtDesk.Persistence
                     foreach (string stmt in SplitStatements(sql))
                     {
                         using (var cmd = new SQLiteCommand(stmt, conn, tx))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    if (stampVersion > 0)
+                    {
+                        using (var cmd = new SQLiteCommand(
+                            "PRAGMA user_version = " + stampVersion + ";", conn, tx))
                         {
                             cmd.ExecuteNonQuery();
                         }

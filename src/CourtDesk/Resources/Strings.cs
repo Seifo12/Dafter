@@ -205,6 +205,17 @@ namespace CourtDesk.Resources
         public const string CustodyFree = "غير محتجز";
         public const string SideMoreDecided = "(` {0}) + واحدفًًًأخرًص";
         public const string TomorrowShort = "بكرة: {0}";
+        public const string CalPrev = "السابق";
+        public const string CalNext = "التالي";
+        public const string CalSat = "السبح";
+        public const string CalSun = "الأح";
+        public const string CalMon = "الاثنين";
+        public const string CalTue = "الثلاءاء";
+        public const string CalWed = "الأربعاء";
+        public const string CalThu = "الخميس";
+        public const string CalFri = "الجمعة";
+        public const string SideTitleUpcoming = "الأيام الجاية";
+        public const string CardHistoryTitle = "سجل القرارات";
         public const string OperatorUnknown = "غير مسجل";
         public const string SplashWait = "برجاء الانتظار…";
 

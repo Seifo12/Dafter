@@ -38,7 +38,7 @@ namespace CourtDesk.Persistence
             {
                 throw;
             }
-            catch (DbException e)
+            catch (DbException)
             {
                 return RecoverCorrupt(home, clock, marshal, db);
             }

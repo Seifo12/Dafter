@@ -4,7 +4,7 @@
         xmlns:res="clr-namespace:CourtDesk.Resources"
         Title="{x:Static res:Strings.AppTitle}" FlowDirection="RightToLeft"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        Background="{StaticResource SurfaceBrush}" MaxWidth="760" SizeToContent="Height">
+        Background="{StaticResource CardBrush}" MaxWidth="760" SizeToContent="Height">
   <StackPanel Margin="32">
     <TextBlock x:Name="TitleText" Style="{StaticResource TitleDialog}" TextWrapping="Wrap" Margin="0,0,0,12" />
     <TextBlock x:Name="BodyText" Style="{StaticResource BaseText}" TextWrapping="Wrap" Margin="0,0,0,20" />

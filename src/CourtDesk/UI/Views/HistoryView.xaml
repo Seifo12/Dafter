@@ -13,8 +13,8 @@
     <DataGrid x:Name="Grid" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
               SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column"
               GridLinesVisibility="All" FontFamily="{StaticResource AppFont}" FontSize="20"
-              ColumnHeaderHeight="52" RowBackground="{StaticResource SurfaceBrush}"
-              AlternatingRowBackground="{StaticResource SurfaceAltBrush}"
+              ColumnHeaderHeight="52" RowBackground="{StaticResource CardBrush}"
+              AlternatingRowBackground="{StaticResource CanvasBrush}"
               ScrollViewer.CanContentScroll="True"
               MouseDoubleClick="GridDoubleClick">
       <DataGrid.Columns>

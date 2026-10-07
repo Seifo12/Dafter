@@ -241,13 +241,13 @@ namespace CourtDesk.UI.ViewModels
             var sb = new System.Text.StringBuilder(s.Length);
             foreach (char c in s)
             {
-                if (c >= '٠' && c <= '٩')
+                if (c >= '\u0660' && c <= '\u0669')
                 {
-                    sb.Append((char)('0' + (c - '٠')));
+                    sb.Append((char)('0' + (c - '\u0660')));
                 }
-                else if (c >= '۰' && c <= '۹')
+                else if (c >= '\u06F0' && c <= '\u06F9')
                 {
-                    sb.Append((char)('0' + (c - '۰')));
+                    sb.Append((char)('0' + (c - '\u06F0')));
                 }
                 else
                 {

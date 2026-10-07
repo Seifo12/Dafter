@@ -4,11 +4,11 @@
         xmlns:res="clr-namespace:CourtDesk.Resources"
         xmlns:ctl="clr-namespace:CourtDesk.UI.Controls"
         FlowDirection="RightToLeft" WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceAltBrush}" ResizeMode="CanResize"
+        Background="{StaticResource CanvasBrush}" ResizeMode="CanResize"
         Width="960" Height="740" MinWidth="760" MinHeight="600"
         WindowStyle="SingleBorderWindow" ShowInTaskbar="False">
   <DockPanel LastChildFill="True">
-    <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}" Padding="16,10">
+    <Border DockPanel.Dock="Top" Background="{StaticResource CardBrush}" Padding="16,10">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
@@ -20,19 +20,19 @@
         </StackPanel>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
           <TextBlock x:Name="StepText" Style="{StaticResource TitleSection}" HorizontalAlignment="Left" />
-          <TextBlock x:Name="QueueText" Style="{StaticResource HintText}" HorizontalAlignment="Left" />
+          <TextBlock x:Name="QueueText" Style="{StaticResource MutedText}" HorizontalAlignment="Left" />
         </StackPanel>
       </Grid>
     </Border>
-    <Border DockPanel.Dock="Bottom" Background="{StaticResource SurfaceBrush}" Padding="16">
+    <Border DockPanel.Dock="Bottom" Background="{StaticResource CardBrush}" Padding="16">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
         <Button x:Name="PrimaryNext" Content="{x:Static res:Strings.WizNext}" Style="{StaticResource PrimaryButton}"
                 MinWidth="180" Click="NextClick" />
         <Button x:Name="PrimarySave" Content="{x:Static res:Strings.WizSave}" Style="{StaticResource PrimaryButton}"
                 MinWidth="220" Visibility="Collapsed" Click="SaveClick" />
-        <Button x:Name="BackButton" Content="{x:Static res:Strings.WizBack}" Style="{StaticResource BigButton}"
+        <Button x:Name="BackButton" Content="{x:Static res:Strings.WizBack}" Style="{StaticResource PrimaryButton}"
                 MinWidth="160" Visibility="Collapsed" Click="BackClick" />
-        <Button x:Name="CancelButton" Content="{x:Static res:Strings.WizCancel}" Style="{StaticResource BigButton}"
+        <Button x:Name="CancelButton" Content="{x:Static res:Strings.WizCancel}" Style="{StaticResource PrimaryButton}"
                 MinWidth="160" IsCancel="True" Click="CancelClick" />
       </StackPanel>
     </Border>
@@ -48,7 +48,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Content="{Binding Label}" Style="{StaticResource BigButton}" MinHeight="110" MinWidth="380" Margin="8"
+                <Button Content="{Binding Label}" Style="{StaticResource PrimaryButton}" MinHeight="110" MinWidth="300" Margin="8"
                         FontSize="24" FontWeight="Bold" Tag="{Binding}"
                         Command="{Binding DataContext.PickCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                         CommandParameter="{Binding}" />
@@ -62,7 +62,7 @@
           <TextBlock Text="{x:Static res:Strings.WizQ2}" Style="{StaticResource TitleSection}" Margin="0,0,0,8" />
           <WrapPanel Orientation="Horizontal" Margin="0,0,0,8">
             <Button x:Name="PickDateButton" Content="{x:Static res:Strings.WizPickDate}"
-                    Style="{StaticResource SmallButton}" MinWidth="240" Click="PickDateClick" />
+                    Style="{StaticResource QuietButton}" MinWidth="240" Click="PickDateClick" />
           </WrapPanel>
           <ItemsControl ItemsSource="{Binding Offsets}" x:Name="OffsetsBox">
             <ItemsControl.ItemsPanel>
@@ -72,7 +72,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Content="{Binding Label}" Style="{StaticResource BigButton}" MinWidth="140"
+                <Button Content="{Binding Label}" Style="{StaticResource PrimaryButton}" MinWidth="140"
                         Tag="{Binding Days}" Click="OffsetClick" />
               </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -89,7 +89,7 @@
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <Button Content="{Binding Label}" Style="{StaticResource SmallButton}" MinWidth="140"
+                  <Button Content="{Binding Label}" Style="{StaticResource QuietButton}" MinWidth="140"
                           Tag="{Binding Label}" Click="ReasonClick" />
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
@@ -140,7 +140,7 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <DockPanel Margin="0,0,0,6">
-                  <TextBlock DockPanel.Dock="Right" Text="{Binding Number}" Style="{StaticResource HintText}" MinWidth="160" />
+                  <TextBlock DockPanel.Dock="Right" Text="{Binding Number}" Style="{StaticResource MutedText}" MinWidth="160" />
                   <TextBlock Text="{Binding Value}" Style="{StaticResource BaseText}" TextWrapping="Wrap" />
                 </DockPanel>
               </DataTemplate>
@@ -150,7 +150,7 @@
       </Grid>
       <StackPanel x:Name="DonePanel" Visibility="Collapsed">
         <TextBlock Text="&#x2713;" FontSize="72" FontWeight="Bold" HorizontalAlignment="Center"
-                   Foreground="{StaticResource ReleasedAccentBrush}" />
+                   Foreground="{StaticResource ReleasedFgBrush}" />
         <TextBlock Text="{x:Static res:Strings.WizDone}" Style="{StaticResource TitleDialog}"
                    HorizontalAlignment="Center" Margin="0,8,0,0" />
         <TextBlock x:Name="DoneLine" Style="{StaticResource BaseText}" FontSize="24" HorizontalAlignment="Center"
@@ -160,11 +160,11 @@
                 Click="NextPersonClick" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
           <Button x:Name="UndoButton" Content="{x:Static res:Strings.WizUndo}"
-                  Style="{StaticResource SmallButton}" MinWidth="240" Click="UndoClick" />
+                  Style="{StaticResource QuietButton}" MinWidth="240" Click="UndoClick" />
           <Button x:Name="StopQueueButton" Content="{x:Static res:Strings.WizQueueStop}"
-                  Style="{StaticResource BigButton}" MinWidth="200" Click="StopQueueClick" />
+                  Style="{StaticResource PrimaryButton}" MinWidth="200" Click="StopQueueClick" />
           <Button x:Name="DoneCloseButton" Content="{x:Static res:Strings.WizClose}"
-                  Style="{StaticResource BigButton}" MinWidth="200" Click="DoneCloseClick" />
+                  Style="{StaticResource PrimaryButton}" MinWidth="200" Click="DoneCloseClick" />
         </StackPanel>
       </StackPanel>
       <Border Style="{StaticResource WarnBand}" x:Name="ErrorBand" Visibility="Collapsed"

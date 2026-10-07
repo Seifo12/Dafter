@@ -39,14 +39,14 @@ namespace CourtDesk.UI
         public void PrintToday(bool preview)
         {
             LastPrintWasPreview = preview;
-            LastPrintRequestedUtc = System.DateTime.UtcNow;
+            LastPrintRequestedUtc = C.Clock.UtcNow;
             PrintRequested(preview, default(LocalDate));
         }
 
         public void PrintDate(bool preview, LocalDate date)
         {
             LastPrintWasPreview = preview;
-            LastPrintRequestedUtc = System.DateTime.UtcNow;
+            LastPrintRequestedUtc = C.Clock.UtcNow;
             PrintRequested(preview, date);
         }
 

@@ -3,38 +3,38 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:CourtDesk.Resources"
         FlowDirection="RightToLeft" WindowStartupLocation="CenterOwner"
-        Background="{StaticResource SurfaceAltBrush}" ResizeMode="CanResize"
+        Background="{StaticResource CanvasBrush}" ResizeMode="CanResize"
         Width="820" Height="700" MinWidth="700" MinHeight="560">
   <DockPanel LastChildFill="True">
-    <StackPanel DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}" Margin="16,12">
+    <StackPanel DockPanel.Dock="Top" Background="{StaticResource CardBrush}" Margin="16,12">
       <TextBlock x:Name="NameText" Style="{StaticResource TitleDialog}" TextWrapping="Wrap" />
       <TextBlock x:Name="CaseText" Style="{StaticResource BaseText}" />
       <TextBlock x:Name="CourtText" Style="{StaticResource BaseText}" />
       <TextBlock x:Name="StateText" Style="{StaticResource BaseText}" />
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,0,16,16">
-      <Button x:Name="EditButton" Content="{x:Static res:Strings.ActionEdit}" Style="{StaticResource BigButton}"
+      <Button x:Name="EditButton" Content="{x:Static res:Strings.ActionEdit}" Style="{StaticResource PrimaryButton}"
               MinWidth="200" Click="EditClick" />
       <Button x:Name="DecideButton" Content="{x:Static res:Strings.ActionDecide}" Style="{StaticResource PrimaryButton}"
               MinWidth="240" Click="DecideClick" />
-      <Button x:Name="UndoButton" Content="{x:Static res:Strings.WizUndo}" Style="{StaticResource BigButton}"
+      <Button x:Name="UndoButton" Content="{x:Static res:Strings.WizUndo}" Style="{StaticResource PrimaryButton}"
               MinWidth="240" Click="UndoClick" />
-      <Button x:Name="CloseButton" Content="{x:Static res:Strings.WizClose}" Style="{StaticResource BigButton}"
+      <Button x:Name="CloseButton" Content="{x:Static res:Strings.WizClose}" Style="{StaticResource PrimaryButton}"
               MinWidth="180" IsCancel="True" Click="CloseClick" />
     </StackPanel>
     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="16,8,16,8">
       <StackPanel>
-        <TextBlock Style="{StaticResource TitleSection}" Text="بيانات القضية" Margin="0,0,0,6" />
+        <TextBlock Style="{StaticResource TitleSection}" Text="{x:Static res:Strings.GridDataTitle}" Margin="0,0,0,6" />
         <TextBox x:Name="FieldsBox" Style="{StaticResource InputBox}" IsReadOnly="True" AcceptsReturn="True"
                  Height="220" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-        <TextBlock Style="{StaticResource TitleSection}" Text="سجل القرارات" Margin="0,16,0,6" />
+        <TextBlock Style="{StaticResource TitleSection}" Text="{x:Static res:Strings.CardHistoryTitle}" Margin="0,16,0,6" />
         <ItemsControl x:Name="Timeline">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,2" Padding="8" Margin="0,0,0,6">
+              <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,2" Padding="8" Margin="0,0,0,6">
                 <StackPanel>
                   <TextBlock Text="{Binding Title}" Style="{StaticResource BaseText}" FontWeight="Bold" TextWrapping="Wrap" />
-                  <TextBlock Text="{Binding Detail}" Style="{StaticResource HintText}" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding Detail}" Style="{StaticResource MutedText}" TextWrapping="Wrap" />
                 </StackPanel>
               </Border>
             </DataTemplate>

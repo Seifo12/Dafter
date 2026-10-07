@@ -10,7 +10,8 @@ namespace CourtDesk.UI.Controls
 {
     public partial class BigCalendar : UserControl
     {
-        private LocalDate _month = CalendarModel.FirstOfMonth(LocalDate.FromDateTime(DateTime.Today));
+        private LocalDate _month =
+        CalendarModel.FirstOfMonth(LocalDate.FromDateTime(new SystemClock().UtcNow));
         private LocalDate _today;
         private LocalDate? _minimum;
         private Dictionary<string, int> _counts = new Dictionary<string, int>(StringComparer.Ordinal);

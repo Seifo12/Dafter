@@ -5,7 +5,7 @@
         Title="{x:Static res:Strings.AppTitle}" FlowDirection="RightToLeft"
         Width="520" Height="300" WindowStartupLocation="CenterScreen"
         WindowStyle="None" ResizeMode="NoResize" Topmost="True"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{StaticResource CardBrush}">
   <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="32">
     <TextBlock Text="{x:Static res:Strings.AppTitle}" Style="{StaticResource TitleDialog}"
                TextAlignment="Center" TextWrapping="Wrap" />

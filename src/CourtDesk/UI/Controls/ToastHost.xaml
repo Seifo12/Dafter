@@ -8,7 +8,7 @@
       <DataTemplate>
         <Border Style="{StaticResource WarnBand}" Margin="6,6,6,0">
           <DockPanel LastChildFill="True">
-            <Button Content="{x:Static res:Strings.Ok}" Style="{StaticResource SmallButton}"
+            <Button Content="{x:Static res:Strings.Ok}" Style="{StaticResource QuietButton}"
                     DockPanel.Dock="Right" MinWidth="100" Margin="12,0,0,0"
                     Command="{Binding Dismiss}" />
             <TextBlock Text="{Binding Text}" Style="{StaticResource BaseText}"

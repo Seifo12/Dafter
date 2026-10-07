@@ -47,16 +47,16 @@ public void SetCompact(bool compact)
             ApplyButtonLayout(EditButton, "IconEdit", Strings.ActionEdit);
             ApplyButtonLayout(CardButton, "IconCard", Strings.ActionCard);
             ApplyButtonLayout(VoidButton, "IconTrash", Strings.ActionVoid);
-            ActionBarRow.Height = compact ? 80 : 56;
+            ActionBarRow.Height = compact ? 84 : 56;
             if (Grid.Columns.Count > 3)
             {
-                SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 74), narrow ? 40 : (compact ? 52 : 74));
-                SetWidth(Grid.Columns[1], narrow ? 100 : (compact ? 160 : 280), narrow ? 100 : (compact ? 160 : 280));
-                SetWidth(Grid.Columns[2], narrow ? 96 : (compact ? 130 : 210), narrow ? 96 : (compact ? 130 : 210));
-                SetWidth(Grid.Columns[3], narrow ? 116 : (compact ? 150 : 190), narrow ? 116 : (compact ? 150 : 190));
+                SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
+                SetWidth(Grid.Columns[1], narrow ? 100 : (compact ? 160 : 268), narrow ? 100 : (compact ? 160 : 268));
+                SetWidth(Grid.Columns[2], narrow ? 96 : (compact ? 130 : 202), narrow ? 96 : (compact ? 130 : 202));
+                SetWidth(Grid.Columns[3], narrow ? 116 : (compact ? 150 : 186), narrow ? 116 : (compact ? 150 : 186));
                 if (Grid.Columns.Count > 4)
                 {
-                    SetWidth(Grid.Columns[4], narrow ? 124 : (compact ? 144 : 176), narrow ? 124 : (compact ? 144 : 176));
+                    SetWidth(Grid.Columns[4], narrow ? 124 : (compact ? 144 : 172), narrow ? 124 : (compact ? 144 : 172));
                 }
             }
         }
@@ -111,12 +111,15 @@ private void WrapActionContent()
             panel.Children.Add(path);
             var text = new TextBlock
             {
-                Text = label,
-                FontSize = _compact ? 18 : 18,
+Text = label,
+                FontSize = 18,
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(_compact ? 0 : 8, 0, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                TextWrapping = TextWrapping.NoWrap
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.NoWrap,
+                TextTrimming = TextTrimming.CharacterEllipsis
             };
             text.SetResourceReference(TextBlock.FontFamilyProperty, "AppFont");
             text.SetResourceReference(TextBlock.ForegroundProperty, b == DecideButton ? "WhiteBrush" : (b == VoidButton ? "DangerBrush" : "InkBrush"));
@@ -124,15 +127,17 @@ private void WrapActionContent()
             b.Content = panel;
             if (_compact)
             {
-                b.Width = _narrow ? 92 : 108;
+b.Width = _narrow ? 128 : 116;
                 b.Height = 72;
                 b.MinWidth = 0;
+                b.Padding = new Thickness(4, 2, 4, 2);
             }
             else
             {
-                b.ClearValue(FrameworkElement.WidthProperty);
+b.ClearValue(FrameworkElement.WidthProperty);
                 b.Height = 52;
                 b.MinWidth = 0;
+                b.Padding = new Thickness(16, 4, 16, 4);
             }
         }
 
@@ -149,14 +154,14 @@ private void WrapActionContent()
                 return;
             }
             Grid.Columns.Add(IndexColumn());
-            var nameCol = new DataGridTemplateColumn();
+var nameCol = new DataGridTemplateColumn();
             nameCol.Header = Strings.GridCase;
             nameCol.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-            nameCol.MinWidth = 280;
+            nameCol.MinWidth = 160;
             nameCol.CellTemplate = TwoLine("NameText", "MutedText", "Name", "CaseText");
             nameCol.SortMemberPath = "Name";
             Grid.Columns.Add(nameCol);
-            Grid.Columns.Add(MakeColumn(Strings.GridCourt, 210, "CourtText", "CourtText"));
+            Grid.Columns.Add(MakeColumn(Strings.GridCourt, 202, "CourtText", "CourtText"));
             var sessionCol = new DataGridTemplateColumn();
             sessionCol.Header = Strings.GridSession;
             sessionCol.Width = 190;
@@ -197,10 +202,11 @@ private void WrapActionContent()
             header.Setters.Add(new Setter(Control.FontWeightProperty, FontWeights.Bold));
             header.Setters.Add(new Setter(Control.ForegroundProperty, UiRes.Brush(this, "InkBrush", "#1B2430")));
             header.Setters.Add(new Setter(Control.BackgroundProperty, UiRes.Brush(this, "GridHeaderBgBrush", "#E8EDF3")));
-            header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.SeparatorBrushProperty, Brushes.Transparent));
+header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.SeparatorBrushProperty, Brushes.Transparent));
             header.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty, HorizontalAlignment.Right));
             header.Setters.Add(new Setter(Control.VerticalContentAlignmentProperty, VerticalAlignment.Center));
             header.Setters.Add(new Setter(FrameworkElement.MarginProperty, new Thickness(0)));
+            header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnHeader.ContentStringFormatProperty, null));
             Grid.ColumnHeaderStyle = header;
 
             var row = new Style(typeof(DataGridRow));

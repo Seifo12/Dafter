@@ -192,6 +192,51 @@ namespace CourtDesk.Tests
                 }
             }
 
+            foreach (DataGrid g in grids)
+            {
+                double total = 0;
+                foreach (DataGridColumn col in g.Columns)
+                {
+                    total += col.ActualWidth;
+                }
+                double avail = g.ActualWidth - 20;
+                if (total > avail + 2.0)
+                {
+                    failures.Add(c.Scenario + ": grid columns need " + Math.Round(total)
+                        + "px but only " + Math.Round(avail) + "px available");
+                }
+                for (int i = 0; i < g.Items.Count && i < 12; i++)
+                {
+                    var row = g.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
+                    if (row == null || !IsVisible(row))
+                    {
+                        continue;
+                    }
+                    foreach (DependencyObject d in Flatten(row))
+                    {
+                        var cellEl = d as DataGridCell;
+                        if (cellEl == null || !IsVisible(cellEl))
+                        {
+                            continue;
+                        }
+                        foreach (DependencyObject inner in Flatten(cellEl))
+                        {
+                            var t2 = inner as TextBlock;
+                            if (t2 == null || string.IsNullOrEmpty(t2.Text))
+                            {
+                                continue;
+                            }
+                            if (t2.ActualWidth > cellEl.ActualWidth + 1.0)
+                            {
+                                failures.Add(c.Scenario + ": cell text '" + Trim(t2.Text) + "' "
+                                    + Math.Round(t2.ActualWidth) + "px inside "
+                                    + Math.Round(cellEl.ActualWidth) + "px cell");
+                            }
+                        }
+                    }
+                }
+            }
+
             FrameworkElement status = Find(w, "StatusRow");
             if (status != null && Math.Abs(status.ActualHeight - 32.0) > 1.5)
             {
@@ -362,6 +407,23 @@ namespace CourtDesk.Tests
                     stack.Push(VisualTreeHelper.GetChild(cur, i));
                 }
             }
+        }
+
+        private static string Trim(string s)
+        {
+            if (s == null)
+            {
+                return "";
+            }
+            s = s.Replace("\r", " ").Replace("\n", " ");
+            return s.Length > 24 ? s.Substring(0, 24) : s;
+        }
+
+        private static List<DependencyObject> Flatten(DependencyObject root)
+        {
+            var all = new List<DependencyObject>();
+            CollectAll(root, all);
+            return all;
         }
 
         private static void CollectAll(DependencyObject root, List<DependencyObject> all)
