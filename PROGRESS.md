@@ -198,3 +198,34 @@ button, open the card after a decision, assert dropdown text):
 - `ValSummary` ended with a dangling "because:"; it now carries the first
   error. Fixed 8 corrupted Arabic strings in `Strings.cs`.
 - Gates: 126/126 green; `build.cmd` exit 0; real-app screenshot verified.
+
+## Phase 4R - layout addendum D1-D10 + sidebar D7/D8 (done, 2026-10-08)
+
+- D1-D3 header/nav final: `NavTab` padding TemplateBinding, MinWidth 110,
+  radius 24, bold; `NavTabCompact` 18px; `HeaderUtilityButton` 48 high dark
+  Border; TopBar single row, brand never trimmed, station line 20px and hidden
+  when narrow.
+- D4-D6 register: search box 60 high with inner clear button (40 high, only
+  when text, hint hides); chips horizontal scroll, `FilterChip` 40 high bold
+  no-trim; action bar borderless 5-button Grid with trailing spacer + void;
+  root margin 0; WideToggle moved to the status bar (Quiet, 36 high).
+- D9-D10 chrome: status bar 36 high (records + exit + USB; unit appended in
+  `SetStatus`); body margin 12; dead `SecondaryToggle` style deleted.
+- D7 session cards vertical: text on top, full-width record button below
+  (56 pending / 48 overdue, MinWidth 120); name click opens the case card
+  (`CardRequested` wired in `MainWindow`); `SidebarTab` MinWidth 120.
+- D8 decided strip: vertical list replaced by a horizontal `DecidedStrip`
+  (exempted from the audit's horizontal-overflow rule by design); per-card
+  undo button removed; "+N" (`SideMoreDecidedPlus`) + show-all/show-less
+  toggle, collapsed to 5 by default.
+- D14-D16 verified already in place: central `DataChanged` ->
+  `RefreshAfterDataChanged` (`SearchIndex.RefreshIds`/`ReplaceRow` +
+  `RefreshAll`); tab texts set after cards are filled; `AssertViewsMatchDb`
+  + 7 `RefreshPathTests` + 4 `DialogInteractionTests`.
+- Verification: `LayoutAudit` 12/12 scenarios, full suite 136/136 green;
+  screens re-rendered into `artifacts/screens`.
+- Note: 1x screenshot review produced two false alarms (shadda/diacritic
+  dots misread as ellipsis; tight-but-legal 8-12px adjacency misread as
+  overlap) - disproved by 4x crops plus a live-geometry probe (since
+  removed). Kept as regression tests: `SessionCardButtonsShowFullLabel`,
+  `DecidedStripCollapsesToFiveWithPlusNAndExpands`.

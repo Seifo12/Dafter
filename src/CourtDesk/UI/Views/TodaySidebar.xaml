@@ -41,16 +41,20 @@
           <ItemsControl x:Name="OverdueList" ItemsSource="{Binding OverdueCards}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Style="{StaticResource Card}" Height="76" Margin="0,0,0,8" x:Name="CardRoot">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="120" x:Name="CardRoot">
                   <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="6" />
                       <ColumnDefinition Width="*" />
-                      <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{StaticResource OverdueFgBrush}" CornerRadius="4" />
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis" />
+                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource OverdueFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,8,8,4">
+                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis"
+                                 Cursor="Hand" MouseLeftButtonUp="NameClick" />
                       <TextBlock Text="{Binding Line2}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
                       <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                         <Path Data="{StaticResource IconWarning}" Stroke="{StaticResource OverdueFgBrush}"
@@ -61,8 +65,9 @@
                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                       </StackPanel>
                     </StackPanel>
-                    <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" MinHeight="48" Height="48"
-                            MinWidth="112" Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="48" Height="48"
+                            MinWidth="120" Margin="8,0,8,8" HorizontalAlignment="Stretch"
+                            Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}">
                       <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
@@ -80,20 +85,26 @@
           <ItemsControl x:Name="PendingList" ItemsSource="{Binding PendingCards}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Style="{StaticResource Card}" Height="76" Margin="0,0,0,8">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="140">
                   <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="6" />
                       <ColumnDefinition Width="*" />
-                      <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{StaticResource TodayFgBrush}" CornerRadius="4" />
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis" />
+                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource TodayFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,8,8,4">
+                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis"
+                                 Cursor="Hand" MouseLeftButtonUp="NameClick" />
                       <TextBlock Text="{Binding Line2}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding Line3}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
-                    <Button Grid.Column="2" Style="{StaticResource PrimaryButton}" MinHeight="48" Height="48"
-                            MinWidth="112" Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="56" Height="56"
+                            MinWidth="120" Margin="8,0,8,8" HorizontalAlignment="Stretch"
+                            Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}">
                       <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
@@ -111,40 +122,42 @@
           <StackPanel x:Name="DecidedBlock">
             <TextBlock Text="{x:Static res:Strings.SideDecided}" Style="{StaticResource CardTitle}"
                        Margin="0,4,0,8" Foreground="{StaticResource MutedBrush}" />
-            <ItemsControl ItemsSource="{Binding DecidedCards}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                  <Border Style="{StaticResource Card}" Height="76" Margin="0,0,0,8">
-                    <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="6" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                      </Grid.ColumnDefinitions>
-                      <Border Grid.Column="0" Background="{Binding Accent}" CornerRadius="4" />
-                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" FontSize="20"
-                                   TextTrimming="CharacterEllipsis" />
-                        <TextBlock Text="{Binding ResultSentence}" Style="{StaticResource MutedText}"
-                                   TextTrimming="CharacterEllipsis" />
-                      </StackPanel>
-                      <Button Grid.Column="2" Style="{StaticResource QuietButton}" MinHeight="48" Height="48"
-                              MinWidth="96" Command="{Binding DataContext.UndoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}">
-                        <StackPanel Orientation="Horizontal">
-                          <Path Data="{StaticResource IconUndo}" Stroke="{StaticResource MutedBrush}" StrokeThickness="2"
-                                Fill="Transparent" Width="20" Height="20" VerticalAlignment="Center" />
-                          <TextBlock Text="{x:Static res:Strings.SideUndo}" Margin="6,0,0,0"
-                                     VerticalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" />
+            <ScrollViewer x:Name="DecidedStrip" HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled">
+              <ItemsControl ItemsSource="{Binding DecidedCards}" Margin="0,0,0,4">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border Style="{StaticResource Card}" MinWidth="190" MaxWidth="260" Margin="0,0,8,0">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="6" />
+                          <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{Binding Accent}" CornerRadius="4" Margin="0,6,0,6" />
+                        <StackPanel Grid.Column="1" Margin="8" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" FontSize="20"
+                                     TextTrimming="CharacterEllipsis" />
+                          <TextBlock Text="{Binding ResultSentence}" Style="{StaticResource MutedText}"
+                                     TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                      </Button>
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <TextBlock x:Name="MoreDecidedText" Style="{StaticResource MutedText}" Margin="0,4,0,0"
-                       TextAlignment="Center" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4,0,0"
+                        x:Name="DecidedMoreRow">
+              <TextBlock x:Name="MoreDecidedText" Style="{StaticResource MutedText}"
+                         VerticalAlignment="Center" Margin="0,0,8,0" />
+              <Button x:Name="DecidedToggle" Style="{StaticResource QuietButton}" MinHeight="48" Height="48"
+                      MinWidth="120" Command="{Binding ToggleDecidedCommand}" />
+            </StackPanel>
           </StackPanel>
 
           <TextBlock Text="{x:Static res:Strings.SideEmpty}" Style="{StaticResource MutedText}"

@@ -24,7 +24,7 @@ namespace CourtDesk.Resources
         public const string FilterAll = "الكل";
         public const string FilterReleased = "المفرج عنهم";
         public const string FilterJudged = "صدر فيهم حكم";
-        public const string FilterNoDate = "بدون ميعاد جلسة";
+        public const string FilterNoDate = "بدون ميعاد";
 
         public const string ActionAdd = "إضافة متهم";
         public const string ActionEdit = "تعديل";
@@ -203,7 +203,9 @@ namespace CourtDesk.Resources
         public const string SidePrintShort = "طباعة كشف الترحيل";
         public const string CustodyHeld = "محتجز";
         public const string CustodyFree = "غير محتجز";
-        public const string SideMoreDecided = "عرض {0} أخرى";
+        public const string SideMoreDecidedPlus = "+{0}";
+        public const string SideShowAll = "عرض الكل";
+        public const string SideShowLess = "عرض أقل";
         public const string TomorrowShort = "بكرة: {0}";
         public const string CalPrev = "السابق";
         public const string CalNext = "التالي";
@@ -225,6 +227,8 @@ namespace CourtDesk.Resources
         public const string BkDate = "تاريخ النسخ";
         public const string FormYes = "نعم";
         public const string FormNo = "لا";
+        public const string ToastSaved = "تم الحفظ";
+        public const string StatusRecordsUnit = "سجل";
         public const string OperatorUnknown = "غير مسجل";
         public const string SplashWait = "برجاء الانتظار…";
 
@@ -239,10 +243,10 @@ namespace CourtDesk.Resources
         public const string BkUsbFailFull = "مفيش مساحة كفاية على الفلاشة.";
         public const string BkUsbFailRo = "الفلاشة مقفولة للكتابة.";
         public const string BkUsbFailUnknown = "حصلت مشكلة غير متوقعة.";
-        public const string BkLastUsb = "آخر نسخة على الفلاشة: {0}";
-        public const string BkUsbOld = "آخر نسخة على الفلاشة كانت من {0} يوم. الأفضل تحفظ نسخة جديدة دلوقتي.";
+        public const string BkLastUsb = "آخر نسخة على الفلاشة: ‎{0}‎";
+        public const string BkUsbOld = "آخر نسخة على الفلاشة كانت من ‎{0}‎ يوم. الأفضل تحفظ نسخة جديدة دلوقتي.";
         public const string BkNeverUsb = "لسه ماحفظتش نسخة على الفلاشة.";
-        public const string BkLastExit = "آخر نسخة عند الخروج: {0}";
+        public const string BkLastExit = "آخر نسخة عند الخروج: ‎{0}‎";
         public const string BkRestore = "استرجاع نسخة قديمة";
         public const string BkRestoreCompare = "النسخة المختارة: {0} متهم، بتاريخ {1}. النسخة الحالية: {2} متهم.";
         public const string BkRestoreSafe = "هنحفظ نسخة من بياناتك الحالية الأول عشان ماتضيعش.";

@@ -15,6 +15,8 @@
   <Color x:Key="SelectedBg">#D6E8FA</Color>
   <Color x:Key="DangerQuiet">#A32D2D</Color>
   <Color x:Key="White">#FFFFFF</Color>
+  <Color x:Key="White60">#99FFFFFF</Color>
+  <Color x:Key="White15">#26FFFFFF</Color>
   <Color x:Key="FocusYellow">#FFD400</Color>
 
   <Color x:Key="TodayFg">#8A5A00</Color>
@@ -44,6 +46,8 @@
   <SolidColorBrush x:Key="SelectedBgBrush" Color="{StaticResource SelectedBg}" />
   <SolidColorBrush x:Key="DangerQuietBrush" Color="{StaticResource DangerQuiet}" />
   <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}" />
+  <SolidColorBrush x:Key="White60Brush" Color="{StaticResource White60}" />
+  <SolidColorBrush x:Key="White15Brush" Color="{StaticResource White15}" />
   <SolidColorBrush x:Key="FocusYellowBrush" Color="{StaticResource FocusYellow}" />
 
   <SolidColorBrush x:Key="TodayFgBrush" Color="{StaticResource TodayFg}" />

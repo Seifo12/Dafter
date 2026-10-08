@@ -13,7 +13,7 @@ namespace CourtDesk.UI.Shell
         {
             NavRowWide.Visibility = wide ? Visibility.Visible : Visibility.Collapsed;
             NavRowCompact.Visibility = wide ? Visibility.Collapsed : Visibility.Visible;
-            BrandBlock.Visibility = wide ? Visibility.Visible : Visibility.Collapsed;
+            StationLineText.Visibility = wide ? Visibility.Visible : Visibility.Collapsed;
             FontLabelText.Visibility = wide ? Visibility.Visible : Visibility.Collapsed;
             HelpButton.MinWidth = wide ? 104 : 48;
             HelpButton.Content = wide ? (object)CourtDesk.Resources.Strings.NavHelp : "?";

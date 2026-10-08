@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using CourtDesk.Application;
+using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 using CourtDesk.UI.Views;
 using Xunit;
@@ -83,6 +87,113 @@ namespace CourtDesk.Tests
                     Assert.Equal(1, env.Sidebar.PendingCards.Count);
                 }
             });
+        }
+
+        [Fact]
+        public void DecidedStripCollapsesToFiveWithPlusNAndExpands()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    var decisions = new DecisionService(env.Db, env.Defendants, env.Events,
+                        env.Clock, env.Settings);
+                    for (int i = 0; i < 7; i++)
+                    {
+                        int id = env.AddDefendant("Decided " + i, (7100 + i).ToString(),
+                            new LocalDate(2026, 10, 7));
+                        Defendant d = new DefendantService(env.Db, env.Defendants, env.Events,
+                            env.Clock, env.Settings, new NullLogger()).Get(id);
+                        decisions.Decide(new DecisionRequest
+                        {
+                            RequestUuid = Guid.NewGuid().ToString("N"),
+                            DefendantId = id,
+                            ExpectedVersion = d.RowVersion,
+                            Code = DecisionCodes.Release,
+                            NextDate = null
+                        });
+                    }
+                    env.Refresh();
+                    Assert.Equal(5, env.Sidebar.DecidedCards.Count);
+                    Assert.Equal(2, env.Sidebar.MoreDecided);
+                    Assert.Equal("+2", env.Sidebar.MoreDecidedText);
+                    Assert.True(env.Sidebar.HasMoreDecided);
+                    Assert.Equal(CourtDesk.Resources.Strings.SideShowAll,
+                        env.Sidebar.DecidedToggleText);
+                    env.Sidebar.ToggleDecidedCommand.Execute(null);
+                    Assert.True(env.Sidebar.DecidedExpanded);
+                    Assert.Equal(7, env.Sidebar.DecidedCards.Count);
+                    Assert.Equal(0, env.Sidebar.MoreDecided);
+                    Assert.Equal("", env.Sidebar.MoreDecidedText);
+                    Assert.Equal(CourtDesk.Resources.Strings.SideShowLess,
+                        env.Sidebar.DecidedToggleText);
+                    env.Sidebar.ToggleDecidedCommand.Execute(null);
+                    Assert.False(env.Sidebar.DecidedExpanded);
+                    Assert.Equal(5, env.Sidebar.DecidedCards.Count);
+                }
+            });
+        }
+        [Fact]
+        public void SessionCardButtonsShowFullLabel()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    env.AddDefendant("Pending One", "7001", new LocalDate(2026, 10, 7));
+                    env.AddDefendant("Pending Two", "7002", new LocalDate(2026, 10, 7));
+                    env.Refresh();
+                    var view = new TodaySidebar { DataContext = env.Sidebar };
+                    view.Measure(new Size(272, 700));
+                    view.Arrange(new Rect(0, 0, 272, 700));
+                    view.UpdateLayout();
+                    var labels = new List<string>();
+                    CollectRecordLabels(view, labels);
+                    Assert.True(labels.Count >= 2, "expected 2 record labels, got " + labels.Count);
+                    foreach (string s in labels)
+                    {
+                        Assert.Equal(CourtDesk.Resources.Strings.SideRecord, s);
+                    }
+                }
+            });
+        }
+
+        private static void CollectRecordLabels(DependencyObject root, List<string> outp)
+        {
+            int n = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < n; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                Button b = child as Button;
+                if (b != null && b.CommandParameter is CourtDesk.UI.ViewModels.SessionCard)
+                {
+                    var texts = new List<TextBlock>();
+                    CollectTextBlocks(b, texts);
+                    foreach (TextBlock t in texts)
+                    {
+                        if (!string.IsNullOrEmpty(t.Text))
+                        {
+                            outp.Add(t.Text);
+                        }
+                    }
+                }
+                CollectRecordLabels(child, outp);
+            }
+        }
+
+        private static void CollectTextBlocks(DependencyObject root, List<TextBlock> outp)
+        {
+            int n = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < n; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                TextBlock t = child as TextBlock;
+                if (t != null)
+                {
+                    outp.Add(t);
+                }
+                CollectTextBlocks(child, outp);
+            }
         }
     }
 }

@@ -114,7 +114,7 @@ namespace CourtDesk.Tests
                     Assert.Equal(FlowDirection.RightToLeft, view.FlowDirection);
                     var buttons = new List<Button>();
                     CollectButtons(view, buttons);
-                    Assert.True(buttons.Count >= 7);
+                    Assert.True(buttons.Count >= 6);
                     foreach (Button b in buttons)
                     {
                         if (b.Content == null)

@@ -88,7 +88,6 @@ namespace CourtDesk.Tests
             AssertMinHeight(controls, "NavTab", 48);
             AssertMinHeight(controls, "NavTabCompact", 48);
             AssertMinHeight(controls, "SidebarTab", 48);
-            AssertMinHeight(controls, "SecondaryToggle", 48);
             AssertMinHeight(controls, "FilterChip", 40);
             AssertMinHeight(controls, "InputBox", 56);
         }

@@ -87,6 +87,8 @@ namespace CourtDesk.UI.ViewModels
 
         public int Id { get { return _id; } }
         public bool IsNew { get { return _id == 0; } }
+
+        public int SavedId { get { return _saved ? _id : 0; } }
         public bool SessionEditable { get { return _status == DefendantStatuses.Detained; } }
         public string Title { get { return IsNew ? Strings.FormAddTitle : Strings.FormEditTitle; } }
 

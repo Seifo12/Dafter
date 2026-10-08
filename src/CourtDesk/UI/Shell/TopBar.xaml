@@ -14,11 +14,10 @@
       <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
         <Path Data="{StaticResource IconShield}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
               Fill="Transparent" Width="28" Height="28" VerticalAlignment="Center" />
-        <StackPanel VerticalAlignment="Center" Margin="8,0,0,0" MaxWidth="230" x:Name="BrandBlock">
-          <TextBlock Text="{x:Static res:Strings.AppTitle}" Style="{StaticResource BrandText}"
-                     TextTrimming="CharacterEllipsis" />
+        <StackPanel VerticalAlignment="Center" Margin="8,0,0,0" x:Name="BrandBlock">
+          <TextBlock Text="{x:Static res:Strings.AppTitle}" Style="{StaticResource BrandText}" />
           <TextBlock Text="{Binding StationLine}" Style="{StaticResource BrandSubText}"
-                     TextTrimming="CharacterEllipsis" />
+                     x:Name="StationLineText" />
         </StackPanel>
       </StackPanel>
 

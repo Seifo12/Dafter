@@ -131,6 +131,7 @@ namespace CourtDesk.Tests
             Register = new RegisterViewModel(Index, Today, null, null);
             Sidebar = new TodaySidebarViewModel(Today);
             Main = new MainViewModel(Settings, Clock, Register, Sidebar);
+            Main.Index = Index;
         }
 
         public int AddDefendant(string name, string caseNumber, LocalDate? session)

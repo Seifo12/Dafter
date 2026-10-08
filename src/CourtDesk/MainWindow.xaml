@@ -4,10 +4,12 @@
         xmlns:res="clr-namespace:CourtDesk.Resources"
         xmlns:shell="clr-namespace:CourtDesk.UI.Shell"
         xmlns:views="clr-namespace:CourtDesk.UI.Views"
+        xmlns:ctl="clr-namespace:CourtDesk.UI.Controls"
         Title="{x:Static res:Strings.AppTitle}"
         FlowDirection="RightToLeft" xml:lang="ar-EG"
         WindowState="Maximized" MinWidth="1024" MinHeight="700"
         Background="{StaticResource CanvasBrush}">
+  <Grid>
   <Grid x:Name="Root" x:FieldModifier="public">
     <Grid.LayoutTransform>
       <ScaleTransform x:Name="RootScale" ScaleX="1" ScaleY="1" />
@@ -18,7 +20,7 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <shell:TopBar Grid.Row="0" DataContext="{Binding}" x:Name="Bar" />
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="1" Margin="12">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" x:Name="SidebarColumn" />
         <ColumnDefinition Width="*" />
@@ -30,12 +32,26 @@
       </Grid>
     </Grid>
     <Border Grid.Row="2" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}"
-            BorderThickness="0,1,0,0" Height="32" MinHeight="32" x:Name="StatusRow">
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-        <TextBlock Text="{Binding StatusRecords}" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
-        <TextBlock Text="{Binding StatusExit}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
-        <TextBlock Text="{Binding StatusUsb}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
-      </StackPanel>
+            BorderThickness="0,1,0,0" Height="36" MinHeight="36" x:Name="StatusRow">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <TextBlock Text="{Binding StatusRecords}" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding StatusExit}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding StatusUsb}" Style="{StaticResource MutedText}" Margin="16,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+        <Button Grid.Column="1" x:Name="WideToggle" Style="{StaticResource QuietButton}"
+                MinHeight="36" Height="36" MinWidth="160" Margin="12,0,0,0"
+                Content="{Binding Register.WideLabel}" Click="WideToggleClick"
+                HorizontalAlignment="Left" VerticalAlignment="Center" />
+      </Grid>
     </Border>
+  </Grid>
+  <ctl:ToastHost x:Name="Toasts" x:FieldModifier="public"
+                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                 Margin="0,0,0,64" />
   </Grid>
 </Window>

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using CourtDesk.Application;
 using CourtDesk.Application.Ports;
@@ -111,7 +112,19 @@ c.PrintService = new CourtDesk.Printing.PrintService(db,
                 Rosters = c.RosterService,
                 History = new CourtDesk.UI.ViewModels.HistoryViewModel(db, events, defendants)
             });
-            db.DataChanged += delegate(long seq) { c.Main.RefreshAll(); };
+            db.DataChanged += delegate(long seq)
+            {
+                List<int> dirty = c.Coordinator.DrainDirtyIds();
+                if (dirty.Count > 0)
+                {
+                    c.Main.RefreshAfterDataChanged(dirty);
+                }
+                else
+                {
+                    c.Main.RefreshAll();
+                }
+                RefreshStatus(c);
+            };
             RefreshStatus(c);
             return c;
         }

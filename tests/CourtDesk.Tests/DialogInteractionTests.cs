@@ -32,6 +32,11 @@ namespace CourtDesk.Tests
             public DefendantService DefendantService;
             public DecisionService DecisionService;
             public UndoService Undo;
+            public SearchIndex Index;
+            public TodayService Today;
+            public RegisterViewModel Register;
+            public TodaySidebarViewModel Sidebar;
+            public MainViewModel Main;
 
             public Env()
             {
@@ -55,6 +60,13 @@ namespace CourtDesk.Tests
                 DefendantService = new DefendantService(Db, Defendants, Events, Clock, Settings, new NullLogger());
                 DecisionService = new DecisionService(Db, Defendants, Events, Clock, Settings);
                 Undo = new UndoService(Db, Defendants, Events, Clock, Settings);
+                Index = new SearchIndex(Db, Defendants, Clock, new string[] { "d", "r", "j" });
+                Index.Rebuild();
+                Today = new TodayService(Db, Defendants, Clock, Settings);
+                Register = new RegisterViewModel(Index, Today, null, null);
+                Sidebar = new TodaySidebarViewModel(Today);
+                Main = new MainViewModel(Settings, Clock, Register, Sidebar);
+                Main.Index = Index;
             }
 
             public int Add(string name, string caseNumber, LocalDate? session)
@@ -274,6 +286,79 @@ namespace CourtDesk.Tests
                     {
                         dlg.Close();
                     }
+                }
+            });
+        }
+
+        [Fact]
+        public void WizardSaveEndToEndUpdatesGrid()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new Env())
+                {
+                    int id = env.Add("حفظ من المعالج", "7003", new LocalDate(2026, 10, 7));
+                    var vm = new DecisionWizardViewModel(env.DecisionService, env.Undo,
+                        env.DefendantService, env.Lookups, env.Settings, env.Clock,
+                        new List<int> { id }, 0);
+                    var dlg = new DecisionWizardDialog(vm, null, env.Clock);
+                    dlg.Left = -32000;
+                    dlg.Top = -32000;
+                    dlg.ShowActivated = false;
+                    try
+                    {
+                        dlg.Show();
+                        Pump();
+                        dlg.UpdateLayout();
+                        Pump();
+
+                        Button tile = null;
+                        foreach (Button b in ButtonsUnder(dlg))
+                        {
+                            if (b.Tag is DecisionTile)
+                            {
+                                var t = (DecisionTile)b.Tag;
+                                if (t.Code == DecisionCodes.RenewDetention)
+                                {
+                                    tile = b;
+                                }
+                            }
+                        }
+                        Assert.True(tile != null, "renew tile not found");
+                        Assert.True(tile.Command != null, "tile button has no command");
+                        Assert.True(tile.CommandParameter is DecisionTile, "tile parameter is not a tile");
+                        Assert.True(tile.Command.CanExecute(tile.CommandParameter),
+                            "tile command cannot execute");
+                        tile.Command.Execute(tile.CommandParameter);
+                        Pump();
+                        Assert.Equal(2, vm.Step);
+
+                        Button fifteen = FindOffsetButton(dlg, 15);
+                        Assert.True(fifteen != null, "15-day button not found");
+                        fifteen.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                        Pump();
+                        Assert.Equal(new LocalDate(2026, 10, 22), vm.NextDate);
+
+                        vm.Save();
+                        Pump();
+                        Assert.True(vm.Done, "wizard did not complete save");
+                    }
+                    finally
+                    {
+                        dlg.Close();
+                    }
+                    env.Main.RefreshAfterDataChanged(new List<int> { id });
+                    ViewDbAssert.AssertViewsMatchDb(env.Main, env.Today, env.Db,
+                        env.Defendants, env.Clock);
+                    bool found = false;
+                    foreach (var row in env.Register.Rows)
+                    {
+                        if (row.Id == id && row.SessionLine1 == "22/10/2026")
+                        {
+                            found = true;
+                        }
+                    }
+                    Assert.True(found, "decided row with new date not in grid");
                 }
             });
         }

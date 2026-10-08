@@ -140,7 +140,7 @@ namespace CourtDesk.UI.ViewModels
 
         public void SetStatus(string records, string exit, string usb)
         {
-            _statusRecords = records;
+            _statusRecords = records + " " + CourtDesk.Resources.Strings.StatusRecordsUnit;
             _statusExit = exit;
             _statusUsb = usb;
             Raise("StatusRecords");
@@ -150,11 +150,22 @@ namespace CourtDesk.UI.ViewModels
             Raise("TodayLong");
         }
 
+        public SearchIndex Index { get; set; }
+
         public void RefreshAll()
         {
             Register.Refresh();
             Sidebar.Refresh();
             Raise("TodayLong");
+        }
+
+        public void RefreshAfterDataChanged(System.Collections.Generic.List<int> dirtyIds)
+        {
+            if (Index != null && dirtyIds != null && dirtyIds.Count > 0)
+            {
+                Index.RefreshIds(dirtyIds);
+            }
+            RefreshAll();
         }
 
         private void StepZoom(int dir)

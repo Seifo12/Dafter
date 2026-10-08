@@ -25,25 +25,30 @@ namespace CourtDesk
             ApplyZoom(vm);
             if (composition != null)
             {
-                RegisterView.AddRequested = delegate { composition.Coordinator.OpenEdit(0); vm.RefreshAll(); };
-                RegisterView.EditRequested = delegate(int id) { composition.Coordinator.OpenEdit(id); vm.RefreshAll(); };
-                RegisterView.DecideRequested = delegate(int id) { composition.Coordinator.OpenWizard(id); vm.RefreshAll(); };
-                RegisterView.CardRequested = delegate(int id) { composition.Coordinator.OpenCard(id); vm.RefreshAll(); };
-                RegisterView.VoidRequested = delegate(int id)
+                RegisterView.AddRequested = delegate
                 {
-                    composition.Coordinator.VoidRecord(id);
-                    composition.SearchIndex.Rebuild();
-                    vm.RefreshAll();
+                    CourtDesk.UI.Dialogs.DefendantEditDialog dlg = composition.Coordinator.OpenEdit(0);
+                    AfterSave(dlg.ViewModel.SavedId);
                 };
+                RegisterView.EditRequested = delegate(int id)
+                {
+                    CourtDesk.UI.Dialogs.DefendantEditDialog dlg = composition.Coordinator.OpenEdit(id);
+                    AfterSave(dlg.ViewModel.SavedId);
+                };
+                RegisterView.DecideRequested = delegate(int id) { composition.Coordinator.OpenWizard(id); };
+                RegisterView.CardRequested = delegate(int id) { composition.Coordinator.OpenCard(id); };
+                RegisterView.VoidRequested = delegate(int id) { composition.Coordinator.VoidRecord(id); };
                 vm.Sidebar.RecordRequested += delegate(SessionCard c)
                 {
                     composition.Coordinator.OpenWizard(c.Id);
-                    vm.RefreshAll();
                 };
                 vm.Sidebar.UndoRequested += delegate(SessionCard c)
                 {
                     composition.Coordinator.OpenCard(c.Id);
-                    vm.RefreshAll();
+                };
+                vm.Sidebar.CardRequested += delegate(SessionCard c)
+                {
+                    composition.Coordinator.OpenCard(c.Id);
                 };
                 vm.Sidebar.PrintRequested += delegate(bool preview) { composition.Coordinator.PrintToday(preview); };
             }
@@ -62,6 +67,25 @@ namespace CourtDesk
             Loaded += delegate { ApplyWidthMode(); };
             ApplyWidthMode();
             ApplySection(vm);
+        }
+
+        private void AfterSave(int savedId)
+        {
+            if (savedId <= 0)
+            {
+                return;
+            }
+            RegisterView.SelectAndShow(savedId);
+            Toasts.Show(CourtDesk.Resources.Strings.ToastSaved);
+        }
+
+        private void WideToggleClick(object sender, RoutedEventArgs e)
+        {
+            MainViewModel vm = DataContext as MainViewModel;
+            if (vm != null && vm.Register != null)
+            {
+                vm.Register.Wide = !vm.Register.Wide;
+            }
         }
 
         private void ApplyWidthMode()

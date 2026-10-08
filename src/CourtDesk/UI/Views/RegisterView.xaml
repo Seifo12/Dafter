@@ -4,7 +4,7 @@
              xmlns:res="clr-namespace:CourtDesk.Resources"
              xmlns:ctl="clr-namespace:CourtDesk.UI.Controls"
              FlowDirection="RightToLeft">
-  <Grid Margin="12">
+  <Grid Margin="0">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
@@ -24,115 +24,105 @@
             <Grid>
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
               <Path Grid.Column="0" Data="{StaticResource IconSearch}" Stroke="{StaticResource PrimaryBrush}"
                     StrokeThickness="2" Fill="Transparent" Width="24" Height="24"
                     HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12,0" />
-              <Button Grid.Column="1" Style="{StaticResource QuietButton}" MinHeight="48" Height="48"
-                      MinWidth="100" Content="{x:Static res:Strings.SearchClear}" Click="ClearClick"
-                      x:Name="ClearButton" />
-              <TextBox Grid.Column="2" x:Name="SearchInput" Background="Transparent" BorderThickness="0"
+              <TextBox Grid.Column="1" x:Name="SearchInput" Background="Transparent" BorderThickness="0"
                        FontFamily="{StaticResource AppFont}" FontSize="22" Foreground="{StaticResource InkBrush}"
                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                        VerticalContentAlignment="Center" CaretBrush="{StaticResource PrimaryBrush}" />
-              <TextBlock Grid.Column="2" x:Name="SearchHint" Text="{x:Static res:Strings.SearchPlaceholder}"
+              <TextBlock Grid.Column="1" x:Name="SearchHint" Text="{x:Static res:Strings.SearchPlaceholder}"
                          Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="4,0,0,0"
                          IsHitTestVisible="False" />
+              <Button Grid.Column="2" x:Name="ClearButton" Style="{StaticResource QuietButton}"
+                      MinHeight="40" Height="40" MinWidth="80" Margin="4,0,8,0"
+                      Content="{x:Static res:Strings.SearchClear}" Click="ClearClick"
+                      Visibility="Collapsed" />
             </Grid>
           </Border>
         </Grid>
 
-        <Grid Grid.Row="1" Margin="0,4,0,0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-          </Grid.ColumnDefinitions>
-          <ItemsControl Grid.Column="0" ItemsSource="{Binding Chips}" x:Name="ChipRow">
-            <ItemsControl.ItemsPanel>
-              <ItemsPanelTemplate>
-                <UniformGrid Rows="1" Columns="5" />
-              </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-              <DataTemplate>
-                <ToggleButton Content="{Binding Text}" Style="{StaticResource FilterChip}"
-                              IsChecked="{Binding Checked, Mode=OneWay}"
-                              Command="{Binding DataContext.ChipCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding Key}" />
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-          <ToggleButton Grid.Column="1" Style="{StaticResource SecondaryToggle}" MinHeight="48" Height="48"
-                        MinWidth="180" x:Name="WideToggle" IsChecked="{Binding Wide, Mode=OneWay}"
-                        Click="WideToggleClick">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-              <Path Data="{StaticResource IconGrid}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
-                    Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-              <TextBlock Text="{Binding WideLabel}" Margin="8,0,0,0" VerticalAlignment="Center"
-                         Foreground="{StaticResource PrimaryBrush}" FontSize="20" FontWeight="Bold"
-                         FontFamily="{StaticResource AppFont}" />
-            </StackPanel>
-          </ToggleButton>
-        </Grid>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Chips}" x:Name="ChipRow" Margin="0,4,0,0">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <ToggleButton Content="{Binding Text}" Style="{StaticResource FilterChip}"
+                            VerticalAlignment="Center"
+                            IsChecked="{Binding Checked, Mode=OneWay}"
+                            Command="{Binding DataContext.ChipCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding Key}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
       </Grid>
     </Border>
 
-    <Grid Grid.Row="1" x:Name="ActionBarRow" Height="56" Margin="0,8,0,8">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" x:Name="ActionBar">
-        <Button x:Name="DecideButton" Style="{StaticResource PrimaryButton}" MinHeight="52" Height="52"
-                MinWidth="180" Tag="decide" Click="ActionClick">
-          <StackPanel Orientation="Horizontal">
-            <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
-                  Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-            <TextBlock x:Name="DecideLabel" Text="{x:Static res:Strings.ActionDecide}" Margin="8,0,0,0"
-                       VerticalAlignment="Center" Foreground="{StaticResource WhiteBrush}" FontSize="22"
-                       FontWeight="Bold" FontFamily="{StaticResource AppFont}" />
-          </StackPanel>
-        </Button>
-        <Button x:Name="AddButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
-                MinWidth="170" Tag="add" Click="ActionClick">
-          <StackPanel Orientation="Horizontal" x:Name="AddStack">
-            <Path Data="{StaticResource IconAdd}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
-                  Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-            <TextBlock Text="{x:Static res:Strings.ActionAdd}" Margin="8,0,0,0" VerticalAlignment="Center"
-                       Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
-                       FontFamily="{StaticResource AppFont}" />
-          </StackPanel>
-        </Button>
-        <Button x:Name="EditButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
-                MinWidth="140" Tag="edit" Click="ActionClick">
-          <StackPanel Orientation="Horizontal">
-            <Path Data="{StaticResource IconEdit}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
-                  Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-            <TextBlock Text="{x:Static res:Strings.ActionEdit}" Margin="8,0,0,0" VerticalAlignment="Center"
-                       Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
-                       FontFamily="{StaticResource AppFont}" />
-          </StackPanel>
-        </Button>
-        <Button x:Name="CardButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
-                MinWidth="170" Tag="card" Click="ActionClick">
-          <StackPanel Orientation="Horizontal">
-            <Path Data="{StaticResource IconCard}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
-                  Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-            <TextBlock Text="{x:Static res:Strings.ActionCard}" Margin="8,0,0,0" VerticalAlignment="Center"
-                       Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
-                       FontFamily="{StaticResource AppFont}" />
-          </StackPanel>
-        </Button>
-        <Button x:Name="VoidButton" Style="{StaticResource DangerQuietButton}" MinHeight="52" Height="52"
-                MinWidth="150" Tag="void" Click="ActionClick">
-          <StackPanel Orientation="Horizontal">
-            <Path Data="{StaticResource IconTrash}" Stroke="{StaticResource DangerQuietBrush}" StrokeThickness="2"
-                  Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
-            <TextBlock Text="{x:Static res:Strings.ActionVoid}" Margin="8,0,0,0" VerticalAlignment="Center"
-                       Foreground="{StaticResource DangerQuietBrush}" FontSize="20" FontWeight="Bold"
-                       FontFamily="{StaticResource AppFont}" />
-          </StackPanel>
-        </Button>
-      </StackPanel>
+    <Grid Grid.Row="1" x:Name="ActionBar" Height="56" Margin="0,8,0,8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Button Grid.Column="0" x:Name="DecideButton" Style="{StaticResource PrimaryButton}" MinHeight="52" Height="52"
+              MinWidth="180" Tag="decide" Click="ActionClick">
+        <StackPanel Orientation="Horizontal">
+          <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock x:Name="DecideLabel" Text="{x:Static res:Strings.ActionDecide}" Margin="8,0,0,0"
+                     VerticalAlignment="Center" Foreground="{StaticResource WhiteBrush}" FontSize="22"
+                     FontWeight="Bold" FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Column="1" x:Name="AddButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
+              MinWidth="170" Tag="add" Click="ActionClick">
+        <StackPanel Orientation="Horizontal" x:Name="AddStack">
+          <Path Data="{StaticResource IconAdd}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.ActionAdd}" Margin="8,0,0,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
+                     FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Column="2" x:Name="EditButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
+              MinWidth="140" Tag="edit" Click="ActionClick">
+        <StackPanel Orientation="Horizontal">
+          <Path Data="{StaticResource IconEdit}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.ActionEdit}" Margin="8,0,0,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
+                     FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Column="3" x:Name="CardButton" Style="{StaticResource SecondaryButton}" MinHeight="52" Height="52"
+              MinWidth="170" Tag="card" Click="ActionClick">
+        <StackPanel Orientation="Horizontal">
+          <Path Data="{StaticResource IconCard}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.ActionCard}" Margin="8,0,0,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource PrimaryBrush}" FontSize="22" FontWeight="Bold"
+                     FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
+      <Button Grid.Column="5" x:Name="VoidButton" Style="{StaticResource DangerQuietButton}" MinHeight="52" Height="52"
+              MinWidth="150" Tag="void" Click="ActionClick">
+        <StackPanel Orientation="Horizontal">
+          <Path Data="{StaticResource IconTrash}" Stroke="{StaticResource DangerQuietBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock Text="{x:Static res:Strings.ActionVoid}" Margin="8,0,0,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource DangerQuietBrush}" FontSize="20" FontWeight="Bold"
+                     FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
     </Grid>
 
     <Grid Grid.Row="2">

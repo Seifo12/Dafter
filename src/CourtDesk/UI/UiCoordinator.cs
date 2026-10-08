@@ -13,10 +13,38 @@ namespace CourtDesk.UI
     public sealed class UiCoordinator
     {
         private readonly PopupHost _popups = new PopupHost();
+        private readonly List<int> _dirtyIds = new List<int>();
 
         public UiCoordinator(CompositionLike composition)
         {
             C = composition;
+        }
+
+        public List<int> DrainDirtyIds()
+        {
+            var outp = new List<int>(_dirtyIds);
+            _dirtyIds.Clear();
+            return outp;
+        }
+
+        private void MarkDirty(int id)
+        {
+            if (id > 0 && !_dirtyIds.Contains(id))
+            {
+                _dirtyIds.Add(id);
+            }
+        }
+
+        private void MarkDirty(IEnumerable<int> ids)
+        {
+            if (ids == null)
+            {
+                return;
+            }
+            foreach (int id in ids)
+            {
+                MarkDirty(id);
+            }
         }
 
         public sealed class CompositionLike
@@ -100,6 +128,7 @@ namespace CourtDesk.UI
             var vm = new DefendantEditViewModel(C.Defendants, C.Lookups, C.Clock, existing);
             var dlg = new DefendantEditDialog(vm, C.Lookups, C.Clock, _popups);
             dlg.ShowDialog();
+            MarkDirty(dlg.ViewModel.SavedId);
             return dlg;
         }
 
@@ -115,6 +144,7 @@ namespace CourtDesk.UI
             var dlg = new DecisionWizardDialog(vm, _popups, C.Clock);
             dlg.UndoRequested += delegate { ConfirmUndo(dlg); };
             dlg.ShowDialog();
+            MarkDirty(vm.DecidedIds);
             return dlg;
         }
 
@@ -131,6 +161,7 @@ namespace CourtDesk.UI
             try
             {
                 C.Undo.Undo(LastEventOf(dlg.ViewModel.DefendantId), Guid.NewGuid().ToString("N"));
+                MarkDirty(dlg.ViewModel.DefendantId);
                 _popups.Tell(dlg, Strings.WizUndo, Strings.SideUndo);
             }
             catch (UndoNotAllowedException)
@@ -169,6 +200,7 @@ namespace CourtDesk.UI
                         try
                         {
                             C.Undo.Undo(ev, Guid.NewGuid().ToString("N"));
+                            MarkDirty(id);
                         }
                         catch (UndoNotAllowedException)
                         {
@@ -199,6 +231,7 @@ namespace CourtDesk.UI
             try
             {
                 C.Defendants.Void(id, d.RowVersion, Guid.NewGuid().ToString("N"));
+                MarkDirty(id);
                 return true;
             }
             catch (StaleRecordException)

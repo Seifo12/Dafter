@@ -47,7 +47,7 @@ public void SetCompact(bool compact)
             ApplyButtonLayout(EditButton, "IconEdit", Strings.ActionEdit);
             ApplyButtonLayout(CardButton, "IconCard", Strings.ActionCard);
             ApplyButtonLayout(VoidButton, "IconTrash", Strings.ActionVoid);
-            ActionBarRow.Height = compact ? 84 : 56;
+            ActionBar.Height = compact ? 84 : 56;
             if (Grid.Columns.Count > 3)
             {
                 SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
@@ -141,6 +141,29 @@ b.ClearValue(FrameworkElement.WidthProperty);
             }
         }
 
+        public void SelectAndShow(int id)
+        {
+            if (id <= 0)
+            {
+                return;
+            }
+            RegisterViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            foreach (RegisterRow row in vm.Rows)
+            {
+                if (row.Id == id)
+                {
+                    vm.Selected = row;
+                    Grid.ScrollIntoView(row);
+                    Grid.Focus();
+                    return;
+                }
+            }
+        }
+
         private RegisterViewModel Vm
         {
             get { return DataContext as RegisterViewModel; }
@@ -181,9 +204,14 @@ var nameCol = new DataGridTemplateColumn();
                 {
                     ApplyBands(vm);
                 }
+                if (e.PropertyName == "SearchText")
+                {
+                    ApplySearchBox(vm);
+                }
             };
             ApplyWide(vm.Wide);
             ApplyBands(vm);
+            ApplySearchBox(vm);
             SetCompact(_compact);
             Loaded += delegate { SearchInput.Focus(); };
         }
@@ -404,13 +432,11 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             return "";
         }
 
-        private void WideToggleClick(object sender, RoutedEventArgs e)
+        private void ApplySearchBox(RegisterViewModel vm)
         {
-            RegisterViewModel vm = Vm;
-            if (vm != null)
-            {
-                vm.Wide = !vm.Wide;
-            }
+            bool has = vm != null && !string.IsNullOrEmpty(vm.SearchText);
+            ClearButton.Visibility = has ? Visibility.Visible : Visibility.Collapsed;
+            SearchHint.Visibility = has ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void ClearClick(object sender, RoutedEventArgs e)

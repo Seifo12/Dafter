@@ -62,6 +62,7 @@ namespace CourtDesk.UI.ViewModels
         private readonly IClock _clock;
         private readonly List<int> _queue;
         private readonly int _at;
+        private readonly List<int> _decidedIds = new List<int>();
         private Defendant _defendant;
         private int _version;
         private string _code;
@@ -176,6 +177,11 @@ namespace CourtDesk.UI.ViewModels
         public string QueueProgress { get { return string.Format(Strings.WizQueueProgress, _at + 1, _queue.Count); } }
 
         public int DefendantId { get { return _defendant.Id; } }
+
+        public List<int> DecidedIds
+        {
+            get { return new List<int>(_decidedIds); }
+        }
         public string IdentityName { get { return _defendant.FullName; } }
         public string IdentityCase
         {
@@ -628,6 +634,7 @@ namespace CourtDesk.UI.ViewModels
                 DecideResult r = _decisions.Decide(req);
                 _saving = false;
                 _done = true;
+                _decidedIds.Add(_defendant.Id);
                 Raise("Saving");
                 Raise("Done");
                 Action<Sentence> h = Saved;

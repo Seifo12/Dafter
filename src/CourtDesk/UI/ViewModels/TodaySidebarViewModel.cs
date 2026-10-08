@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CourtDesk.Application;
@@ -39,6 +39,7 @@ namespace CourtDesk.UI.ViewModels
         private readonly ObservableCollection<SessionCard> _decided = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _decidedAll = new ObservableCollection<SessionCard>();
         private int _moreDecided;
+        private bool _decidedExpanded;
 
         public TodaySidebarViewModel(TodayService today)
         {
@@ -57,6 +58,10 @@ namespace CourtDesk.UI.ViewModels
                     Tab = key;
                 }
             });
+            ToggleDecidedCommand = new RelayCommand(delegate(object o)
+            {
+                DecidedExpanded = !DecidedExpanded;
+            });
             Refresh();
         }
 
@@ -70,18 +75,43 @@ namespace CourtDesk.UI.ViewModels
         public ICommand PreviewCommand { get; private set; }
         public ICommand CardCommand { get; private set; }
         public ICommand TabCommand { get; private set; }
+        public ICommand ToggleDecidedCommand { get; private set; }
+
+        public bool DecidedExpanded
+        {
+            get { return _decidedExpanded; }
+            set
+            {
+                if (_decidedExpanded == value)
+                {
+                    return;
+                }
+                _decidedExpanded = value;
+                ApplyDecidedCollapse();
+            }
+        }
+
+        public bool HasMoreDecided
+        {
+            get { return _decidedAll.Count > 5; }
+        }
+
+        public string DecidedToggleText
+        {
+            get
+            {
+                return _decidedExpanded
+                    ? CourtDesk.Resources.Strings.SideShowLess
+                    : CourtDesk.Resources.Strings.SideShowAll;
+            }
+        }
 
         public string Tab
         {
             get { return _tab; }
             set
             {
-                if (Set(ref _tab, value ?? "today", "Tab"))
-                {
-                    Raise("TodayTabText");
-                    Raise("OverdueTabText");
-                    RefreshLists();
-                }
+                Set(ref _tab, value ?? "today", "Tab");
             }
         }
 
@@ -174,7 +204,7 @@ namespace CourtDesk.UI.ViewModels
                     Id = row.D.Id,
                     Name = row.D.FullName,
                     Line2 = string.Format(CourtDesk.Resources.Strings.CaseFormat, row.D.CaseNumber, row.D.CaseYear)
-                        + " · " + (row.CircuitName ?? ""),
+                        + " Â· " + (row.CircuitName ?? ""),
                     Line3 = row.CourtName ?? "",
                     AccentKey = "TODAY"
                 });
@@ -188,7 +218,7 @@ namespace CourtDesk.UI.ViewModels
                     Name = row.D.FullName,
                     Line2 = LabelOf(row.DecisionCode),
                     Line3 = row.NextSessionDate ?? "",
-                    ResultSentence = LabelOf(row.DecisionCode) + " ← " + (row.NextSessionDate ?? ""),
+                    ResultSentence = LabelOf(row.DecisionCode) + " â† " + (row.NextSessionDate ?? ""),
                     AccentKey = AccentFor(row.DecisionCode),
                     Accent = AccentBrush(AccentFor(row.DecisionCode)),
                     EventId = row.EventId,
@@ -196,7 +226,7 @@ namespace CourtDesk.UI.ViewModels
                 });
             }
             ApplyDecidedCollapse();
-            _dateLineText = _dateLong + " · " + string.Format(
+            _dateLineText = _dateLong + " Â· " + string.Format(
                 CourtDesk.Resources.Strings.TomorrowShort, snap.TomorrowCount);
             Raise("DateLong");
             Raise("DateLineText");
@@ -206,22 +236,25 @@ namespace CourtDesk.UI.ViewModels
             Raise("HasOverdue");
             Raise("OverdueHeader");
             Raise("Empty");
-            RefreshLists();
-        }
-
-        private void RefreshLists()
-        {
-            _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
-            _overdueTabText = string.Format(CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);
-            if (_pending.Count == 0 && _overdue.Count > 0 && _tab == "today")
+            Raise("TodayTabText");
+            Raise("OverdueTabText");
+            Raise("MoreDecided");
+            Raise("MoreDecidedText");
+            Raise("HasDecided");
+            Raise("HasMoreDecided");
+            Raise("DecidedToggleText");
+            Raise("DecidedExpanded");
+            if (_pending.Count == 0 && _overdue.Count > 0)
             {
-                Tab = "overdue";
-                return;
+                Set(ref _tab, "overdue", "Tab");
             }
             if (_overdue.Count == 0 && _tab == "overdue")
             {
-                Tab = "today";
+                Set(ref _tab, "today", "Tab");
             }
+            _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
+            _overdueTabText = string.Format(
+                CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);
         }
 
         public static string LabelOf(string code)
@@ -263,14 +296,14 @@ namespace CourtDesk.UI.ViewModels
             get
             {
                 return _moreDecided > 0
-                    ? string.Format(CourtDesk.Resources.Strings.SideMoreDecided, _moreDecided)
+                    ? string.Format(CourtDesk.Resources.Strings.SideMoreDecidedPlus, _moreDecided)
                     : "";
             }
         }
 
         private void ApplyDecidedCollapse()
         {
-            int limit = 5;
+            int limit = _decidedExpanded ? int.MaxValue : 5;
             _decided.Clear();
             int shown = 0;
             foreach (SessionCard c in _decidedAll)
@@ -286,6 +319,9 @@ namespace CourtDesk.UI.ViewModels
             Raise("MoreDecided");
             Raise("MoreDecidedText");
             Raise("HasDecided");
+            Raise("HasMoreDecided");
+            Raise("DecidedToggleText");
+            Raise("DecidedExpanded");
         }
 
         private static System.Windows.Media.Brush AccentBrush(string key)

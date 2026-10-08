@@ -58,6 +58,40 @@ namespace CourtDesk.Application
             }
         }
 
+        public void RefreshIds(List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return;
+            }
+            int[] wanted = new int[ids.Count];
+            for (int i = 0; i < ids.Count; i++)
+            {
+                wanted[i] = ids[i];
+            }
+            var fresh = new Dictionary<int, DefendantRow>();
+            _db.Read(s =>
+            {
+                foreach (DefendantRow r in _defendants.ListRowsByIds(s, wanted))
+                {
+                    fresh[r.D.Id] = r;
+                }
+                return 0;
+            });
+            foreach (int id in wanted)
+            {
+                DefendantRow r;
+                if (fresh.TryGetValue(id, out r) && !r.D.IsDeleted)
+                {
+                    ReplaceRow(r);
+                }
+                else
+                {
+                    Remove(id);
+                }
+            }
+        }
+
         public void ReplaceRow(DefendantRow row)
         {
             SearchRow existing;
