@@ -99,7 +99,20 @@
         </UniformGrid>
 
         <TextBlock Text="{x:Static res:Strings.FieldDetainedSince}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
-        <TextBlock x:Name="DetainedText" Style="{StaticResource BaseText}" TextWrapping="Wrap" Margin="8,0,0,4" />
+        <TextBlock x:Name="DetainedText" Text="{Binding DetainedText}" Style="{StaticResource BaseText}"
+                   TextWrapping="Wrap" Margin="8,0,0,4" />
+        <UniformGrid Columns="2">
+          <Button Content="{x:Static res:Strings.DateToday}" Style="{StaticResource QuietButton}"
+                  Command="{Binding DetainedTodayCommand}" MinHeight="48" Margin="0,0,4,4" />
+          <Button Content="{x:Static res:Strings.DateTomorrow}" Style="{StaticResource QuietButton}"
+                  Command="{Binding DetainedTomorrowCommand}" MinHeight="48" Margin="4,0,0,4" />
+          <Button x:Name="NoDetainedButton" Content="{x:Static res:Strings.FieldNoDate}"
+                  Style="{StaticResource QuietButton}" Click="NoDetainedClick"
+                  MinHeight="48" Margin="0,4,4,0" />
+          <Button x:Name="PickDetainedButton" Content="{x:Static res:Strings.WizPickDate}"
+                  Style="{StaticResource QuietButton}" Click="PickDetainedClick"
+                  MinHeight="48" Margin="4,4,0,0" />
+        </UniformGrid>
 
         <TextBlock Text="{x:Static res:Strings.FieldNotes}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
         <TextBox Style="{StaticResource InputBox}" AcceptsReturn="True" Height="90" TextWrapping="Wrap"

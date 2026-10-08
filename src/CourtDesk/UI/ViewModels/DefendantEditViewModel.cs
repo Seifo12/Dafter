@@ -74,6 +74,8 @@ namespace CourtDesk.UI.ViewModels
             SessionTodayCommand = new RelayCommand(delegate { SessionDate = _clock.Today; NoSessionDate = false; });
             SessionTomorrowCommand = new RelayCommand(delegate { SessionDate = _clock.Today.AddDays(1); NoSessionDate = false; });
             NoSessionCommand = new RelayCommand(delegate { SessionDate = null; NoSessionDate = true; });
+            DetainedTodayCommand = new RelayCommand(delegate { DetainedSince = _clock.Today; });
+            DetainedTomorrowCommand = new RelayCommand(delegate { DetainedSince = _clock.Today.AddDays(1); });
         }
 
         public ICommand SaveCommand { get; private set; }
@@ -81,6 +83,8 @@ namespace CourtDesk.UI.ViewModels
         public ICommand SessionTodayCommand { get; private set; }
         public ICommand SessionTomorrowCommand { get; private set; }
         public ICommand NoSessionCommand { get; private set; }
+        public ICommand DetainedTodayCommand { get; private set; }
+        public ICommand DetainedTomorrowCommand { get; private set; }
 
         public event Action<DuplicateHit> DuplicateFound;
         public event Action Saved;
@@ -174,7 +178,25 @@ namespace CourtDesk.UI.ViewModels
         public LocalDate? DetainedSince
         {
             get { return _detainedSince; }
-            set { Set(ref _detainedSince, value, "DetainedSince"); }
+            set
+            {
+                if (Set(ref _detainedSince, value, "DetainedSince"))
+                {
+                    Raise("DetainedText");
+                }
+            }
+        }
+
+        public string DetainedText
+        {
+            get
+            {
+                if (!DetainedSince.HasValue)
+                {
+                    return Strings.FieldNoDate;
+                }
+                return ArabicDateFormat.FormatLong(DetainedSince.Value, Strings.Weekdays, Strings.Months);
+            }
         }
 
         public bool NoSessionDate

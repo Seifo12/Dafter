@@ -210,6 +210,28 @@ namespace CourtDesk.UI.Dialogs
             }
         }
 
+        private void PickDetainedClick(object sender, RoutedEventArgs e)
+        {
+            if (_popups == null)
+            {
+                return;
+            }
+            var cal = new BigCalendar();
+            cal.Today = _clock.Today;
+            cal.Minimum = _clock.Today.AddDays(-3650);
+            cal.Select(_vm.DetainedSince);
+            bool ok = _popups.AskCalendar(this, Strings.FieldDetainedSince, cal);
+            if (ok && cal.Selected.HasValue)
+            {
+                _vm.DetainedSince = cal.Selected.Value;
+            }
+        }
+
+        private void NoDetainedClick(object sender, RoutedEventArgs e)
+        {
+            _vm.DetainedSince = null;
+        }
+
         private void CancelClick(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
