@@ -132,6 +132,11 @@ c.PrintService = new CourtDesk.Printing.PrintService(db,
                 }
                 RefreshStatus(c);
             };
+            c.Coordinator.DirtyMarked += delegate(int id)
+            {
+                c.Main.RefreshAfterDataChanged(new List<int> { id });
+                RefreshStatus(c);
+            };
             RefreshStatus(c);
             return c;
         }

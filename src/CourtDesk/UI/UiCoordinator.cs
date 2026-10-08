@@ -27,13 +27,29 @@ namespace CourtDesk.UI
             return outp;
         }
 
+        public void MarkFor(int id)
+        {
+            MarkDirty(id);
+        }
+
         private void MarkDirty(int id)
         {
-            if (id > 0 && !_dirtyIds.Contains(id))
+            if (id <= 0)
+            {
+                return;
+            }
+            if (!_dirtyIds.Contains(id))
             {
                 _dirtyIds.Add(id);
             }
+            Action<int> h = DirtyMarked;
+            if (h != null)
+            {
+                h(id);
+            }
         }
+
+        public Action<int> DirtyMarked;
 
         private void MarkDirty(IEnumerable<int> ids)
         {
@@ -67,31 +83,55 @@ namespace CourtDesk.UI
         public bool LastPrintWasPreview { get; private set; }
         public System.DateTime LastPrintRequestedUtc { get; private set; }
 
-        public void PrintToday(bool preview)
+public void PrintToday(bool preview)
         {
+            LocalDate date = C.Clock != null ? C.Clock.Today : default(LocalDate);
             LastPrintWasPreview = preview;
-            LastPrintRequestedUtc = C.Clock.UtcNow;
-            PrintRequested(preview, C.Clock.Today);
-            DoPrint(preview, C.Clock.Today);
+            LastPrintRequestedUtc = C.Clock != null ? C.Clock.UtcNow : default(DateTime);
+            Action<bool, LocalDate> h = PrintRequested;
+            if (h != null)
+            {
+                h(preview, date);
+            }
+            DoPrint(preview, date);
         }
 
-        public void PrintDate(bool preview, LocalDate date)
+public void PrintDate(bool preview, LocalDate date)
         {
             LastPrintWasPreview = preview;
-            LastPrintRequestedUtc = C.Clock.UtcNow;
-            PrintRequested(preview, date);
+            LastPrintRequestedUtc = C.Clock != null ? C.Clock.UtcNow : default(DateTime);
+            Action<bool, LocalDate> h = PrintRequested;
+            if (h != null)
+            {
+                h(preview, date);
+            }
             DoPrint(preview, date);
         }
 
         public event Action<bool, LocalDate> PrintRequested;
 
-        private void DoPrint(bool preview, LocalDate date)
+private void DoPrint(bool preview, LocalDate date)
         {
-            if (C.Printing == null)
+            if (C.Printing == null || C.Rosters == null || C.Settings == null)
             {
+                TellSafe(Strings.SidePrint, Strings.PrintFail);
                 return;
             }
-            RosterModel model = C.Rosters.Build(date);
+            RosterModel model;
+            try
+            {
+                model = C.Rosters.Build(date);
+            }
+            catch (System.Exception)
+            {
+                TellSafe(Strings.SidePrint, Strings.PrintFail);
+                return;
+            }
+            if (model == null)
+            {
+                TellSafe(Strings.SidePrint, Strings.PrintEmpty);
+                return;
+            }
             if (model.Count == 0)
             {
                 CourtDesk.UI.Dialogs.MessageDialog.Show(null,
@@ -211,6 +251,23 @@ namespace CourtDesk.UI
             };
             dlg.ShowDialog();
             return dlg;
+        }
+
+        private void TellSafe(string title, string body)
+        {
+            Window owner = System.Windows.Application.Current == null
+                ? null : System.Windows.Application.Current.MainWindow;
+            if (owner == null)
+            {
+                return;
+            }
+            try
+            {
+                CourtDesk.UI.Dialogs.MessageDialog.Show(owner, title, body);
+            }
+            catch (System.Exception)
+            {
+            }
         }
 
         public bool VoidRecord(int id)

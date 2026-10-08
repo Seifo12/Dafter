@@ -30,6 +30,8 @@
       <ItemsControl.ItemTemplate>
         <DataTemplate>
           <Button Content="{Binding Number}" MinWidth="76" MinHeight="60" Margin="2" FontSize="24"
+                  Tag="{Binding}"
+                  Click="CellClick"
                   Command="{Binding DataContext.PickCommand, RelativeSource={RelativeSource AncestorType=ctl:BigCalendar}}"
                   CommandParameter="{Binding}">
             <Button.Template>

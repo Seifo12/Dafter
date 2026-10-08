@@ -224,6 +224,57 @@ namespace CourtDesk.Tests
             });
         }
 
+        [Fact]
+        public void DecisionThroughCoordinatorUpdatesGridRow()
+        {
+            StaRunner.Run(delegate
+            {
+                string home = TestDb.NewHome();
+                Composition c = null;
+                Window window = null;
+                try
+                {
+                    c = CompositionRoot.Build(home, new FakeClock(), null, new NullLogger());
+                    int id = c.DefendantService.Create(new DefendantInput
+                    {
+                        FullName = "postpone me",
+                        CaseNumber = "6601",
+                        CaseYear = "2026",
+                        SessionDate = new LocalDate(2026, 10, 7)
+                    }, Guid.NewGuid().ToString("N"), true).Id;
+                    c.SearchIndex.Rebuild();
+                    c.Main.Register.Filter = Filters.All;
+                    c.Main.RefreshAll();
+                    Assert.Equal(1, c.Main.Register.Rows.Count);
+                    c.DecisionService.Decide(new DecisionRequest
+                    {
+                        RequestUuid = Guid.NewGuid().ToString("N"),
+                        DefendantId = id,
+                        ExpectedVersion = c.DefendantService.Get(id).RowVersion,
+                        Code = DecisionCodes.Postpone,
+                        NextDate = new LocalDate(2026, 10, 21)
+                    });
+                    c.Coordinator.MarkFor(id);
+                    Pump();
+                    Assert.Equal(1, c.Main.Register.Rows.Count);
+                    Assert.Equal("21/10/2026", c.Main.Register.Rows[0].SessionLine1);
+                }
+                finally
+                {
+                    if (window != null)
+                    {
+                        window.Close();
+                    }
+                    if (c != null)
+                    {
+                        try { c.Db.Close(); }
+                        catch (Exception) { }
+                    }
+                    TestDb.Wipe(home);
+                }
+            });
+        }
+
         private static DecisionWizardDialog OpenWizard(DialogEnv env, int id)
         {
             var vm = new DecisionWizardViewModel(env.DecisionService, env.Undo,

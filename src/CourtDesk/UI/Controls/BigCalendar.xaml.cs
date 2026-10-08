@@ -19,15 +19,14 @@ namespace CourtDesk.UI.Controls
         public BigCalendar()
         {
             InitializeComponent();
-            PickCommand = new RelayCommand(delegate(object o)
+PickCommand = new RelayCommand(delegate(object o)
             {
                 CalendarCell c = o as CalendarCell;
                 if (c == null || !c.Date.HasValue || !c.Enabled)
                 {
                     return;
                 }
-                Selected = c.Date.Value;
-                DateSelected(Selected.Value);
+                Pick(c.Date.Value);
             });
             DataContext = this;
         }
@@ -75,6 +74,32 @@ namespace CourtDesk.UI.Controls
         private void NextMonth(object sender, RoutedEventArgs e)
         {
             ShowMonth(CalendarModel.AddMonths(_month, 1));
+        }
+
+        private void CellClick(object sender, RoutedEventArgs e)
+        {
+            var b = sender as System.Windows.Controls.Button;
+            CalendarCell cell = null;
+            if (b != null)
+            {
+                cell = b.CommandParameter as CalendarCell ?? b.Tag as CalendarCell;
+            }
+            if (cell == null || !cell.Date.HasValue || !cell.Enabled)
+            {
+                return;
+            }
+            Pick(cell.Date.Value);
+        }
+
+        public void Pick(LocalDate date)
+        {
+            Selected = date;
+            Rebuild();
+            Action<LocalDate> h = DateSelected;
+            if (h != null)
+            {
+                h(date);
+            }
         }
 
         private void Rebuild()
