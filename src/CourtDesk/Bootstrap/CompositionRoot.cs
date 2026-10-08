@@ -41,9 +41,15 @@ namespace CourtDesk.Bootstrap
 
     public static class CompositionRoot
     {
-        public static Composition Build(string home, IClock clock, SynchronizationContext marshal, ILogger log)
+public static Composition Build(string home, IClock clock, SynchronizationContext marshal, ILogger log)
         {
-            RecoveryResult rec = DatabaseRecovery.OpenWithRecovery(home, clock, marshal);
+            SynchronizationContext ui = marshal;
+            if (ui == null)
+            {
+                ui = new System.Windows.Threading.DispatcherSynchronizationContext(
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher);
+            }
+            RecoveryResult rec = DatabaseRecovery.OpenWithRecovery(home, clock, ui);
             var db = rec.Gateway;
             var defendants = new SqliteDefendantStore();
             var events = new SqliteEventStore();
@@ -91,10 +97,11 @@ namespace CourtDesk.Bootstrap
                 delegate(string v) { settings.Set(SettingKeys.LastFilter, v); });
             var sidebar = new TodaySidebarViewModel(today);
             c.Home = home;
-            c.Main = new MainViewModel(settings, clock, register, sidebar)
+c.Main = new MainViewModel(settings, clock, register, sidebar)
         {
             Schedule = new ScheduleViewModel(c.ScheduleService, clock),
-            History = new HistoryViewModel(db, events, defendants)
+            History = new HistoryViewModel(db, events, defendants),
+            Index = index
         };
 c.PrintService = new CourtDesk.Printing.PrintService(db,
                 new CourtDesk.Persistence.SqliteRosterPrintLog(), c.RosterService);

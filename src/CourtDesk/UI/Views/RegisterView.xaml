@@ -125,20 +125,23 @@
       </Button>
     </Grid>
 
-    <Grid Grid.Row="2">
-      <DataGrid x:Name="Grid" x:FieldModifier="public" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
-                AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
-                SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                HorizontalGridLinesBrush="{StaticResource GridLineBrush}"
-                FontFamily="{StaticResource AppFont}" FontSize="20"
-                Background="Transparent" BorderThickness="0" ColumnHeaderHeight="44"
-                ScrollViewer.CanContentScroll="True" HorizontalScrollBarVisibility="Hidden"
-                VirtualizingStackPanel.IsVirtualizing="True"
-                VirtualizingStackPanel.VirtualizationMode="Recycling"
-                CanUserSortColumns="False" EnableRowVirtualization="True" />
-      <TextBlock x:Name="EmptyText" Style="{StaticResource MutedText}" TextWrapping="Wrap"
-                 VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520"
-                 TextAlignment="Center" Visibility="Collapsed" IsHitTestVisible="False" />
-    </Grid>
+    <Border Grid.Row="2" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}"
+            BorderThickness="1" CornerRadius="8" Padding="0">
+      <Grid>
+        <DataGrid x:Name="Grid" x:FieldModifier="public" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                  SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="{StaticResource GridLineBrush}"
+                  FontFamily="{StaticResource AppFont}" FontSize="20"
+                  Background="Transparent" BorderThickness="0" ColumnHeaderHeight="44"
+                  ScrollViewer.CanContentScroll="True" HorizontalScrollBarVisibility="Hidden"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  CanUserSortColumns="False" EnableRowVirtualization="True" />
+        <TextBlock x:Name="EmptyText" Style="{StaticResource MutedText}" TextWrapping="Wrap"
+                   VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520"
+                   TextAlignment="Center" Visibility="Collapsed" IsHitTestVisible="False" />
+      </Grid>
+    </Border>
   </Grid>
 </UserControl>

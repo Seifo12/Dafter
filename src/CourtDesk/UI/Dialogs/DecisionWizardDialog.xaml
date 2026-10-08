@@ -8,15 +8,17 @@
         Width="960" Height="740" MinWidth="760" MinHeight="600"
         WindowStyle="SingleBorderWindow" ShowInTaskbar="False">
   <DockPanel LastChildFill="True">
-    <Border DockPanel.Dock="Top" Background="{StaticResource CardBrush}" Padding="16,10">
+    <Border DockPanel.Dock="Top" Background="{StaticResource TonalBrush}" Padding="16,10">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
-          <TextBlock Text="{x:Static res:Strings.WizTitle}" Style="{StaticResource TitleDialog}" />
-          <TextBlock x:Name="Identity" Style="{StaticResource BaseText}" TextWrapping="Wrap" />
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock x:Name="IdentityName" FontFamily="{StaticResource AppFont}" FontSize="24"
+                     FontWeight="Bold" Foreground="{StaticResource InkBrush}" VerticalAlignment="Center" />
+          <TextBlock x:Name="IdentityRest" Style="{StaticResource MutedText}" VerticalAlignment="Center"
+                     Margin="8,0,0,0" TextWrapping="Wrap" />
         </StackPanel>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
           <TextBlock x:Name="StepText" Style="{StaticResource TitleSection}" HorizontalAlignment="Left" />
@@ -30,12 +32,14 @@
                 MinWidth="180" Click="NextClick" />
         <Button x:Name="PrimarySave" Content="{x:Static res:Strings.WizSave}" Style="{StaticResource PrimaryButton}"
                 MinWidth="220" Visibility="Collapsed" Click="SaveClick" />
-        <Button x:Name="BackButton" Content="{x:Static res:Strings.WizBack}" Style="{StaticResource PrimaryButton}"
+        <Button x:Name="BackButton" Content="{x:Static res:Strings.WizBack}" Style="{StaticResource SecondaryButton}"
                 MinWidth="160" Visibility="Collapsed" Click="BackClick" />
-        <Button x:Name="CancelButton" Content="{x:Static res:Strings.WizCancel}" Style="{StaticResource PrimaryButton}"
+        <Border Width="24" />
+        <Button x:Name="CancelButton" Content="{x:Static res:Strings.WizCancel}" Style="{StaticResource QuietButton}"
                 MinWidth="160" IsCancel="True" Click="CancelClick" />
       </StackPanel>
     </Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="16">
       <Grid x:Name="Step1">
         <StackPanel>
@@ -172,5 +176,6 @@
         <TextBlock x:Name="ErrorText" Style="{StaticResource BaseText}" TextWrapping="Wrap" />
       </Border>
     </Grid>
+    </ScrollViewer>
   </DockPanel>
 </Window>

@@ -19,24 +19,40 @@ namespace CourtDesk
         {
             bool selftest = false;
             string home = null;
+            string shots = null;
             bool next = false;
+            string pending = null;
             foreach (string a in args)
             {
                 if (next)
                 {
-                    home = a;
+                    if (pending == "--home")
+                    {
+                        home = a;
+                    }
+                    else if (pending == "--screenshots")
+                    {
+                        shots = a;
+                    }
                     next = false;
+                    pending = null;
                     continue;
                 }
-                if (string.Equals(a, "--home", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(a, "--home", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(a, "--screenshots", StringComparison.OrdinalIgnoreCase))
                 {
                     next = true;
+                    pending = a.ToLowerInvariant();
                     continue;
                 }
                 if (string.Equals(a, "--selftest", StringComparison.OrdinalIgnoreCase))
                 {
                     selftest = true;
                 }
+            }
+            if (!string.IsNullOrEmpty(shots))
+            {
+                return ScreenshotMode.Run(shots, null);
             }
             if (selftest)
             {

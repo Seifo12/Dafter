@@ -31,7 +31,7 @@
                             x:FieldModifier="public" />
       </Grid>
     </Grid>
-    <Border Grid.Row="2" Background="{StaticResource CardBrush}" BorderBrush="{StaticResource CardBorderBrush}"
+    <Border Grid.Row="2" Background="{StaticResource TonalBrush}" BorderBrush="{StaticResource CardBorderBrush}"
             BorderThickness="0,1,0,0" Height="36" MinHeight="36" x:Name="StatusRow">
       <Grid>
         <Grid.ColumnDefinitions>

@@ -102,9 +102,10 @@ namespace CourtDesk.UI.Dialogs
 
         private void ApplyIdentity()
         {
-            Identity.Text = _vm.IdentityName + "  ·  " + _vm.IdentityCase + "  ·  " + _vm.IdentityCourt
+            IdentityName.Text = _vm.IdentityName;
+            IdentityRest.Text = _vm.IdentityCase + "  ·  " + _vm.IdentityCourt
                 + "  ·  " + _vm.IdentitySession;
-            Title = _vm.IdentityName + " — " + Strings.WizTitle;
+            Title = _vm.IdentityName + " - " + Strings.WizTitle;
         }
 
         private void Apply()
@@ -228,6 +229,8 @@ namespace CourtDesk.UI.Dialogs
         private void HighlightOffsets()
         {
             int selected = _vm.SelectedOffsetDays;
+            var primary = TryFindResource("PrimaryButton") as System.Windows.Style;
+            var secondary = TryFindResource("SecondaryButton") as System.Windows.Style;
             var stack = new System.Collections.Generic.Stack<System.Windows.DependencyObject>();
             stack.Push(OffsetsBox);
             while (stack.Count > 0)
@@ -237,7 +240,27 @@ namespace CourtDesk.UI.Dialogs
                 if (b != null && b.Tag is int)
                 {
                     bool on = selected >= 0 && (int)b.Tag == selected;
-                    b.Opacity = (selected < 0 || on) ? 1.0 : 0.62;
+                    if (selected < 0)
+                    {
+                        if (primary != null)
+                        {
+                            b.Style = primary;
+                        }
+                    }
+                    else if (on)
+                    {
+                        if (primary != null)
+                        {
+                            b.Style = primary;
+                        }
+                    }
+                    else
+                    {
+                        if (secondary != null)
+                        {
+                            b.Style = secondary;
+                        }
+                    }
                     b.FontWeight = on ? FontWeights.Bold : FontWeights.Normal;
                 }
                 int n = System.Windows.Media.VisualTreeHelper.GetChildrenCount(cur);

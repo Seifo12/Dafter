@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -209,6 +210,159 @@ namespace CourtDesk.Tests
                     }
                 }
             });
+        }
+
+        [Fact]
+        public void PreviewWindowShowsBuiltRoster()
+        {
+            StaRunner.Run(delegate
+            {
+                RosterModel m = Fake(5, 77);
+                var doc = new RosterDocumentBuilder(m).Build();
+                var win = new CourtDesk.UI.Dialogs.PrintPreviewWindow(doc);
+                win.Left = -32000;
+                win.Top = -32000;
+                win.ShowActivated = false;
+                try
+                {
+                    win.Show();
+                    win.UpdateLayout();
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Loaded,
+                        new Action(delegate { }));
+                    win.UpdateLayout();
+                    Assert.True(doc.Pages.Count > 0);
+                }
+                finally
+                {
+                    win.Close();
+                }
+            });
+        }
+
+        [Fact]
+        public void PreviewWindowShowsUserLikeRoster()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new DialogEnv())
+                {
+                    env.Clock.Today = new LocalDate(2026, 10, 8);
+                    int court = env.Lookups.AddCourt("prosecution");
+                    int circuit = env.Lookups.AddCircuit(court, "district");
+                    string[] names = new string[]
+                    {
+                        "alpha", "beta gamma", "delta epsilon zeta",
+                        "eta theta iota kappa", "lambda"
+                    };
+                    for (int i = 0; i < 5; i++)
+                    {
+                        env.DefendantService.Create(new DefendantInput
+                        {
+                            FullName = names[i],
+                            CaseNumber = (31000 + i).ToString(),
+                            CaseYear = "2026",
+                            Charges = i == 2 ? "a very long charge text exceeding the column" : null,
+                            CourtId = court,
+                            CircuitId = circuit,
+                            SessionDate = new LocalDate(2026, 10, i < 3 ? 8 : 9)
+                        }, Guid.NewGuid().ToString("N"), true);
+                    }
+                    var rosters = new RosterService(env.Db, env.Defendants,
+                        env.Events, env.Clock, env.Settings);
+                    int[] ids = env.Db.Read(s => env.Defendants.ListActiveRows(s)
+                        .FindAll(r => r.D.SessionDate == new LocalDate(2026, 10, 8))
+                        .ConvertAll(r => r.D.Id).ToArray());
+                    var svc = env.DefendantService;
+                    Defendant d = svc.Get(ids[0]);
+                    new DecisionService(env.Db, env.Defendants, env.Events,
+                        env.Clock, env.Settings).Decide(new DecisionRequest
+                    {
+                        RequestUuid = Guid.NewGuid().ToString("N"),
+                        DefendantId = d.Id,
+                        ExpectedVersion = d.RowVersion,
+                        Code = DecisionCodes.Release,
+                        NextDate = null
+                    });
+                    env.Index.Rebuild();
+                    RosterModel m = rosters.Build(new LocalDate(2026, 10, 8));
+                    Assert.True(m.Count >= 2, "roster has " + m.Count);
+                    var doc = new RosterDocumentBuilder(m).Build();
+                    var win = new CourtDesk.UI.Dialogs.PrintPreviewWindow(doc);
+                    win.Left = -32000;
+                    win.Top = -32000;
+                    win.ShowActivated = false;
+                    try
+                    {
+                        win.Show();
+                        win.UpdateLayout();
+                        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                            System.Windows.Threading.DispatcherPriority.Loaded,
+                            new Action(delegate { }));
+                        win.UpdateLayout();
+                        Assert.True(doc.Pages.Count > 0);
+                    }
+                    finally
+                    {
+                        win.Close();
+                    }
+                }
+            });
+        }
+
+        [Fact]
+        public void PreviewWindowUsesOwnPageImagesNotDocumentViewer()
+        {
+            StaRunner.Run(delegate
+            {
+                RosterModel m = Fake(5, 91);
+                var doc = new RosterDocumentBuilder(m).Build();
+                var win = new CourtDesk.UI.Dialogs.PrintPreviewWindow(doc);
+                win.Left = -32000;
+                win.Top = -32000;
+                win.ShowActivated = false;
+                try
+                {
+                    win.Show();
+                    win.UpdateLayout();
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                        System.Windows.Threading.DispatcherPriority.Loaded,
+                        new Action(delegate { }));
+                    win.UpdateLayout();
+                    var all = new List<DependencyObject>();
+                    Flatten(win, all);
+                    int images = 0;
+                    bool viewer = false;
+                    foreach (DependencyObject o in all)
+                    {
+                        if (o is System.Windows.Controls.Image)
+                        {
+                            images++;
+                        }
+                        if (o is System.Windows.Controls.DocumentViewer)
+                        {
+                            viewer = true;
+                        }
+                    }
+                    Assert.False(viewer, "DocumentViewer default chrome still used");
+                    Assert.True(images >= 1, "preview rendered " + images + " page images");
+                }
+                finally
+                {
+                    win.Close();
+                }
+            });
+        }
+
+        private static void Flatten(DependencyObject root, List<DependencyObject> outp)
+        {
+            int n = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < n; i++)
+            {
+                DependencyObject c = VisualTreeHelper.GetChild(root, i);
+                outp.Add(c);
+                Flatten(c, outp);
+            }
         }
 
         private static bool RtlChildren(DependencyObject root)

@@ -157,5 +157,39 @@ namespace CourtDesk.Tests
             double c = int.Parse(hh, System.Globalization.NumberStyles.HexNumber) / 255.0;
             return c <= 0.03928 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4);
         }
+
+        [Fact]
+        public void TemplatesBindStylePadding()
+        {
+            string controls = File.ReadAllText(Path.Combine(SrcRoot(), "UI", "Styles", "Controls.xaml"));
+            var bad = new List<string>();
+            foreach (Match m in Regex.Matches(controls, "<Style\\b[\\s\\S]*?</Style>"))
+            {
+                string block = m.Value;
+                if (block.IndexOf("<ControlTemplate") < 0)
+                {
+                    continue;
+                }
+                Match key = Regex.Match(block, "x:Key=\"([^\"]+)\"");
+                string name = key.Success ? key.Groups[1].Value : "(implicit)";
+                int templateAt = block.IndexOf("Property=\"Template\"");
+                if (templateAt < 0)
+                {
+                    continue;
+                }
+                string head = block.Substring(0, templateAt);
+                if (head.IndexOf("Property=\"Padding\"") < 0)
+                {
+                    continue;
+                }
+                string template = block.Substring(templateAt);
+                if (template.IndexOf("TemplateBinding Padding") < 0
+                    && template.IndexOf("Binding Padding, RelativeSource") < 0)
+                {
+                    bad.Add(name);
+                }
+            }
+            Assert.True(bad.Count == 0, "templates ignoring style Padding: " + string.Join(", ", bad.ToArray()));
+        }
     }
 }

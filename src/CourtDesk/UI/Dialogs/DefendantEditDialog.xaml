@@ -16,80 +16,95 @@
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,0,16,16">
       <Button Content="{x:Static res:Strings.FormSave}" Style="{StaticResource PrimaryButton}"
               MinWidth="200" IsDefault="True" Command="{Binding SaveCommand}" />
-      <Button Content="{x:Static res:Strings.FormCancel}" Style="{StaticResource PrimaryButton}"
+      <Button Content="{x:Static res:Strings.FormCancel}" Style="{StaticResource QuietButton}"
               MinWidth="180" IsCancel="True" Click="CancelClick" />
     </StackPanel>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="16,8,16,8">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Margin="0,0,8,0">
-          <TextBlock Text="{x:Static res:Strings.FieldName}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox x:Name="NameBox" Style="{StaticResource InputBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-          <TextBlock Style="{StaticResource MutedText}" Text="{x:Static res:Strings.FieldRequired}" Margin="8,0,0,0" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="16,8,16,8">
+      <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+        <TextBlock Text="{x:Static res:Strings.FieldName}" Style="{StaticResource MutedText}" Margin="0,8,0,6" />
+        <TextBox x:Name="NameBox" Style="{StaticResource InputBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Style="{StaticResource MutedText}" Text="{x:Static res:Strings.FieldRequired}" Margin="8,2,0,0" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldNationalId}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox x:Name="NationalIdBox" Style="{StaticResource InputBox}"
-                   Text="{Binding NationalId, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Text="{x:Static res:Strings.FieldNationalId}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBox x:Name="NationalIdBox" Style="{StaticResource InputBox}"
+                 Text="{Binding NationalId, UpdateSourceTrigger=PropertyChanged}" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldCaseNumber}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox x:Name="CaseNumberBox" Style="{StaticResource InputBox}"
-                   Text="{Binding CaseNumber, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Text="{x:Static res:Strings.FieldCaseNumber}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBox x:Name="CaseNumberBox" Style="{StaticResource InputBox}"
+                 Text="{Binding CaseNumber, UpdateSourceTrigger=PropertyChanged}" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldCaseYear}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox x:Name="CaseYearBox" Style="{StaticResource InputBox}"
-                   Text="{Binding CaseYear, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Text="{x:Static res:Strings.FieldCaseYear}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBox x:Name="CaseYearBox" Style="{StaticResource InputBox}"
+                 Text="{Binding CaseYear, UpdateSourceTrigger=PropertyChanged}" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldCaseType}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <ComboBox x:Name="CaseTypeBox" Style="{StaticResource BigCombo}" IsEditable="True"
-                    Text="{Binding CaseType, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8,0,0,0">
-          <TextBlock Text="{x:Static res:Strings.FieldCharges}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox Style="{StaticResource InputBox}" AcceptsReturn="True" Height="110" TextWrapping="Wrap"
-                   VerticalScrollBarVisibility="Auto" Text="{Binding Charges, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Text="{x:Static res:Strings.FieldCaseType}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <ComboBox x:Name="CaseTypeBox" Style="{StaticResource BigCombo}" IsEditable="True" Margin="0"
+                  Text="{Binding CaseType, UpdateSourceTrigger=PropertyChanged}" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldCourt}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <ComboBox x:Name="CourtBox" Style="{StaticResource BigCombo}" SelectionChanged="CourtChanged" />
-          <Button x:Name="AddCourtButton" Content="{x:Static res:Strings.AddNew}"
-                  Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="AddCourtClick" />
+        <TextBlock Text="{x:Static res:Strings.FieldCharges}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBox Style="{StaticResource InputBox}" AcceptsReturn="True" Height="110" TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" Text="{Binding Charges, UpdateSourceTrigger=PropertyChanged}" />
 
-          <TextBlock Text="{x:Static res:Strings.FieldCircuit}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <ComboBox x:Name="CircuitBox" Style="{StaticResource BigCombo}" />
-          <Button x:Name="AddCircuitButton" Content="{x:Static res:Strings.AddNewCircuit}"
-                  Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="AddCircuitClick" />
+        <TextBlock Text="{x:Static res:Strings.FieldCourt}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <ComboBox Grid.Column="0" x:Name="CourtBox" Style="{StaticResource BigCombo}" Margin="0"
+                    SelectionChanged="CourtChanged" />
+          <Button Grid.Column="1" x:Name="AddCourtButton" Content="{x:Static res:Strings.AddNew}"
+                  Style="{StaticResource QuietButton}" MinHeight="56" Height="56" Margin="8,0,0,0"
+                  VerticalAlignment="Center" Click="AddCourtClick" />
+        </Grid>
 
-          <TextBlock Text="{x:Static res:Strings.FieldCustody}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <ComboBox x:Name="CustodyBox" Style="{StaticResource BigCombo}" />
-          <Button x:Name="AddCustodyButton" Content="{x:Static res:Strings.AddNew}"
-                  Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Click="AddCustodyClick" />
+        <TextBlock Text="{x:Static res:Strings.FieldCircuit}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <ComboBox Grid.Column="0" x:Name="CircuitBox" Style="{StaticResource BigCombo}" Margin="0" />
+          <Button Grid.Column="1" x:Name="AddCircuitButton" Content="{x:Static res:Strings.AddNewCircuit}"
+                  Style="{StaticResource QuietButton}" MinHeight="56" Height="56" Margin="8,0,0,0"
+                  VerticalAlignment="Center" Click="AddCircuitClick" />
+        </Grid>
 
-          <TextBlock Text="{x:Static res:Strings.FieldSessionDate}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBlock x:Name="SessionText" Text="{Binding SessionText}" Style="{StaticResource BaseText}"
-                     TextWrapping="Wrap" Margin="8,0,0,4" />
-          <UniformGrid Columns="2">
-            <Button Content="{x:Static res:Strings.DateToday}" Style="{StaticResource QuietButton}"
-                    Command="{Binding SessionTodayCommand}" MinHeight="48" Margin="0,0,4,4" />
-            <Button Content="{x:Static res:Strings.DateTomorrow}" Style="{StaticResource QuietButton}"
-                    Command="{Binding SessionTomorrowCommand}" MinHeight="48" Margin="4,0,0,4" />
-            <Button x:Name="NoSessionButton" Content="{x:Static res:Strings.FieldNoDate}"
-                    Style="{StaticResource QuietButton}" Command="{Binding NoSessionCommand}"
-                    MinHeight="48" Margin="0,4,4,0" />
-            <Button x:Name="PickDateButton" Content="{x:Static res:Strings.WizPickDate}"
-                    Style="{StaticResource QuietButton}" Click="PickDateClick"
-                    MinHeight="48" Margin="4,4,0,0" />
-          </UniformGrid>
+        <TextBlock Text="{x:Static res:Strings.FieldCustody}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <ComboBox Grid.Column="0" x:Name="CustodyBox" Style="{StaticResource BigCombo}" Margin="0" />
+          <Button Grid.Column="1" x:Name="AddCustodyButton" Content="{x:Static res:Strings.AddNew}"
+                  Style="{StaticResource QuietButton}" MinHeight="56" Height="56" Margin="8,0,0,0"
+                  VerticalAlignment="Center" Click="AddCustodyClick" />
+        </Grid>
 
-          <TextBlock Text="{x:Static res:Strings.FieldDetainedSince}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBlock x:Name="DetainedText" Style="{StaticResource BaseText}" TextWrapping="Wrap" Margin="8,0,0,4" />
+        <TextBlock Text="{x:Static res:Strings.FieldSessionDate}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBlock x:Name="SessionText" Text="{Binding SessionText}" Style="{StaticResource BaseText}"
+                   TextWrapping="Wrap" Margin="8,0,0,4" />
+        <UniformGrid Columns="2">
+          <Button Content="{x:Static res:Strings.DateToday}" Style="{StaticResource QuietButton}"
+                  Command="{Binding SessionTodayCommand}" MinHeight="48" Margin="0,0,4,4" />
+          <Button Content="{x:Static res:Strings.DateTomorrow}" Style="{StaticResource QuietButton}"
+                  Command="{Binding SessionTomorrowCommand}" MinHeight="48" Margin="4,0,0,4" />
+          <Button x:Name="NoSessionButton" Content="{x:Static res:Strings.FieldNoDate}"
+                  Style="{StaticResource QuietButton}" Command="{Binding NoSessionCommand}"
+                  MinHeight="48" Margin="0,4,4,0" />
+          <Button x:Name="PickDateButton" Content="{x:Static res:Strings.WizPickDate}"
+                  Style="{StaticResource QuietButton}" Click="PickDateClick"
+                  MinHeight="48" Margin="4,4,0,0" />
+        </UniformGrid>
 
-          <TextBlock Text="{x:Static res:Strings.FieldNotes}" Style="{StaticResource BaseText}" Margin="0,8,0,2" />
-          <TextBox Style="{StaticResource InputBox}" AcceptsReturn="True" Height="90" TextWrapping="Wrap"
-                   VerticalScrollBarVisibility="Auto" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
-      </Grid>
+        <TextBlock Text="{x:Static res:Strings.FieldDetainedSince}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBlock x:Name="DetainedText" Style="{StaticResource BaseText}" TextWrapping="Wrap" Margin="8,0,0,4" />
+
+        <TextBlock Text="{x:Static res:Strings.FieldNotes}" Style="{StaticResource MutedText}" Margin="0,16,0,6" />
+        <TextBox Style="{StaticResource InputBox}" AcceptsReturn="True" Height="90" TextWrapping="Wrap"
+                 VerticalScrollBarVisibility="Auto" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" />
+      </StackPanel>
     </ScrollViewer>
   </DockPanel>
 </Window>

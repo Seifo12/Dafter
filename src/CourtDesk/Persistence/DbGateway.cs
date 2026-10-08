@@ -43,6 +43,10 @@ namespace CourtDesk.Persistence
 
         public T Write<T>(Func<ISession, T> work)
         {
+            if (Thread.CurrentThread.ManagedThreadId == _thread.ManagedThreadId)
+            {
+                throw new InvalidOperationException("DbGateway.Write is not re-entrant.");
+            }
             return Run(ctx =>
             {
                 long before = Meta.GetLong(ctx.Connection, "change_seq");
@@ -130,6 +134,11 @@ namespace CourtDesk.Persistence
                 {
                     try
                     {
+                        Meta.Set(conn, "clean_shutdown", "1");
+                    }
+                    catch (Exception) { }
+                    try
+                    {
                         using (var cmd = new SQLiteCommand("PRAGMA wal_checkpoint(TRUNCATE);", conn))
                         {
                             cmd.ExecuteNonQuery();
@@ -157,6 +166,11 @@ namespace CourtDesk.Persistence
             if (_disposed)
             {
                 throw new ObjectDisposedException("DbGateway");
+            }
+            if (Thread.CurrentThread.ManagedThreadId == _thread.ManagedThreadId && _conn != null)
+            {
+                var inline = new DbContext(_conn, FormatUtc(_clock.UtcNow), _clock.Today.ToIso(), false);
+                return work(inline);
             }
             string utc = FormatUtc(_clock.UtcNow);
             string local = _clock.Today.ToIso();
@@ -266,7 +280,7 @@ namespace CourtDesk.Persistence
             }
             if (_marshal == null)
             {
-                h(seq);
+                ThreadPool.QueueUserWorkItem(delegate { h(seq); });
             }
             else
             {

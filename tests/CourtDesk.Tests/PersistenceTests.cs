@@ -707,7 +707,20 @@ namespace CourtDesk.Tests
             _gateways.Clear();
             RecoveryResult second = TestDb.Open(home, clock);
             _gateways.Add(second.Gateway);
-            Assert.True(second.WasUnclean);
+            Assert.False(second.WasUnclean);
+            second.Gateway.Close();
+            _gateways.Clear();
+            using (SQLiteConnection raw = TestDb.Own(DbPaths.Db(home)))
+            {
+                using (var cmd = new SQLiteCommand(
+                    "UPDATE app_meta SET value = '0' WHERE key = 'clean_shutdown'", raw))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            RecoveryResult third = TestDb.Open(home, clock);
+            _gateways.Add(third.Gateway);
+            Assert.True(third.WasUnclean);
         }
 
         [Fact]
@@ -786,6 +799,55 @@ namespace CourtDesk.Tests
             {
                 object v = cmd.ExecuteScalar();
                 return v == null ? null : v.ToString();
+            }
+        }
+
+        [Fact]
+        public void ReadInsideDataChangedDoesNotDeadlock()
+        {
+            var clock = Clock();
+            string home = TestDb.NewHome();
+            _homes.Add(home);
+            DbGateway db = Open(home, clock);
+            int reads = 0;
+            db.DataChanged += delegate(long seq)
+            {
+                reads = db.Read(s => 1);
+            };
+            var task = System.Threading.Tasks.Task.Run(new Action(delegate
+            {
+                db.Write(s => 0);
+            }));
+            Assert.True(task.Wait(15000), "write with re-entrant read deadlocked");
+            for (int i = 0; i < 100 && reads == 0; i++)
+            {
+                System.Threading.Thread.Sleep(20);
+            }
+            Assert.Equal(1, reads);
+        }
+
+        [Fact]
+        public void CleanExitDoesNotReportUncleanOnReopen()        {
+            var clock = new FakeClock();
+            string home = TestDb.NewHome();
+            try
+            {
+                RecoveryResult first = TestDb.Open(home, clock);
+                first.Gateway.Close();
+                RecoveryResult second = TestDb.Open(home, clock);
+                try
+                {
+                    Assert.False(second.WasRecovered);
+                    Assert.False(second.WasUnclean);
+                }
+                finally
+                {
+                    second.Gateway.Close();
+                }
+            }
+            finally
+            {
+                TestDb.Wipe(home);
             }
         }
     }

@@ -12,10 +12,10 @@
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <StackPanel Grid.Row="0" Margin="12,12,12,8">
+      <StackPanel Grid.Row="0" Margin="12,8,12,6">
         <TextBlock Text="{x:Static res:Strings.SideTitle}" Style="{StaticResource TitleSection}" />
         <TextBlock x:Name="DateLine" Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,4,0,0" />
-        <Grid Margin="0,8,0,0">
+        <Grid Margin="0,6,0,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="8" />
             <RowDefinition Height="Auto" />
@@ -28,7 +28,7 @@
         </Grid>
       </StackPanel>
 
-      <UniformGrid Grid.Row="1" Rows="1" Columns="2" Margin="12,0,12,8" x:Name="TabRow">
+      <UniformGrid Grid.Row="1" Rows="1" Columns="2" Margin="12,0,12,6" x:Name="TabRow">
         <ToggleButton x:Name="TodayTab" Style="{StaticResource SidebarTab}" Content="{Binding TodayTabText}"
                       Command="{Binding TabCommand}" CommandParameter="today" />
         <ToggleButton x:Name="OverdueTab" Style="{StaticResource SidebarTab}" Content="{Binding OverdueTabText}"
@@ -41,41 +41,44 @@
           <ItemsControl x:Name="OverdueList" ItemsSource="{Binding OverdueCards}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="120" x:Name="CardRoot">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="92" Padding="0" x:Name="CardRoot">
                   <Grid>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto" />
-                      <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="6" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource OverdueFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,8,8,4">
-                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis"
+                    <Border Grid.Column="0" Background="{StaticResource OverdueFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
+                    <StackPanel Grid.Column="1" Margin="8">
+                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextWrapping="Wrap"
                                  Cursor="Hand" MouseLeftButtonUp="NameClick" />
-                      <TextBlock Text="{Binding Line2}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
-                      <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                      <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Line2}" Style="{StaticResource MutedText}"
+                                   TextWrapping="Wrap" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="44" Height="44"
+                                MinWidth="120" Padding="8,4" Margin="8,0,0,0" VerticalAlignment="Center"
+                                Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
+                                  Fill="Transparent" Width="18" Height="18" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static res:Strings.SideRecord}" Margin="4,0,0,0"
+                                       VerticalAlignment="Center" FontSize="18" />
+                          </StackPanel>
+                        </Button>
+                      </Grid>
+                      <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                         <Path Data="{StaticResource IconWarning}" Stroke="{StaticResource OverdueFgBrush}"
                               StrokeThickness="2" Fill="Transparent" Width="18" Height="18"
                               VerticalAlignment="Center" x:Name="OverdueIcon" />
                         <TextBlock Text="{Binding Line3}" Style="{StaticResource MutedText}" Margin="4,0,0,0"
                                    Foreground="{StaticResource OverdueFgBrush}" FontWeight="SemiBold"
-                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                   VerticalAlignment="Center" TextWrapping="Wrap" />
                       </StackPanel>
                     </StackPanel>
-                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="48" Height="48"
-                            MinWidth="120" Margin="8,0,8,8" HorizontalAlignment="Stretch"
-                            Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}">
-                      <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
-                              Fill="Transparent" Width="20" Height="20" VerticalAlignment="Center" />
-                        <TextBlock Text="{x:Static res:Strings.SideRecord}" Margin="4,0,0,0"
-                                   VerticalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" />
-                      </StackPanel>
-                    </Button>
                   </Grid>
                 </Border>
               </DataTemplate>
@@ -85,34 +88,36 @@
           <ItemsControl x:Name="PendingList" ItemsSource="{Binding PendingCards}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="140">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="92" Padding="0">
                   <Grid>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto" />
-                      <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="6" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource TodayFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,8,8,4">
-                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextTrimming="CharacterEllipsis"
+                    <Border Grid.Column="0" Background="{StaticResource TodayFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
+                    <StackPanel Grid.Column="1" Margin="8">
+                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextWrapping="Wrap"
                                  Cursor="Hand" MouseLeftButtonUp="NameClick" />
-                      <TextBlock Text="{Binding Line2}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
-                      <TextBlock Text="{Binding Line3}" Style="{StaticResource MutedText}" TextTrimming="CharacterEllipsis" />
+                      <Grid Margin="0,2,0,0">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Line2}" Style="{StaticResource MutedText}"
+                                   TextWrapping="Wrap" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="44" Height="44"
+                                MinWidth="120" Padding="8,4" Margin="8,0,0,0" VerticalAlignment="Center"
+                                Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
+                                  Fill="Transparent" Width="18" Height="18" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static res:Strings.SideRecord}" Margin="4,0,0,0"
+                                       VerticalAlignment="Center" FontSize="18" />
+                          </StackPanel>
+                        </Button>
+                      </Grid>
                     </StackPanel>
-                    <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="56" Height="56"
-                            MinWidth="120" Margin="8,0,8,8" HorizontalAlignment="Stretch"
-                            Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}">
-                      <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
-                              Fill="Transparent" Width="20" Height="20" VerticalAlignment="Center" />
-                        <TextBlock Text="{x:Static res:Strings.SideRecord}" Margin="4,0,0,0"
-                                   VerticalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" />
-                      </StackPanel>
-                    </Button>
                   </Grid>
                 </Border>
               </DataTemplate>
@@ -141,9 +146,9 @@
                         <Border Grid.Column="0" Background="{Binding Accent}" CornerRadius="4" Margin="0,6,0,6" />
                         <StackPanel Grid.Column="1" Margin="8" VerticalAlignment="Center">
                           <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" FontSize="20"
-                                     TextTrimming="CharacterEllipsis" />
+                                     TextWrapping="Wrap" />
                           <TextBlock Text="{Binding ResultSentence}" Style="{StaticResource MutedText}"
-                                     TextTrimming="CharacterEllipsis" />
+                                     TextWrapping="Wrap" />
                         </StackPanel>
                       </Grid>
                     </Border>
@@ -165,8 +170,8 @@
         </StackPanel>
       </ScrollViewer>
 
-      <StackPanel Grid.Row="3" Margin="12,0,12,12" x:Name="Footer">
-        <Button Style="{StaticResource PrimaryButton}" MinHeight="60" Height="60" Command="{Binding PrintCommand}">
+      <StackPanel Grid.Row="3" Margin="12,0,12,8" x:Name="Footer">
+        <Button Style="{StaticResource PrimaryButton}" MinHeight="56" Height="56" Command="{Binding PrintCommand}">
           <StackPanel Orientation="Horizontal">
             <Path Data="{StaticResource IconPrinter}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
                   Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
@@ -174,8 +179,8 @@
                      FontSize="18" TextTrimming="CharacterEllipsis" />
           </StackPanel>
         </Button>
-        <UniformGrid Rows="1" Columns="2" Margin="0,8,0,0">
-          <Button x:Name="PreviewButton" Style="{StaticResource QuietButton}" MinHeight="48" Height="48"
+        <UniformGrid Rows="1" Columns="2" Margin="0,6,0,0">
+          <Button x:Name="PreviewButton" Style="{StaticResource QuietButton}" MinHeight="44" Height="44"
                   Command="{Binding PreviewCommand}">
             <StackPanel Orientation="Horizontal">
               <Path Data="{StaticResource IconEye}" Stroke="{StaticResource InkBrush}" StrokeThickness="2"
@@ -184,7 +189,7 @@
                      FontSize="18" TextTrimming="CharacterEllipsis" />
             </StackPanel>
           </Button>
-          <Button x:Name="QueueButton" Style="{StaticResource QuietButton}" MinHeight="48" Height="48"
+          <Button x:Name="QueueButton" Style="{StaticResource QuietButton}" MinHeight="44" Height="44"
                   Command="{Binding QueueCommand}">
             <StackPanel Orientation="Horizontal">
               <Path Data="{StaticResource IconQueue}" Stroke="{StaticResource InkBrush}" StrokeThickness="2"

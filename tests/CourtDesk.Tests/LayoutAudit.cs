@@ -112,7 +112,7 @@ namespace CourtDesk.Tests
                 if (sv.ScrollableWidth > 1.0)
                 {
                     failures.Add(c.Scenario + ": horizontal overflow of "
-                        + Math.Round(sv.ScrollableWidth, 1) + "px");
+                        + Math.Round(sv.ScrollableWidth, 1) + "px on '" + Name(sv) + "'");
                 }
             }
 

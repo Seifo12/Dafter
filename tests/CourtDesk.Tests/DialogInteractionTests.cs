@@ -222,6 +222,8 @@ namespace CourtDesk.Tests
                         }
                         Assert.True(vm.Offsets.Count >= 3);
                         var session = new LocalDate(2026, 10, 7);
+                        var primary = dlg.FindResource("PrimaryButton") as System.Windows.Style;
+                        var secondary = dlg.FindResource("SecondaryButton") as System.Windows.Style;
                         foreach (OffsetButton option in vm.Offsets)
                         {
                             Button b = FindOffsetButton(dlg, option.Days);
@@ -232,8 +234,73 @@ namespace CourtDesk.Tests
                             Pump();
                             Assert.Equal(session.AddDays(option.Days), vm.NextDate);
                             Assert.Contains(session.AddDays(option.Days).Day.ToString(), vm.ChosenLine);
+                            Assert.True(object.ReferenceEquals(b.Style, primary),
+                                "selected offset not primary for " + option.Days);
+                            foreach (OffsetButton other in vm.Offsets)
+                            {
+                                if (other.Days == option.Days)
+                                {
+                                    continue;
+                                }
+                                Button ob = FindOffsetButton(dlg, other.Days);
+                                Assert.True(object.ReferenceEquals(ob.Style, secondary),
+                                    "unselected offset not secondary for " + other.Days);
+                            }
                         }
                         Shot(dlg, "wiz-step2-offsets");
+                    }
+                    finally
+                    {
+                        dlg.Close();
+                    }
+                }
+            });
+        }
+
+        [Fact]
+        public void FridayOffsetShowsWeekendTickBoxFullyVisible()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new Env())
+                {
+                    int id = env.Add("friday held", "7009", new LocalDate(2026, 10, 9));
+                    var vm = new DecisionWizardViewModel(env.DecisionService, env.Undo,
+                        env.DefendantService, env.Lookups, env.Settings, env.Clock,
+                        new List<int> { id }, 0);
+                    vm.Choose(DecisionCodes.RenewDetention);
+                    Assert.Equal(2, vm.Step);
+
+                    var dlg = new DecisionWizardDialog(vm, null, env.Clock);
+                    dlg.Left = -32000;
+                    dlg.Top = -32000;
+                    dlg.ShowActivated = false;
+                    try
+                    {
+                        dlg.Show();
+                        Pump();
+                        dlg.UpdateLayout();
+                        Pump();
+                        Button b = FindOffsetButton(dlg, 7);
+                        Assert.True(b != null, "no 7-day offset button");
+                        b.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                        Pump();
+                        dlg.UpdateLayout();
+                        Pump();
+                        Assert.Equal(new LocalDate(2026, 10, 16), vm.NextDate);
+                        var warn = dlg.FindName("WarnWeekend") as System.Windows.Controls.Border;
+                        Assert.True(warn != null, "no WarnWeekend band");
+                        Assert.Equal(Visibility.Visible, warn.Visibility);
+                        var box = dlg.FindName("ConfirmWeekendBox") as System.Windows.Controls.CheckBox;
+                        Assert.True(box != null, "no ConfirmWeekendBox");
+                        Assert.True(box.ActualHeight >= 40, "tick box too short: " + box.ActualHeight);
+                        var top = box.TranslatePoint(new System.Windows.Point(0, 0), dlg);
+                        var bottom = box.TranslatePoint(
+                            new System.Windows.Point(0, box.ActualHeight), dlg);
+                        Assert.True(bottom.Y <= dlg.ActualHeight,
+                            "tick box bottom " + bottom.Y + " outside dialog " + dlg.ActualHeight);
+                        Assert.True(top.Y >= 0, "tick box top above dialog");
+                        Shot(dlg, "wiz-step2-friday");
                     }
                     finally
                     {

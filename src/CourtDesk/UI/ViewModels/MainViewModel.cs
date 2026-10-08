@@ -7,8 +7,9 @@ namespace CourtDesk.UI.ViewModels
 {
     public sealed class MainViewModel : ObservableObject
     {
-        private readonly SettingsService _settings;
+private readonly SettingsService _settings;
         private readonly IClock _clock;
+        private readonly System.Windows.Threading.Dispatcher _dispatcher;
         private double _zoom = 1.0;
         private object _currentView;
         private string _currentSection = "register";
@@ -16,13 +17,14 @@ namespace CourtDesk.UI.ViewModels
         private string _statusExit = "";
         private string _statusUsb = "";
 
-        public MainViewModel(SettingsService settings, IClock clock,
+public MainViewModel(SettingsService settings, IClock clock,
             RegisterViewModel register, TodaySidebarViewModel sidebar)
         {
             _settings = settings;
             _clock = clock;
             Register = register;
             Sidebar = sidebar;
+            _dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
             int scale = settings.GetInt(SettingKeys.FontScale, 100);
             _zoom = scale == 150 ? 1.5 : (scale == 125 ? 1.25 : 1.0);
             NavCommand = new RelayCommand(delegate(object o)
@@ -154,8 +156,21 @@ namespace CourtDesk.UI.ViewModels
 
         public void RefreshAll()
         {
+            if (!_dispatcher.CheckAccess())
+            {
+                _dispatcher.BeginInvoke(new Action(RefreshAll));
+                return;
+            }
             Register.Refresh();
             Sidebar.Refresh();
+            if (Schedule != null)
+            {
+                Schedule.Refresh();
+            }
+            if (History != null)
+            {
+                History.Refresh();
+            }
             Raise("TodayLong");
         }
 

@@ -227,8 +227,16 @@ namespace CourtDesk
             try
             {
                 RecoveryResult rec = c.Recovery;
-                if (rec == null || (!rec.WasRecovered && !rec.WasUnclean))
+                if (rec == null)
                 {
+                    return;
+                }
+                if (!rec.WasRecovered && rec.InvariantWarnings.Count == 0)
+                {
+                    if (rec.WasUnclean)
+                    {
+                        Log().Info("recovery.silent-unclean", c.Home);
+                    }
                     return;
                 }
                 string detail = rec.WasRecovered

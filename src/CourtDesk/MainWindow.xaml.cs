@@ -148,7 +148,22 @@ private void ApplyZoom(MainViewModel vm)
             }
             next.Visibility = Visibility.Visible;
             _current = next;
-            RegisterView.SetCompact(!wideNow(), ActualWidth < 1150.0 * _zoom);
+            if (vm.IsRegister)
+            {
+                RegisterView.SetCompact(!wideNow(), ActualWidth < 1150.0 * _zoom);
+            }
+            else if (vm.CurrentSection == "schedule" && vm.Schedule != null)
+            {
+                vm.Schedule.Refresh();
+            }
+            else if (vm.CurrentSection == "history" && vm.History != null)
+            {
+                vm.History.Refresh();
+            }
+            else
+            {
+                RegisterView.SetCompact(!wideNow(), ActualWidth < 1150.0 * _zoom);
+            }
         }
 
         private bool wideNow()

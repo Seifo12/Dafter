@@ -224,8 +224,38 @@ button, open the card after a decision, assert dropdown text):
   + 7 `RefreshPathTests` + 4 `DialogInteractionTests`.
 - Verification: `LayoutAudit` 12/12 scenarios, full suite 136/136 green;
   screens re-rendered into `artifacts/screens`.
-- Note: 1x screenshot review produced two false alarms (shadda/diacritic
-  dots misread as ellipsis; tight-but-legal 8-12px adjacency misread as
-  overlap) - disproved by 4x crops plus a live-geometry probe (since
-  removed). Kept as regression tests: `SessionCardButtonsShowFullLabel`,
-  `DecidedStripCollapsesToFiveWithPlusNAndExpands`.
+## FIX-ROUND-2 - defect table (done, 2026-10-08)
+
+Before images: the user's own screenshots (old `dist` build) + `artifacts/screens/*`.
+After images: `artifacts/round2/*.png`, produced by the **published exe**
+(`CourtDesk.exe --screenshots artifacts/round2`, new CLI mode).
+
+| ID | Before | After | Verified by |
+|---|---|---|---|
+| D1 title trimmed | «سجل المحبوسين وا…» | full title, no MaxWidth/trimming | `r2-main-1366.png`, `LayoutAudit` |
+| D2 nav labels touching | labels on pill edge | `NavTab` binds `Padding`, MinWidth 110, radius 24 | `r2-main-1366.png` |
+| D3 utility buttons bare | bare bold text | `HeaderUtilityButton` on-dark button | `r2-main-1366.png` |
+| D4 search «مسح» outside | huge secondary button | inline 40-high clear inside the box | `r2-main-1366.png` |
+| D5 chips truncated / lost wide toggle | «بدون ميعاد جل…» + blank pill | auto-width chips on one row; toggle moved to status bar | `r2-main-1366.png`, `TrimAudit` |
+| D6 «إلغاء السجل» floating | plain bold text | `DangerQuietButton` in the trailing spacer column | `r2-main-1366.png` |
+| D7 grid chrome | stray scrollbar fragments | app-wide 20px `ScrollBar` template, state header aligned to chip | `r2-main-1366.png`, `TemplateAudit` |
+| D8 sidebar names/cases trimmed | «متهم رقم 102…» | name wraps (no trim), case + 120x44 record button, min 92 | `r2-main-1366.png` (3 full cards), `SessionCardButtonsShowFullLabel` |
+| D9 status bar jumbled | mixed text on white | 36-high tonal strip, three blocks + wide toggle | `r2-main-1024.png` |
+| D10 misaligned bottoms | sidebar/content ended at different heights | body `*` row, 12px margin, both columns stretch | `r2-main-1366.png`, `LayoutAudit` |
+| D11 wizard footer/clipping | «التالي» mid-row, cut tick-box | pinned footer (Next → Back → spacer → Quiet cancel), content in `ScrollViewer`, selected offset = Primary | `r2-wiz-1/2/3.png`, `OffsetButtonsChangeTheChosenDate`, `FridayOffsetShowsWeekendTickBoxFullyVisible` |
+| D12 edit dialog | two ragged columns, cut «+ إضافة» | single 640px column, same-row add buttons, custom `ComboBox`/`TextBox` | `r2-edit.png`, `DialogClipTests` |
+| D13 default chrome | English `DocumentViewer` chrome, default combos | custom ComboBox/TextBox/CheckBox/ToolTip/ScrollBar | `r2-preview.png`, `TemplateAudit`, `PreviewWindowUsesOwnPageImagesNotDocumentViewer` |
+
+### Runtime defects found from the user's screenshots
+| Symptom | Root cause | Fix | Test |
+|---|---|---|---|
+| "حدث انقطاع في الكهرباء" on every start | `clean_shutdown=1` was never written, so every open counted as unclean | `DbGateway.Close` stamps it; notice only for real recovery/invariant warnings | `CleanExitDoesNotReportUncleanOnReopen`, `UncleanExitIsNoticedOnce` |
+| register/sidebar stale until restart | `Main.Index` was never wired, so `RefreshAfterDataChanged` refreshed an empty index | `CompositionRoot` sets `Main.Index` | `CompositionRootDatabaseChangeRefreshesUiWithoutCrash` |
+| crash after edits (`CollectionView ... thread different`) | `DataChanged` invoked UI collections inline on the DB thread when no marshal context existed | gateway queues instead of inlining; `CompositionRoot` always supplies a dispatcher context; `MainViewModel.RefreshAll` marshals | same test |
+| hang when the notification re-entered the gateway | re-entrant `Read` inside `Write` blocked the single DB thread forever | re-entrant reads run inline on the DB thread, re-entrant writes fail fast | `ReadInsideDataChangedDoesNotDeadlock` |
+| «معاينة» unexpected error / blank preview | `DocumentViewer` default chrome + unreliable headless render | own page-image host; preview renders the real roster | `PreviewWindowShowsUserLikeRoster`, `PreviewWindowUsesOwnPageImagesNotDocumentViewer` |
+| no visual separation between regions | grid area had no container, status bar blended into the canvas | card-framed grid + tonal status bar | `r2-main-1366.png` |
+
+Gates: full suite **147/147 green**; `LayoutAudit` 12/12; new
+`TrimAudit`, `DialogClipTests`, `TemplateAudit`; `--screenshots` mode renders
+9 real-app screens into `artifacts/round2/` with no errors.

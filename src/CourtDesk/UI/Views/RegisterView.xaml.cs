@@ -53,7 +53,7 @@ public void SetCompact(bool compact)
                 SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
                 SetWidth(Grid.Columns[1], narrow ? 100 : (compact ? 160 : 268), narrow ? 100 : (compact ? 160 : 268));
                 SetWidth(Grid.Columns[2], narrow ? 96 : (compact ? 130 : 202), narrow ? 96 : (compact ? 130 : 202));
-                SetWidth(Grid.Columns[3], narrow ? 116 : (compact ? 150 : 186), narrow ? 116 : (compact ? 150 : 186));
+                SetWidth(Grid.Columns[3], narrow ? 128 : (compact ? 150 : 186), narrow ? 128 : (compact ? 150 : 186));
                 if (Grid.Columns.Count > 4)
                 {
                     SetWidth(Grid.Columns[4], narrow ? 124 : (compact ? 144 : 172), narrow ? 124 : (compact ? 144 : 172));
@@ -111,15 +111,15 @@ private void WrapActionContent()
             panel.Children.Add(path);
             var text = new TextBlock
             {
-Text = label,
+                Text = label,
                 FontSize = 18,
                 FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(_compact ? 0 : 8, 0, 0, 0),
+                Margin = new Thickness(_compact ? 0 : 8, _compact ? 2 : 0, 0, 0),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                TextWrapping = TextWrapping.NoWrap,
-                TextTrimming = TextTrimming.CharacterEllipsis
+                TextWrapping = _compact ? TextWrapping.Wrap : TextWrapping.NoWrap,
+                TextTrimming = _compact ? TextTrimming.None : TextTrimming.CharacterEllipsis
             };
             text.SetResourceReference(TextBlock.FontFamilyProperty, "AppFont");
             text.SetResourceReference(TextBlock.ForegroundProperty, b == DecideButton ? "WhiteBrush" : (b == VoidButton ? "DangerBrush" : "InkBrush"));
@@ -177,19 +177,19 @@ b.ClearValue(FrameworkElement.WidthProperty);
                 return;
             }
             Grid.Columns.Add(IndexColumn());
-var nameCol = new DataGridTemplateColumn();
+            var nameCol = new DataGridTemplateColumn();
             nameCol.Header = Strings.GridCase;
             nameCol.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
             nameCol.MinWidth = 160;
-            nameCol.CellTemplate = TwoLine("NameText", "MutedText", "Name", "CaseText");
+            nameCol.CellTemplate = TwoLine("NameText", "MutedText", "Name", "CaseText", true, true);
             nameCol.SortMemberPath = "Name";
             Grid.Columns.Add(nameCol);
-            Grid.Columns.Add(MakeColumn(Strings.GridCourt, 202, "CourtText", "CourtText"));
+            Grid.Columns.Add(MakeColumn(Strings.GridCourt, 202, "CourtText", "CourtText", true, false));
             var sessionCol = new DataGridTemplateColumn();
             sessionCol.Header = Strings.GridSession;
             sessionCol.Width = 190;
             sessionCol.MinWidth = 190;
-            sessionCol.CellTemplate = TwoLine("GridStrong", "MutedText", "SessionLine1", "SessionLine2");
+            sessionCol.CellTemplate = TwoLine("GridStrong", "MutedText", "SessionLine1", "SessionLine2", false, false);
             sessionCol.SortMemberPath = "SessionLine1";
             Grid.Columns.Add(sessionCol);
             Grid.Columns.Add(StateColumn());
@@ -308,7 +308,8 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             return col;
         }
 
-        private DataGridTextColumn MakeColumn(string header, double width, string path, string sortKey)
+        private DataGridTextColumn MakeColumn(string header, double width, string path, string sortKey,
+            bool allowTrim, bool wrap)
         {
             var col = new DataGridTextColumn();
             col.Header = header;
@@ -319,14 +320,27 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             style.Setters.Add(new Setter(TextBlock.FontSizeProperty, 20.0));
             style.Setters.Add(new Setter(TextBlock.FontFamilyProperty, UiRes.Font(this)));
             style.Setters.Add(new Setter(TextBlock.ForegroundProperty, UiRes.Brush(this, "InkBrush", "#1B2430")));
-            style.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));
+            if (wrap)
+            {
+                style.Setters.Add(new Setter(TextBlock.TextWrappingProperty, TextWrapping.Wrap));
+            }
+            else
+            {
+                style.Setters.Add(new Setter(TextBlock.TextTrimmingProperty,
+                    allowTrim ? TextTrimming.CharacterEllipsis : TextTrimming.None));
+                if (allowTrim)
+                {
+                    style.Setters.Add(new Setter(FrameworkElement.TagProperty, "EllipsisAllowed"));
+                }
+            }
             style.Setters.Add(new Setter(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center));
             col.ElementStyle = style;
             col.SortMemberPath = sortKey;
             return col;
         }
 
-        private DataTemplate TwoLine(string topStyle, string bottomStyle, string top, string bottom)
+        private DataTemplate TwoLine(string topStyle, string bottomStyle, string top, string bottom,
+            bool topWrap, bool bottomAllowTrim)
         {
             var grid = new FrameworkElementFactory(typeof(Grid));
             var rows = new FrameworkElementFactory(typeof(RowDefinition));
@@ -340,7 +354,8 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             t1.SetValue(TextBlock.StyleProperty, TryStyle(topStyle));
             t1.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
             t1.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 0, 2));
-            t1.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
+            t1.SetValue(TextBlock.TextWrappingProperty, topWrap ? TextWrapping.Wrap : TextWrapping.NoWrap);
+            t1.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.None);
             t1.SetValue(System.Windows.Controls.Grid.RowProperty, 0);
             grid.AppendChild(t1);
             var t2 = new FrameworkElementFactory(typeof(TextBlock));
@@ -348,7 +363,13 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             t2.SetValue(TextBlock.StyleProperty, TryStyle(bottomStyle));
             t2.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
             t2.SetValue(FrameworkElement.MarginProperty, new Thickness(0));
-            t2.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
+            t2.SetValue(TextBlock.TextWrappingProperty, TextWrapping.NoWrap);
+            t2.SetValue(TextBlock.TextTrimmingProperty,
+                bottomAllowTrim ? TextTrimming.CharacterEllipsis : TextTrimming.None);
+            if (bottomAllowTrim)
+            {
+                t2.SetValue(FrameworkElement.TagProperty, "EllipsisAllowed");
+            }
             t2.SetValue(System.Windows.Controls.Grid.RowProperty, 1);
             grid.AppendChild(t2);
             return new DataTemplate(typeof(Grid)) { VisualTree = grid };
@@ -370,7 +391,7 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             var factory = new FrameworkElementFactory(typeof(StatusChip));
             factory.SetBinding(StatusChip.StateKeyProperty, new Binding("StateKey"));
             factory.SetBinding(StatusChip.WordProperty, new Binding("StateWord"));
-            factory.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+            factory.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Right);
             factory.SetValue(FrameworkElement.MarginProperty, new Thickness(0, 0, 8, 0));
             col.CellTemplate = new DataTemplate(typeof(StatusChip)) { VisualTree = factory };
             return col;
@@ -388,8 +409,8 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             }
             if (wide && !hasCharges)
             {
-                Grid.Columns.Insert(4, MakeColumn(Strings.GridCharges, 220, "ChargesText", "ChargesText"));
-                Grid.Columns.Add(MakeColumn(Strings.GridCustody, 170, "CustodyText", "CustodyText"));
+                Grid.Columns.Insert(4, MakeColumn(Strings.GridCharges, 220, "ChargesText", "ChargesText", false, true));
+                Grid.Columns.Add(MakeColumn(Strings.GridCustody, 170, "CustodyText", "CustodyText", false, true));
                 Grid.Columns[3].MinWidth = 170;
             }
             if (!wide && hasCharges)
