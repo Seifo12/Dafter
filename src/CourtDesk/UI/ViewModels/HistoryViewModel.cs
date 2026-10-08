@@ -92,16 +92,50 @@ namespace CourtDesk.UI.ViewModels
                 _rows.Add(new HistoryRow
                 {
                     DefendantId = ev.DefendantId,
-                    When = ev.OccurredAtUtc,
+                    When = FormatWhen(ev.OccurredAtUtc),
                     Defendant = name,
                     Event = EventName(ev),
-                    NextDate = ev.NextSessionDate ?? "",
+                    NextDate = FormatDate(ev.NextSessionDate),
                     Operator = ev.OperatorName,
                     Undone = ev.UndoneByEventId.HasValue ? Strings.SideUndo : ""
                 });
             }
             Raise("Rows");
             Raise("EmptyText");
+        }
+
+        private const string Lrm = "\u200E";
+
+        private static string FormatWhen(string isoUtc)
+        {
+            if (string.IsNullOrEmpty(isoUtc))
+            {
+                return "";
+            }
+            DateTime t;
+            if (!DateTime.TryParse(isoUtc, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AdjustToUniversal
+                    | System.Globalization.DateTimeStyles.AssumeUniversal, out t))
+            {
+                return Lrm + isoUtc + Lrm;
+            }
+            return Lrm + t.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                + Lrm + " " + Lrm + t.ToString("HH:mm", System.Globalization.CultureInfo.InvariantCulture) + Lrm;
+        }
+
+        private static string FormatDate(string iso)
+        {
+            if (string.IsNullOrEmpty(iso))
+            {
+                return "";
+            }
+            DateTime d;
+            if (DateTime.TryParse(iso, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out d))
+            {
+                return Lrm + d.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) + Lrm;
+            }
+            return Lrm + iso + Lrm;
         }
 
         private static string EventName(SessionEvent ev)

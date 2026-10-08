@@ -12,16 +12,25 @@
     <TextBlock DockPanel.Dock="Bottom" Text="{Binding EmptyText}" Style="{StaticResource BaseText}" />
     <DataGrid x:Name="Grid" ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
               SelectionMode="Single" SelectionUnit="FullRow" HeadersVisibility="Column"
-              GridLinesVisibility="All" FontFamily="{StaticResource AppFont}" FontSize="20"
+              GridLinesVisibility="Horizontal" FontFamily="{StaticResource AppFont}" FontSize="20"
               ColumnHeaderHeight="52" RowBackground="{StaticResource CardBrush}"
+              HorizontalGridLinesBrush="{StaticResource GridLineBrush}"
+              Background="Transparent" BorderThickness="0"
               AlternatingRowBackground="{StaticResource CanvasBrush}"
               ScrollViewer.CanContentScroll="True"
               MouseDoubleClick="GridDoubleClick">
       <DataGrid.Columns>
-        <DataGridTextColumn Header="{x:Static res:Strings.GridState}" Binding="{Binding When}" Width="180" />
-        <DataGridTextColumn Header="{x:Static res:Strings.GridName}" Binding="{Binding Defendant}" Width="220" />
+        <DataGridTextColumn Header="{x:Static res:Strings.HistWhen}" Binding="{Binding When}" Width="180" />
+        <DataGridTemplateColumn Header="{x:Static res:Strings.GridName}" Width="1*"
+                                MinWidth="200" MaxWidth="420">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Defendant}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
         <DataGridTextColumn Header="{x:Static res:Strings.WizTitle}" Binding="{Binding Event}" Width="220" />
-        <DataGridTextColumn Header="{x:Static res:Strings.GridSession}" Binding="{Binding NextDate}" Width="150" />
+        <DataGridTextColumn Header="{x:Static res:Strings.GridSession}" Binding="{Binding NextDate}" Width="160" />
         <DataGridTextColumn Header="{x:Static res:Strings.FirstRunOperator}" Binding="{Binding Operator}" Width="160" />
         <DataGridTextColumn Header="{x:Static res:Strings.SideUndo}" Binding="{Binding Undone}" Width="120" />
       </DataGrid.Columns>

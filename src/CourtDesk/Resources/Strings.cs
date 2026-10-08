@@ -203,6 +203,7 @@ namespace CourtDesk.Resources
         public const string SidePrintShort = "طباعة كشف الترحيل";
         public const string CustodyHeld = "محتجز";
         public const string CustodyFree = "غير محتجز";
+        public const string HistWhen = "وقت القرار";
         public const string SideMoreDecidedPlus = "+{0}";
         public const string SideShowAll = "عرض الكل";
         public const string SideShowLess = "عرض أقل";
