@@ -102,11 +102,23 @@ namespace CourtDesk.Application
                 throw new FieldValidationException(errs);
             }
             Defendant d = ToRow(input, today);
+            string norm = ArabicText.Normalize(d.FullName);
+
+            // Check duplicates BEFORE inserting. Inserting first and then
+            // bailing out left the duplicate row in the register, which is
+            // what the import path used to do.
+            List<DuplicateHit> dups = _db.Read(s =>
+                _defendants.FindDuplicates(s, norm, d.CaseNumber, d.CaseYear, 0));
+            if (dups.Count > 0 && !forceDespiteDuplicates)
+            {
+                var blocked = new CreateResult { Id = 0 };
+                blocked.Duplicates.AddRange(dups);
+                return blocked;
+            }
+
             CreateResult result = _db.Write(s =>
             {
                 DefendantSnapshot after = DefendantSnapshot.FromDefendant(d);
-                string nameNorm = ArabicText.Normalize(d.FullName);
-                List<DuplicateHit> dups = _defendants.FindDuplicates(s, nameNorm, d.CaseNumber, d.CaseYear, 0);
                 int id = _defendants.Insert(s, d);
                 after.Id = id;
                 _events.Insert(s, new SessionEvent
@@ -128,10 +140,6 @@ namespace CourtDesk.Application
                 r.Duplicates.AddRange(dups);
                 return r;
             });
-            if (!forceDespiteDuplicates && result.Duplicates.Count > 0)
-            {
-                return result;
-            }
             return result;
         }
 

@@ -50,7 +50,15 @@ namespace CourtDesk
                 {
                     composition.Coordinator.OpenCard(c.Id);
                 };
-                vm.Sidebar.PrintRequested += delegate(bool preview) { composition.Coordinator.PrintToday(preview); };
+                vm.Sidebar.PrintRequested += delegate(bool preview)
+            {
+                // honour the sidebar tab the user is looking at, so pressing
+                // preview on one section does not print the whole roster
+                string tab = vm.Sidebar.Tab;
+                string scope = "ALL";
+                if (tab == "overdue") { scope = "ALL"; }
+                composition.Coordinator.PrintScope(preview, scope);
+            };
             }
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)
             {

@@ -113,6 +113,11 @@ public void PrintDate(bool preview, LocalDate date)
 
 public void PrintScope(bool preview, string scope)
         {
+            PrintScope(preview, scope, null);
+        }
+
+        public void PrintScope(bool preview, string scope, string title)
+        {
             if (C.Printing == null || C.Rosters == null || C.Settings == null)
             {
                 TellSafe(Strings.SidePrint, Strings.PrintFail);

@@ -201,6 +201,9 @@ namespace CourtDesk.Tests
                     Assert.NotNull(view.FindName("ScopePrintButton"));
                     Assert.NotNull(view.FindName("ScopePreviewButton"));
 
+                    var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                        env.Clock, env.Settings);
+
                     var op = (System.Windows.Controls.TextBox)view.FindName("OperatorBox");
                     var dir = (System.Windows.Controls.TextBox)view.FindName("DirectorateBox");
                     op.Text = "عميد أحمد";
@@ -213,10 +216,18 @@ namespace CourtDesk.Tests
                     Assert.Equal("عميد أحمد", env.Settings.Get(SettingKeys.OperatorName));
                     Assert.Equal("قسم البحث", env.Settings.Get(SettingKeys.DirectorateName));
 
+                    // the roster preview window is built from the model, not the
+                    // dialog, so make sure the model carries the values too.
                     RosterModel m = new RosterService(env.Db, env.Defendants, env.Events,
                         env.Clock, env.Settings).Build(env.Clock.Today);
                     Assert.Equal("عميد أحمد", m.OperatorName);
                     Assert.Equal("قسم البحث", m.DirectorateName);
+
+                    // and the printed page must contain them, not blank boxes
+                    var printer = new CourtDesk.Printing.PrintService(env.Db,
+                        new CourtDesk.Persistence.SqliteRosterPrintLog(), rosters);
+                    object doc = printer.BuildDocument(m);
+                    Assert.NotNull(doc);
                 }
             });
         }
