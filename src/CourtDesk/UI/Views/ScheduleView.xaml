@@ -12,10 +12,12 @@
       <StackPanel DockPanel.Dock="Top">
         <TextBlock Text="{x:Static res:Strings.NavSchedule}" Style="{StaticResource TitleWindow}" />
         <StackPanel Orientation="Horizontal">
-          <Button Content="{x:Static res:Strings.WizBack}" Style="{StaticResource QuietButton}" MinWidth="140"
-                  Command="{Binding PrevWeekCommand}" />
           <Button Content="{x:Static res:Strings.DateToday}" Style="{StaticResource QuietButton}" MinWidth="140"
                   Command="{Binding TodayCommand}" />
+          <Button Content="{x:Static res:Strings.DateTomorrow}" Style="{StaticResource QuietButton}" MinWidth="140"
+                  Command="{Binding TomorrowCommand}" />
+          <Button Content="{x:Static res:Strings.WizBack}" Style="{StaticResource QuietButton}" MinWidth="140"
+                  Command="{Binding PrevWeekCommand}" />
           <Button Content="{x:Static res:Strings.WizNext}" Style="{StaticResource QuietButton}" MinWidth="140"
                   Command="{Binding NextWeekCommand}" />
         </StackPanel>
@@ -55,7 +57,9 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate>
             <Border BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="6">
-              <TextBlock Text="{Binding Text}" Style="{StaticResource BaseText}" />
+              <Grid>
+                <TextBlock Text="{Binding Text}" Style="{StaticResource BaseText}" />
+              </Grid>
             </Border>
           </DataTemplate>
         </ItemsControl.ItemTemplate>

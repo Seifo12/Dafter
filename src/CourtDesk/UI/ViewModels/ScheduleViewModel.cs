@@ -9,11 +9,12 @@ using CourtDesk.Resources;
 namespace CourtDesk.UI.ViewModels
 {
     public sealed class DayCountRow
-    {
-        public LocalDate Date { get; set; }
-        public string Text { get; set; }
-        public int Count { get; set; }
-    }
+        {
+            public LocalDate Date { get; set; }
+            public string Text { get; set; }
+            public int Count { get; set; }
+            public bool IsSelected { get; set; }
+        }
 
     public sealed class ScheduleViewModel : ObservableObject
     {
@@ -31,6 +32,7 @@ namespace CourtDesk.UI.ViewModels
             PrevWeekCommand = new RelayCommand(delegate { Pick(_selected.AddDays(-7)); });
             NextWeekCommand = new RelayCommand(delegate { Pick(_selected.AddDays(7)); });
             TodayCommand = new RelayCommand(delegate { Pick(clock.Today); });
+            TomorrowCommand = new RelayCommand(delegate { Pick(clock.Today.AddDays(1)); });
             PrintCommand = new RelayCommand(delegate
             {
                 Action<LocalDate> h = PrintRequested;
@@ -57,6 +59,7 @@ namespace CourtDesk.UI.ViewModels
         public ICommand PrevWeekCommand { get; private set; }
         public ICommand NextWeekCommand { get; private set; }
         public ICommand TodayCommand { get; private set; }
+        public ICommand TomorrowCommand { get; private set; }
         public ICommand PrintCommand { get; private set; }
         public ICommand EditCommand { get; private set; }
 
@@ -94,13 +97,16 @@ namespace CourtDesk.UI.ViewModels
             _day.Clear();
             _day.AddRange(_schedule.Day(_selected));
             _upcoming.Clear();
-            foreach (DateCount c in _schedule.NextDays(_clock.Today, 14))
+            LocalDate today = _clock.Today;
+            foreach (DateCount c in _schedule.NextDays(today, 14))
             {
                 _upcoming.Add(new DayCountRow
                 {
                     Date = c.Date,
                     Count = c.Count,
-                    Text = ArabicDateFormat.FormatShort(c.Date) + " (" + c.Count + ")"
+                    IsSelected = c.Date == _selected,
+                    Text = Label(c.Date, today) + ": "
+                        + ArabicDateFormat.FormatShort(c.Date) + " (" + c.Count + ")"
                 });
             }
             Raise("Selected");
@@ -108,6 +114,19 @@ namespace CourtDesk.UI.ViewModels
             Raise("Day");
             Raise("Upcoming");
             Raise("EmptyText");
+        }
+
+        private static string Label(LocalDate date, LocalDate today)
+        {
+            if (date == today)
+            {
+                return Strings.DateToday;
+            }
+            if (date == today.AddDays(1))
+            {
+                return Strings.DateTomorrow;
+            }
+            return Strings.Weekdays[ArabicDateFormat.WeekdayIndex(date.DayOfWeek)];
         }
     }
 }
