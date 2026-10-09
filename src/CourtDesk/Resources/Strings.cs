@@ -218,6 +218,7 @@ namespace CourtDesk.Resources
         public const string ExcelRowProblem = "سطر";
         public const string ExcelTitle = "الملف الطبي والاستيراد";
         public const string ExcelScope = "نطاق التصدير";
+        public const string ScopeDateLabel = "تاريخ الكشف";
         public const string ExcelScopeAll = "الكل";
         public const string ExcelScopeDetained = "المحكوم عليهم (محتجزون)";
         public const string ExcelScopeReleased = "المفرج عنهم";

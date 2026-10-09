@@ -116,14 +116,18 @@ public void PrintScope(bool preview, string scope)
             PrintScope(preview, scope, null);
         }
 
-        public void PrintScope(bool preview, string scope, string title)
+        public void PrintScope(bool preview, string scope, CourtDesk.Domain.LocalDate? dateOverride)
         {
             if (C.Printing == null || C.Rosters == null || C.Settings == null)
             {
                 TellSafe(Strings.SidePrint, Strings.PrintFail);
                 return;
             }
-            LocalDate date = C.Clock != null ? C.Clock.Today : default(LocalDate);
+            // the roster is per session date, so a decision logged for another
+            // date needs that date rather than today
+            LocalDate date = dateOverride.HasValue
+                ? dateOverride.Value
+                : (C.Clock != null ? C.Clock.Today : default(LocalDate));
             RosterModel model;
             try
             {

@@ -50,10 +50,11 @@ namespace CourtDesk
                 {
                     composition.Coordinator.OpenCard(c.Id);
                 };
-vm.Sidebar.PrintScopeRequested += delegate(bool preview, string scope)
+vm.Sidebar.PrintScopeRequested += delegate(bool preview, string scope,
+                CourtDesk.Domain.LocalDate date)
             {
-                // print only the section selected in the sidebar dropdown
-                composition.Coordinator.PrintScope(preview, scope);
+                // print only the selected section, for the selected date
+                composition.Coordinator.PrintScope(preview, scope, date);
             };
             }
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)

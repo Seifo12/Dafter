@@ -25,6 +25,7 @@ namespace CourtDesk.UI.Views
             {
                 return;
             }
+            ApplyScopeDate(vm);
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)
             {
                 if (e.PropertyName == "DateLong" || e.PropertyName == "Empty" || e.PropertyName == "Tab"
@@ -36,6 +37,31 @@ namespace CourtDesk.UI.Views
                 }
             };
             ApplyBands(vm);
+        }
+
+        private void ScopePrevDayClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModels.TodaySidebarViewModel vm = Vm;
+            if (vm != null)
+            {
+                vm.ShiftScopeDate(-1);
+                ApplyScopeDate(vm);
+            }
+        }
+
+        private void ScopeNextDayClick(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModels.TodaySidebarViewModel vm = Vm;
+            if (vm != null)
+            {
+                vm.ShiftScopeDate(1);
+                ApplyScopeDate(vm);
+            }
+        }
+
+        private void ApplyScopeDate(ViewModels.TodaySidebarViewModel vm)
+        {
+            ScopeDateText.Text = CourtDesk.Domain.ArabicDateFormat.FormatShort(vm.ScopeDate);
         }
 
         private void PrintScopeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

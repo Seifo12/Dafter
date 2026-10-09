@@ -62,10 +62,12 @@ namespace CourtDesk.UI.ViewModels
                     Raise("OverdueTabText");
                 }
             });
-            ToggleDecidedCommand = new RelayCommand(delegate(object o)
+                        ToggleDecidedCommand = new RelayCommand(delegate(object o)
             {
                 DecidedExpanded = !DecidedExpanded;
             });
+            TodaySnapshot snap0 = _today.Snapshot();
+            _scopeDate = snap0.Date;
             Refresh();
         }
 
@@ -74,6 +76,19 @@ namespace CourtDesk.UI.ViewModels
         public ObservableCollection<SessionCard> DecidedCards { get { return _decided; } }
         public ObservableCollection<SessionCard> TomorrowCards { get { return _tomorrowCards; } }
         private string _printScope = "ALL";
+
+        private CourtDesk.Domain.LocalDate _scopeDate;
+
+        public CourtDesk.Domain.LocalDate ScopeDate
+        {
+            get { return _scopeDate; }
+            set { Set(ref _scopeDate, value, "ScopeDate"); }
+        }
+
+        public void ShiftScopeDate(int days)
+        {
+            ScopeDate = _scopeDate.AddDays(days);
+        }
 
         public string PrintScope
         {
@@ -157,7 +172,7 @@ namespace CourtDesk.UI.ViewModels
         public event Action QueueRequested;
         public event Action<bool> PrintRequested;
         public event Action<SessionCard> CardRequested;
-        public event Action<bool, string> PrintScopeRequested;
+        public event Action<bool, string, CourtDesk.Domain.LocalDate> PrintScopeRequested;
 
         public string DateLong
         {
@@ -426,10 +441,10 @@ namespace CourtDesk.UI.ViewModels
 
         private void OnPrint(bool preview)
         {
-            Action<bool, string> scoped = PrintScopeRequested;
+            Action<bool, string, CourtDesk.Domain.LocalDate> scoped = PrintScopeRequested;
             if (scoped != null)
             {
-                scoped(preview, _printScope);
+                scoped(preview, _printScope, _scopeDate);
                 return;
             }
             Action<bool> h = PrintRequested;

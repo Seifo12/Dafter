@@ -216,6 +216,15 @@
       </ScrollViewer>
 
       <StackPanel Grid.Row="3" Margin="12,0,12,8" x:Name="Footer">
+        <TextBlock Text="{x:Static res:Strings.ScopeDateLabel}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+          <Button x:Name="ScopePrevDay" Style="{StaticResource QuietButton}" Content="-"
+                  Click="ScopePrevDayClick" MinHeight="48" MinWidth="64" Margin="0,0,6,0" />
+          <TextBlock x:Name="ScopeDateText" Style="{StaticResource GridStrong}"
+                     VerticalAlignment="Center" MinWidth="120" TextAlignment="Center" />
+          <Button x:Name="ScopeNextDay" Style="{StaticResource QuietButton}" Content="+"
+                  Click="ScopeNextDayClick" MinHeight="48" MinWidth="64" Margin="6,0,0,0" />
+        </StackPanel>
         <TextBlock Text="{x:Static res:Strings.ExcelScope}" Style="{StaticResource MutedText}"
                    Margin="0,0,0,4" />
         <ComboBox x:Name="PrintScopeBox" Style="{StaticResource BigCombo}" MinHeight="48" Margin="0,0,0,8"

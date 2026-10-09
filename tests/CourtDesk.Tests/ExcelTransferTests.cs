@@ -198,6 +198,33 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void ReleasedTodayShowsEvenWhenDecisionWasLoggedForAnotherDate()
+        {
+            using (var env = new DialogEnv())
+            {
+                var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                var decisions = new DecisionService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                // the defendant was registered for tomorrow's session, which is
+                // what the roster header showed when the decision was logged
+                int id = env.Add("بريء بكفالة", "7150", env.Clock.Today);
+                int version = env.Db.Read(s => env.Defendants.GetById(s, id).RowVersion);
+                decisions.Decide(new DecisionRequest
+                {
+                    DefendantId = id,
+                    ExpectedVersion = version,
+                    RequestUuid = Guid.NewGuid().ToString("N"),
+                    Code = DecisionCodes.ReleaseBail,
+                    BailAmount = 5000
+                });
+
+                RosterModel released = rosters.Build(env.Clock.Today, Filters.Released);
+                Assert.Equal(1, released.Count);
+            }
+        }
+
+        [Fact]
         public void ScopedRosterPrintsOnlyChosenSection()
         {
             using (var env = new DialogEnv())
