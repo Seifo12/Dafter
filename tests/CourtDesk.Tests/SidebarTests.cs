@@ -195,5 +195,33 @@ namespace CourtDesk.Tests
                 CollectTextBlocks(child, outp);
             }
         }
+[Fact]
+        public void TomorrowTabListsNextDay()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    env.Clock.Today = new LocalDate(2026, 10, 7);
+                    env.AddDefendant("بكره واحد", "7010", new LocalDate(2026, 10, 8));
+                    env.AddDefendant("بكره اتنين", "7011", new LocalDate(2026, 10, 8));
+                    env.AddDefendant("النهارده", "7012", new LocalDate(2026, 10, 7));
+                    env.Refresh();
+                    Assert.Equal(2, env.Sidebar.TomorrowCards.Count);
+                    Assert.Contains("2", env.Sidebar.TomorrowTabText);
+                    env.Sidebar.Tab = "tomorrow";
+                    Assert.Equal("tomorrow", env.Sidebar.Tab);
+                    bool names = false;
+                    foreach (var c in env.Sidebar.TomorrowCards)
+                    {
+                        if (c.Name == "بكره واحد")
+                        {
+                            names = true;
+                        }
+                    }
+                    Assert.True(names, "tomorrow cards wrong");
+                }
+            });
+        }
     }
 }

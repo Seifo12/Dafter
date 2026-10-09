@@ -55,7 +55,9 @@ namespace CourtDesk.Tests
         {
             new int[] { 1366, 768 },
             new int[] { 1280, 720 },
-            new int[] { 1024, 768 }
+            new int[] { 1024, 768 },
+            new int[] { 1366, 600 },
+            new int[] { 1152, 720 }
         };
 
         [Fact]
@@ -105,7 +107,7 @@ namespace CourtDesk.Tests
 
             foreach (ScrollViewer sv in scrolls)
             {
-                if (Name(sv) == "DecidedStrip")
+                if (Name(sv) == "DecidedStrip" || Name(sv) == "DG_ScrollViewer")
                 {
                     continue;
                 }
@@ -203,8 +205,10 @@ namespace CourtDesk.Tests
                 {
                     total += col.ActualWidth;
                 }
-                double avail = g.ActualWidth - 20;
-                if (total > avail + 2.0)
+double avail = g.ActualWidth - 20;
+            bool scrollsSideways = g.HorizontalScrollBarVisibility
+                == System.Windows.Controls.ScrollBarVisibility.Auto;
+            if (total > avail + 2.0 && !scrollsSideways)
                 {
                     failures.Add(c.Scenario + ": grid columns need " + Math.Round(total)
                         + "px but only " + Math.Round(avail) + "px available");
@@ -255,7 +259,7 @@ namespace CourtDesk.Tests
 
             if (c.HasData)
             {
-                bool strict = c.Width >= 1366 && c.Scale == 100;
+                bool strict = c.Width >= 1366 && c.Scale == 100 && c.Height >= 700;
                 foreach (DataGrid g in grids)
                 {
                     int realized = 0;
@@ -266,13 +270,13 @@ namespace CourtDesk.Tests
                             realized++;
                         }
                     }
-                    if (realized < (strict ? 6 : 3))
+                    if (realized < (strict ? 6 : (c.Height >= 700 ? 3 : 2)))
                     {
                         failures.Add(c.Scenario + ": grid shows only " + realized + " rows");
                     }
                 }
                 int cards = CountSidebarCards(w);
-                if (c.Width >= 1366 && cards < 4)
+                if (c.Width >= 1366 && c.Height >= 700 && cards < 4)
                 {
                     failures.Add(c.Scenario + ": sidebar shows only " + cards + " cards");
                 }

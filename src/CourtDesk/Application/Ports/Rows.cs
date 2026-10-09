@@ -19,5 +19,6 @@ namespace CourtDesk.Application.Ports
         public string NextSessionDate { get; set; }
         public string CourtNameAtEvent { get; set; }
         public string CircuitNameAtEvent { get; set; }
+        public int? BailAmount { get; set; }
     }
 }

@@ -205,6 +205,20 @@ namespace CourtDesk
         {
             var view = new BackupSettingsView(c.BackupService, c.Settings, dir);
             view.RestoreRequested = _restore;
+            view.Excel = c.Excel;
+            view.RowsProvider = delegate
+            {
+                c.Main.Register.Filter = CourtDesk.Application.Filters.All;
+                c.Main.Register.Refresh();
+                return c.Main.Register.Rows;
+            };
+            view.ImportDone = delegate(int touched)
+            {
+                if (touched > 0)
+                {
+                    c.Main.RefreshAll();
+                }
+            };
             view.ShowDialog();
         }
 

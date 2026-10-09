@@ -198,6 +198,7 @@ namespace CourtDesk.Resources
         public const string Ok = "تمام";
         public const string SideTabToday = "اليوم ({0})";
         public const string SideTabOverdue = "فاتت ({0})";
+        public const string SideTabTomorrow = "بكره ({0})";
         public const string FontLabel = "حجم الحرف";
         public const string GridDataTitle = "بيانات القضية";
         public const string SidePrintShort = "طباعة كشف الترحيل";
@@ -205,6 +206,14 @@ namespace CourtDesk.Resources
         public const string CustodyFree = "غير محتجز";
         public const string HistWhen = "وقت القرار";
         public const string ExcelEmpty = "الملف فاضي أو فيه صف واحد بس.";
+        public const string ExcelHint = "نزّل «القالب»، املاه في إكسل، وبعدين استورده — أو صدّر السجل كله لإكسل.";
+        public const string ExcelTemplate = "نزّل القالب";
+        public const string ExcelImport = "استيراد من إكسل";
+        public const string ExcelExport = "تصدير إلى إكسل";
+        public const string ExcelPick = "اختر الملف";
+        public const string ExcelDone = "تم: {0} مضاف، {1} متخطى.";
+        public const string ExcelSaved = "حُفظ الملف هنا: {0}";
+        public const string ExcelNothing = "مفيش صفوف للتصدير.";
         public const string ExcelMissingColumn = "الملف ناقص العمود:";
         public const string ExcelRowProblem = "سطر";
         public const string ExcelTitle = "الملف الطبي والاستيراد";

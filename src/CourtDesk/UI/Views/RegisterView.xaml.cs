@@ -48,16 +48,17 @@ public void SetCompact(bool compact)
             ApplyButtonLayout(CardButton, "IconCard", Strings.ActionCard);
             ApplyButtonLayout(VoidButton, "IconTrash", Strings.ActionVoid);
             ActionBar.Height = compact ? 84 : 56;
+            Grid.HorizontalScrollBarVisibility = narrow
+                ? System.Windows.Controls.ScrollBarVisibility.Auto
+                : System.Windows.Controls.ScrollBarVisibility.Hidden;
             if (Grid.Columns.Count > 3)
             {
                 SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
-                SetWidth(Grid.Columns[1], narrow ? 100 : (compact ? 160 : 268), narrow ? 100 : (compact ? 160 : 268));
-                SetWidth(Grid.Columns[2], narrow ? 96 : (compact ? 130 : 202), narrow ? 96 : (compact ? 130 : 202));
+                SetWidth(Grid.Columns[1], narrow ? 150 : (compact ? 190 : 268), narrow ? 150 : (compact ? 190 : 268));
+                SetWidth(Grid.Columns[2], narrow ? 110 : (compact ? 150 : 202), narrow ? 110 : (compact ? 150 : 202));
                 SetWidth(Grid.Columns[3], narrow ? 128 : (compact ? 150 : 186), narrow ? 128 : (compact ? 150 : 186));
-                if (Grid.Columns.Count > 4)
-                {
-                    SetWidth(Grid.Columns[4], narrow ? 124 : (compact ? 144 : 172), narrow ? 124 : (compact ? 144 : 172));
-                }
+                var statusCol = Grid.Columns[4];
+            SetWidth(statusCol, narrow ? 96 : (compact ? 150 : 176), narrow ? 96 : (compact ? 150 : 176));
             }
         }
 

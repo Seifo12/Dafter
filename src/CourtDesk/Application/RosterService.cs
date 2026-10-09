@@ -17,6 +17,9 @@ namespace CourtDesk.Application
         public string CustodyName;
         public bool FromDecision;
         public string DecisionCode;
+        public string DecisionLabel;
+        public string BailAmount;
+        public string DetainedSince;
     }
 
     public sealed class RosterModel
@@ -103,7 +106,14 @@ namespace CourtDesk.Application
                         CircuitName = row.CircuitNameAtEvent,
                         CustodyName = _defendants.CustodyName(s, row.D.CustodyLocationId),
                         FromDecision = true,
-                        DecisionCode = row.DecisionCode
+                        DecisionCode = row.DecisionCode,
+                        DecisionLabel = CourtDesk.UI.ViewModels.DecisionWizardViewModel
+                            .LabelOf(row.DecisionCode),
+                        BailAmount = row.BailAmount.HasValue
+                            ? row.BailAmount.Value.ToString("0.##",
+                                System.Globalization.CultureInfo.InvariantCulture) : "",
+                        DetainedSince = row.D.DetainedSince.HasValue
+                            ? ArabicDateFormat.FormatShort(row.D.DetainedSince.Value) : ""
                     });
                 }
                 return m;

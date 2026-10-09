@@ -93,7 +93,7 @@ namespace CourtDesk
             bool wide = ActualWidth >= 1366.0 * _zoom;
             bool narrow = ActualWidth < 1150.0 * _zoom;
             Bar.ApplyWidthMode(wide);
-            SidebarColumn.Width = new GridLength(wide ? 380 : (narrow ? 272 : 320));
+            SidebarColumn.Width = new GridLength(wide ? 380 : (narrow ? 300 : 330));
             RegisterView.SetCompact(!wide, narrow);
         }
 

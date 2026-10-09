@@ -28,10 +28,12 @@
         </Grid>
       </StackPanel>
 
-      <UniformGrid Grid.Row="1" Rows="1" Columns="2" Margin="12,0,12,6" x:Name="TabRow">
-        <ToggleButton x:Name="TodayTab" Style="{StaticResource SidebarTab}" Content="{Binding TodayTabText}"
+      <UniformGrid Grid.Row="1" Rows="1" Columns="3" Margin="12,0,12,6" x:Name="TabRow">
+        <ToggleButton x:Name="TodayTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding TodayTabText}"
                       Command="{Binding TabCommand}" CommandParameter="today" />
-        <ToggleButton x:Name="OverdueTab" Style="{StaticResource SidebarTab}" Content="{Binding OverdueTabText}"
+        <ToggleButton x:Name="TomorrowTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding TomorrowTabText}"
+                      Command="{Binding TabCommand}" CommandParameter="tomorrow" />
+        <ToggleButton x:Name="OverdueTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding OverdueTabText}"
                       Command="{Binding TabCommand}" CommandParameter="overdue" />
       </UniformGrid>
 
@@ -95,6 +97,45 @@
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Background="{StaticResource TodayFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
+                    <StackPanel Grid.Column="1" Margin="8">
+                      <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextWrapping="Wrap"
+                                 Cursor="Hand" MouseLeftButtonUp="NameClick" />
+                      <Grid Margin="0,2,0,0">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Line2}" Style="{StaticResource MutedText}"
+                                   TextWrapping="Wrap" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Style="{StaticResource PrimaryButton}" MinHeight="44" Height="44"
+                                MinWidth="120" Padding="8,4" Margin="8,0,0,0" VerticalAlignment="Center"
+                                Command="{Binding DataContext.RecordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}">
+                          <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconGavel}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"
+                                  Fill="Transparent" Width="18" Height="18" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Static res:Strings.SideRecord}" Margin="4,0,0,0"
+                                       VerticalAlignment="Center" FontSize="18" />
+                          </StackPanel>
+                        </Button>
+                      </Grid>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <ItemsControl x:Name="TomorrowList" ItemsSource="{Binding TomorrowCards}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Style="{StaticResource Card}" Margin="0,0,0,8" MinHeight="92" Padding="0">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="6" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="{StaticResource UpcomingFgBrush}" CornerRadius="4" Margin="0,6,0,6" />
                     <StackPanel Grid.Column="1" Margin="8">
                       <TextBlock Text="{Binding Name}" Style="{StaticResource NameText}" TextWrapping="Wrap"
                                  Cursor="Hand" MouseLeftButtonUp="NameClick" />

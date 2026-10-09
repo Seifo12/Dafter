@@ -241,9 +241,27 @@ namespace CourtDesk.Printing
                 e.Charges ?? "",
                 Combine(e.CourtName, e.CircuitName),
                 e.CustodyName ?? "",
-                ""
+                NotesCell(e)
             };
             return BuildRow(cells, FontSizeBody, false, MeasureRow(index));
+        }
+
+        private static string NotesCell(RosterEntry e)
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrEmpty(e.DecisionLabel))
+            {
+                parts.Add(e.DecisionLabel);
+            }
+            if (!string.IsNullOrEmpty(e.BailAmount))
+            {
+                parts.Add(Strings.WizBailAmount + " " + e.BailAmount);
+            }
+            if (!string.IsNullOrEmpty(e.DetainedSince))
+            {
+                parts.Add(Strings.FieldDetainedSince + " " + e.DetainedSince);
+            }
+            return string.Join(" - ", parts.ToArray());
         }
 
         private static string Combine(string a, string b)

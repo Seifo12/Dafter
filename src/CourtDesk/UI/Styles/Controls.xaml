@@ -212,8 +212,8 @@
     <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
     <Setter Property="FontSize" Value="18" />
     <Setter Property="MinHeight" Value="48" />
-    <Setter Property="MinWidth" Value="120" />
-    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="MinWidth" Value="90" />
+    <Setter Property="Padding" Value="6,4" />
     <Setter Property="Margin" Value="4,0" />
     <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
     <Setter Property="Background" Value="{StaticResource CardBrush}" />
@@ -251,6 +251,13 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <Style x:Key="SidebarTabCompact" TargetType="ToggleButton" BasedOn="{StaticResource SidebarTab}">
+    <Setter Property="FontSize" Value="16" />
+    <Setter Property="MinWidth" Value="72" />
+    <Setter Property="Padding" Value="4,4" />
+    <Setter Property="Margin" Value="2,0" />
   </Style>
 
   <Style x:Key="InputBox" TargetType="TextBox">

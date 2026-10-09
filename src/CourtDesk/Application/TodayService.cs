@@ -11,6 +11,7 @@ namespace CourtDesk.Application
         public readonly List<DefendantRow> Pending = new List<DefendantRow>();
         public readonly List<DefendantRow> Overdue = new List<DefendantRow>();
         public readonly List<DecidedRow> Decided = new List<DecidedRow>();
+        public readonly List<DefendantRow> Tomorrow = new List<DefendantRow>();
         public int TomorrowCount;
         public int NoDateCount;
         public long ChangeSeq;
@@ -63,6 +64,10 @@ namespace CourtDesk.Application
                 snap.Overdue.AddRange(_defendants.ListOverdueRows(s, iso));
                 snap.Decided.AddRange(_defendants.ListDecidedOn(s, iso));
                 snap.TomorrowCount = _defendants.CountOn(s, tomorrow);
+                if (_defendants.ListPendingOn != null)
+                {
+                    snap.Tomorrow.AddRange(_defendants.ListPendingOn(s, tomorrow));
+                }
                 snap.NoDateCount = _defendants.CountNoDate(s);
                 return snap;
             });

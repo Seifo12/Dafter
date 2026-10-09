@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CourtDesk.Application;
@@ -37,6 +37,7 @@ namespace CourtDesk.UI.ViewModels
         private readonly ObservableCollection<SessionCard> _overdue = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _pending = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _decided = new ObservableCollection<SessionCard>();
+        private readonly ObservableCollection<SessionCard> _tomorrowCards = new ObservableCollection<SessionCard>();
         private readonly ObservableCollection<SessionCard> _decidedAll = new ObservableCollection<SessionCard>();
         private int _moreDecided;
         private bool _decidedExpanded;
@@ -68,6 +69,7 @@ namespace CourtDesk.UI.ViewModels
         public ObservableCollection<SessionCard> OverdueCards { get { return _overdue; } }
         public ObservableCollection<SessionCard> PendingCards { get { return _pending; } }
         public ObservableCollection<SessionCard> DecidedCards { get { return _decided; } }
+        public ObservableCollection<SessionCard> TomorrowCards { get { return _tomorrowCards; } }
         public ICommand RecordCommand { get; private set; }
         public ICommand UndoCommand { get; private set; }
         public ICommand QueueCommand { get; private set; }
@@ -128,6 +130,15 @@ namespace CourtDesk.UI.ViewModels
         public string OverdueTabText
         {
             get { return _overdueTabText; }
+        }
+
+        public string TomorrowTabText
+        {
+            get
+            {
+                return string.Format(CourtDesk.Resources.Strings.SideTabTomorrow,
+                    _tomorrowCards.Count);
+            }
         }
 
         public event Action<SessionCard> RecordRequested;
@@ -209,6 +220,20 @@ namespace CourtDesk.UI.ViewModels
                     AccentKey = "TODAY"
                 });
             }
+            _tomorrowCards.Clear();
+            foreach (DefendantRow row in snap.Tomorrow)
+            {
+                _tomorrowCards.Add(new SessionCard
+                {
+                    Id = row.D.Id,
+                    Name = row.D.FullName,
+                    Line2 = string.Format(CourtDesk.Resources.Strings.CaseFormat,
+                        row.D.CaseNumber, row.D.CaseYear)
+                        + " \u00b7 " + (row.CircuitName ?? ""),
+                    Line3 = row.CourtName ?? "",
+                    AccentKey = "UPCOMING"
+                });
+            }
             _decidedAll.Clear();
             foreach (DecidedRow row in snap.Decided)
             {
@@ -238,6 +263,7 @@ namespace CourtDesk.UI.ViewModels
             Raise("Empty");
             Raise("TodayTabText");
             Raise("OverdueTabText");
+            Raise("TomorrowTabText");
             Raise("MoreDecided");
             Raise("MoreDecidedText");
             Raise("HasDecided");
@@ -254,8 +280,7 @@ namespace CourtDesk.UI.ViewModels
             }
             _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
             _overdueTabText = string.Format(
-                CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);
-        }
+                CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);        }
 
         public static string LabelOf(string code)
         {

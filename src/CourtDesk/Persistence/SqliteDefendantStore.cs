@@ -66,7 +66,7 @@ namespace CourtDesk.Persistence
                 "SELECT d.id, d.full_name, d.name_norm, d.national_id, d.case_number, d.case_year, " +
                 "d.case_type, d.charges, d.court_id, d.circuit_id, d.custody_location_id, d.session_date, " +
                 "d.status, d.detained_since, d.notes, d.is_deleted, d.row_version, " +
-                "e.id, e.decision_code, e.next_session_date, e.court_name_at_event, e.circuit_name_at_event " +
+                "e.id, e.decision_code, e.next_session_date, e.court_name_at_event, e.circuit_name_at_event, e.bail_amount " +
                 "FROM session_events e JOIN defendants d ON d.id = e.defendant_id " +
                 "WHERE e.event_type = 'DECISION' AND e.decision_code <> 'REOPEN' " +
                 "AND e.session_date_held = @d AND e.undone_by_event_id IS NULL AND d.is_deleted = 0 " +
@@ -85,7 +85,9 @@ namespace CourtDesk.Persistence
                             DecisionCode = Str(r, 18),
                             NextSessionDate = Str(r, 19),
                             CourtNameAtEvent = Str(r, 20),
-                            CircuitNameAtEvent = Str(r, 21)
+                            CircuitNameAtEvent = Str(r, 21),
+                            BailAmount = r.FieldCount > 22 && !r.IsDBNull(22)
+                                ? (int?)r.GetInt32(22) : null
                         });
                     }
                 }

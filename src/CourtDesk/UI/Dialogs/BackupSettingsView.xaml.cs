@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using CourtDesk.Application;
 using CourtDesk.Resources;
@@ -12,13 +13,127 @@ namespace CourtDesk.UI.Dialogs
         private readonly SettingsService _settings;
         private readonly string _home;
 
-        public BackupSettingsView(BackupService backups, SettingsService settings, string home)
+public BackupSettingsView(BackupService backups, SettingsService settings, string home)
         {
             InitializeComponent();
             _backups = backups;
             _settings = settings;
             _home = home;
             Reload();
+        }
+
+        public System.Action<int> ImportDone;
+
+        public System.Func<System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> RowsProvider;
+
+        public ExcelTransferService Excel;
+
+        private string DefaultPath(string kind)
+        {
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+            {
+                dir = _home;
+            }
+            return Path.Combine(dir, "courtdesk-" + kind + "-"
+                + new CourtDesk.Domain.SystemClock().UtcNow.ToString("yyyyMMdd-HHmm", CultureInfo.InvariantCulture)
+                + ".xlsx");
+        }
+
+        private string AskPath(string title, string suggested)
+        {
+            var dlg = new AskTextWindow(title, Strings.ExcelPick);
+            dlg.Left = -32000;
+            dlg.Top = -32000;
+            dlg.ShowActivated = false;
+            if (dlg.ShowDialog() != true || string.IsNullOrWhiteSpace(dlg.Value))
+            {
+                return null;
+            }
+            string v = dlg.Value.Trim();
+            if (!v.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                v = v + ".xlsx";
+            }
+            return v;
+        }
+
+        private void TemplateClick(object sender, RoutedEventArgs e)
+        {
+            if (Excel == null)
+            {
+                return;
+            }
+            try
+            {
+                string path = DefaultPath("template");
+                Excel.WriteTemplate(path);
+                MessageDialog.Show(this, Strings.ExcelTitle,
+                    string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path));
+            }
+            catch (System.Exception ex)
+            {
+                MessageDialog.Show(this, Strings.ExcelTitle, ex.Message);
+            }
+        }
+
+        private void ImportClick(object sender, RoutedEventArgs e)
+        {
+            if (Excel == null)
+            {
+                return;
+            }
+            string path = AskPath(Strings.ExcelImport, null);
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            {
+                return;
+            }
+            try
+            {
+                ImportReport report = Excel.Import(path, false);
+                string body = string.Format(CultureInfo.InvariantCulture,
+                    Strings.ExcelDone, report.Added, report.Skipped);
+                if (report.Problems.Count > 0)
+                {
+                    body = body + "\n" + string.Join("\n", report.Problems.ToArray());
+                }
+                MessageDialog.Show(this, Strings.ExcelImport, body);
+                System.Action<int> h = ImportDone;
+                if (h != null)
+                {
+                    h(report.Added + report.Skipped);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageDialog.Show(this, Strings.ExcelImport, ex.Message);
+            }
+        }
+
+        private void ExportClick(object sender, RoutedEventArgs e)
+        {
+            if (Excel == null)
+            {
+                return;
+            }
+            System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow> rows =
+                RowsProvider == null ? null : RowsProvider();
+            if (rows == null || rows.Count == 0)
+            {
+                MessageDialog.Show(this, Strings.ExcelExport, Strings.ExcelNothing);
+                return;
+            }
+            string path = DefaultPath("export");
+            try
+            {
+                int n = Excel.Export(path, rows);
+                MessageDialog.Show(this, Strings.ExcelExport,
+                    string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path));
+            }
+            catch (System.Exception ex)
+            {
+                MessageDialog.Show(this, Strings.ExcelExport, ex.Message);
+            }
         }
 
         public System.Action<BackupCandidate> RestoreRequested;

@@ -24,6 +24,24 @@
       <StackPanel>
         <Border Style="{StaticResource Card}" Padding="16" Margin="0,0,0,12">
           <StackPanel>
+            <TextBlock Text="{x:Static res:Strings.ExcelTitle}" Style="{StaticResource CardTitle}" />
+            <TextBlock x:Name="ExcelHint" Style="{StaticResource MutedText}" Margin="0,6,0,0"
+                       TextWrapping="Wrap" Text="{x:Static res:Strings.ExcelHint}" />
+            <UniformGrid Rows="1" Columns="3" Margin="0,8,0,0">
+              <Button x:Name="TemplateButton" Style="{StaticResource SecondaryButton}" MinHeight="48"
+                      MinWidth="180" Margin="0,0,4,0" Click="TemplateClick"
+                      Content="{x:Static res:Strings.ExcelTemplate}" />
+              <Button x:Name="ImportButton" Style="{StaticResource SecondaryButton}" MinHeight="48"
+                      MinWidth="180" Margin="4,0" Click="ImportClick"
+                      Content="{x:Static res:Strings.ExcelImport}" />
+              <Button x:Name="ExportButton" Style="{StaticResource SecondaryButton}" MinHeight="48"
+                      MinWidth="180" Margin="4,0,0,0" Click="ExportClick"
+                      Content="{x:Static res:Strings.ExcelExport}" />
+            </UniformGrid>
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Padding="16" Margin="0,0,0,12">
+          <StackPanel>
             <TextBlock Text="{x:Static res:Strings.BkUsb}" Style="{StaticResource CardTitle}" />
             <TextBlock x:Name="LastUsbText" Style="{StaticResource MutedText}" Margin="0,6,0,0"
                        TextWrapping="Wrap" />

@@ -61,8 +61,13 @@ namespace CourtDesk.UI.Views
             OverdueList.Visibility = vm.OverdueCards.Count == 0 ? Visibility.Collapsed
                 : (vm.Tab == "overdue" ? Visibility.Visible : Visibility.Collapsed);
             PendingList.Visibility = vm.PendingCards.Count == 0 ? Visibility.Collapsed
-                : (vm.Tab == "overdue" ? Visibility.Collapsed : Visibility.Visible);
+                : (vm.Tab == "today" ? Visibility.Visible : Visibility.Collapsed);
+            TomorrowList.Visibility = vm.TomorrowCards.Count == 0 ? Visibility.Collapsed
+                : (vm.Tab == "tomorrow" ? Visibility.Visible : Visibility.Collapsed);
             TodayTab.IsChecked = vm.Tab == "today";
+            TomorrowTab.IsChecked = vm.Tab == "tomorrow";
+            TomorrowTab.Visibility = vm.TomorrowCards.Count > 0
+                ? Visibility.Visible : Visibility.Collapsed;
             OverdueTab.IsChecked = vm.Tab == "overdue";
             OverdueTab.Visibility = vm.OverdueCards.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
             MoreDecidedText.Text = vm.MoreDecidedText;

@@ -37,6 +37,7 @@ namespace CourtDesk.Bootstrap
         public MainViewModel Main;
         public CourtDesk.UI.UiCoordinator Coordinator;
         public CourtDesk.Printing.PrintService PrintService;
+        public CourtDesk.Application.ExcelTransferService Excel;
     }
 
     public static class CompositionRoot
@@ -105,6 +106,8 @@ c.Main = new MainViewModel(settings, clock, register, sidebar)
         };
 c.PrintService = new CourtDesk.Printing.PrintService(db,
                 new CourtDesk.Persistence.SqliteRosterPrintLog(), c.RosterService);
+            c.Excel = new CourtDesk.Application.ExcelTransferService(db, defendants,
+                events, clock, c.DefendantService);
             c.Coordinator = new CourtDesk.UI.UiCoordinator(new CourtDesk.UI.UiCoordinator.CompositionLike
             {
                 Defendants = c.DefendantService,

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 using CourtDesk.Application;
+using CourtDesk.Application.Ports;
 using Xunit;
 
 namespace CourtDesk.Tests
@@ -81,6 +84,37 @@ namespace CourtDesk.Tests
             }
         }
 [Fact]
+        public void BackupScreenHasExcelButtons()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new DialogEnv())
+                {
+                    var engine = new CourtDesk.Persistence.SqliteBackupEngine(env.Db, env.Clock, env.Home);
+                    var backups = new BackupService(env.Db, engine,
+                        new FakeDriveProvider(), new CourtDesk.Persistence.SqliteMetaStore(),
+                        env.Clock, env.Settings, BackupService.ForHome(env.Home),
+                        new NullLogger());
+                    var view = new CourtDesk.UI.Dialogs.BackupSettingsView(
+                        backups, env.Settings, env.Home);
+                    view.Excel = new ExcelTransferService(env.Db, env.Defendants,
+                        env.Events, env.Clock, env.DefendantService);
+                    view.RowsProvider = delegate { return env.Register.Rows; };
+                    view.Measure(new Size(900, 680));
+                    view.Arrange(new Rect(0, 0, 900, 680));
+                    view.UpdateLayout();
+                    Assert.NotNull(view.FindName("TemplateButton"));
+                    Assert.NotNull(view.FindName("ImportButton"));
+                    Assert.NotNull(view.FindName("ExportButton"));
+                    var b = (Button)view.FindName("ExportButton");
+                    Assert.True(b.IsEnabled, "export button disabled");
+                    var tpl = (Button)view.FindName("TemplateButton");
+                    Assert.True(tpl.IsEnabled, "template button disabled");
+                }
+            });
+        }
+
+        [Fact]
         public void ImportRejectsMissingColumnAndReports()
         {
             using (var env = new DialogEnv())
