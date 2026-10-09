@@ -39,7 +39,8 @@
                       Content="{x:Static res:Strings.ExcelExport}" />
             </UniformGrid>
             <TextBlock Text="{x:Static res:Strings.ExcelScope}" Style="{StaticResource MutedText}" Margin="0,12,0,4" />
-            <ComboBox x:Name="ScopeBox" MinHeight="48" HorizontalAlignment="Left" MinWidth="260"
+            <ComboBox x:Name="ScopeBox" Style="{StaticResource BigCombo}" MinHeight="48"
+                      HorizontalAlignment="Left" MinWidth="260"
                       SelectionChanged="ScopeChanged">
               <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeAll}" Tag="ALL" IsSelected="True" />
               <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeDetained}" Tag="DETAINED" />

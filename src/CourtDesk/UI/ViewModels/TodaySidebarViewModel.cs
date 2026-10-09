@@ -73,6 +73,14 @@ namespace CourtDesk.UI.ViewModels
         public ObservableCollection<SessionCard> PendingCards { get { return _pending; } }
         public ObservableCollection<SessionCard> DecidedCards { get { return _decided; } }
         public ObservableCollection<SessionCard> TomorrowCards { get { return _tomorrowCards; } }
+        private string _printScope = "ALL";
+
+        public string PrintScope
+        {
+            get { return _printScope; }
+            set { Set(ref _printScope, value ?? "ALL", "PrintScope"); }
+        }
+
         public ICommand RecordCommand { get; private set; }
         public ICommand UndoCommand { get; private set; }
         public ICommand QueueCommand { get; private set; }
@@ -149,6 +157,7 @@ namespace CourtDesk.UI.ViewModels
         public event Action QueueRequested;
         public event Action<bool> PrintRequested;
         public event Action<SessionCard> CardRequested;
+        public event Action<bool, string> PrintScopeRequested;
 
         public string DateLong
         {
@@ -417,6 +426,12 @@ namespace CourtDesk.UI.ViewModels
 
         private void OnPrint(bool preview)
         {
+            Action<bool, string> scoped = PrintScopeRequested;
+            if (scoped != null)
+            {
+                scoped(preview, _printScope);
+                return;
+            }
             Action<bool> h = PrintRequested;
             if (h != null)
             {

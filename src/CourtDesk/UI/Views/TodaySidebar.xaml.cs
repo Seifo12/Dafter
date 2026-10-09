@@ -38,6 +38,20 @@ namespace CourtDesk.UI.Views
             ApplyBands(vm);
         }
 
+        private void PrintScopeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            ViewModels.TodaySidebarViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            var item = PrintScopeBox.SelectedItem as System.Windows.Controls.ComboBoxItem;
+            if (item != null && item.Tag != null)
+            {
+                vm.PrintScope = System.Convert.ToString(item.Tag);
+            }
+        }
+
         private void NameClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             TextBlock tb = sender as TextBlock;

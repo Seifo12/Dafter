@@ -50,13 +50,9 @@ namespace CourtDesk
                 {
                     composition.Coordinator.OpenCard(c.Id);
                 };
-                vm.Sidebar.PrintRequested += delegate(bool preview)
+vm.Sidebar.PrintScopeRequested += delegate(bool preview, string scope)
             {
-                // honour the sidebar tab the user is looking at, so pressing
-                // preview on one section does not print the whole roster
-                string tab = vm.Sidebar.Tab;
-                string scope = "ALL";
-                if (tab == "overdue") { scope = "ALL"; }
+                // print only the section selected in the sidebar dropdown
                 composition.Coordinator.PrintScope(preview, scope);
             };
             }

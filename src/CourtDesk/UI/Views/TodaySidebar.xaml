@@ -216,6 +216,16 @@
       </ScrollViewer>
 
       <StackPanel Grid.Row="3" Margin="12,0,12,8" x:Name="Footer">
+        <TextBlock Text="{x:Static res:Strings.ExcelScope}" Style="{StaticResource MutedText}"
+                   Margin="0,0,0,4" />
+        <ComboBox x:Name="PrintScopeBox" Style="{StaticResource BigCombo}" MinHeight="48" Margin="0,0,0,8"
+                  SelectionChanged="PrintScopeChanged">
+          <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeAll}" Tag="ALL" IsSelected="True" />
+          <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeDetained}" Tag="DETAINED" />
+          <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeReleased}" Tag="RELEASED" />
+          <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeJudged}" Tag="JUDGED" />
+          <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeNoDate}" Tag="NO_DATE" />
+        </ComboBox>
         <Button Style="{StaticResource PrimaryButton}" MinHeight="56" Height="56" Command="{Binding PrintCommand}">
           <StackPanel Orientation="Horizontal">
             <Path Data="{StaticResource IconPrinter}" Stroke="{StaticResource WhiteBrush}" StrokeThickness="2"

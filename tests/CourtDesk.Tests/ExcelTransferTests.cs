@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using CourtDesk.Application;
 using CourtDesk.Application.Ports;
+using CourtDesk.Domain;
 using Xunit;
 
 namespace CourtDesk.Tests
@@ -156,6 +157,43 @@ namespace CourtDesk.Tests
                 int after = scoped("ALL").Count;
                 Assert.Equal(before + 2, after);
                 Assert.Equal(after, scoped("ALL").Count);
+            }
+        }
+
+        [Fact]
+        public void ReleasedWithBailAppearsInRoster()
+        {
+            using (var env = new DialogEnv())
+            {
+                var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                var decisions = new DecisionService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                int id = env.Add("بريء بكفالة", "7100", env.Clock.Today);
+                int version = env.Db.Read(s => env.Defendants.GetById(s, id).RowVersion);
+                decisions.Decide(new DecisionRequest
+                {
+                    DefendantId = id,
+                    ExpectedVersion = version,
+                    RequestUuid = Guid.NewGuid().ToString("N"),
+                    Code = DecisionCodes.ReleaseBail,
+                    BailAmount = 5000
+                });
+
+                // the whole roster for today must carry the acquitted person
+                RosterModel all = rosters.Build(env.Clock.Today);
+                RosterEntry found = null;
+                foreach (RosterEntry e in all.Entries)
+                {
+                    if (e.DefendantId == id) { found = e; }
+                }
+                Assert.NotNull(found);
+                Assert.Equal(CourtDesk.Resources.Strings.DecBail, found.DecisionLabel);
+                Assert.Equal("5000", found.BailAmount);
+
+                // and the released scope must be able to show them on its own
+                RosterModel released = rosters.Build(env.Clock.Today, Filters.Released);
+                Assert.Equal(1, released.Count);
             }
         }
 
