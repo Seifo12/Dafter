@@ -25,6 +25,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression" />
     <EmbeddedResource Include="..\..\vendor\managed\System.Data.SQLite.dll" LogicalName="vendor/System.Data.SQLite.dll" />
     <EmbeddedResource Include="..\..\vendor\native\x86\SQLite.Interop.dll" LogicalName="vendor/x86/SQLite.Interop.dll" />
     <EmbeddedResource Include="Persistence\Migrations\*.sql" />
