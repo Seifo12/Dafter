@@ -208,9 +208,10 @@ namespace CourtDesk.Application
                     }
                     report.Added++;
                 }
-                catch (System.Exception)
+                catch (System.Exception ex)
                 {
-                    report.Problems.Add(Strings.ExcelRowProblem + " " + (r + 1));
+                    report.Problems.Add(Strings.ExcelRowProblem + " " + (r + 1)
+                        + ": " + ex.GetType().Name + " - " + ex.Message);
                 }
             }
             return report;

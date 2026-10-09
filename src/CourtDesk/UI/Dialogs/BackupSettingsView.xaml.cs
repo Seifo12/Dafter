@@ -25,6 +25,52 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
 
         public System.Action<int> ImportDone;
 
+        public System.Action<bool, string> ScopePrintRequested;
+
+        private System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow> ScopeRows()
+        {
+            if (ScopedRowsProvider != null)
+            {
+                return ScopedRowsProvider(_scope);
+            }
+            return RowsProvider == null ? null : RowsProvider();
+        }
+
+        private void ScopePreviewClick(object sender, RoutedEventArgs e)
+        {
+            if (ScopePrintRequested != null)
+            {
+                ScopePrintRequested(true, _scope);
+            }
+        }
+
+        private void ScopePrintClick(object sender, RoutedEventArgs e)
+        {
+            if (ScopePrintRequested != null)
+            {
+                ScopePrintRequested(false, _scope);
+            }
+        }
+
+        private void SaveOfficerClick(object sender, RoutedEventArgs e)
+        {
+            _settings.Set(SettingKeys.OperatorName, OperatorBox.Text.Trim());
+            _settings.Set(SettingKeys.DirectorateName, DirectorateBox.Text.Trim());
+            _settings.Set(SettingKeys.StationName, StationBox.Text.Trim());
+            _settings.Set(SettingKeys.RosterHeaderLine1, HeaderBox.Text.Trim());
+            System.Action h = OfficerSaved;
+            if (h != null)
+            {
+                h();
+            }
+            if (IsLoaded && IsVisible)
+            {
+                MessageDialog.Show(this, Strings.OfficerTitle, Strings.OfficerSaved);
+            }
+        }
+
+        public System.Action OfficerSaved;
+
         public System.Func<System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> RowsProvider;
 
         public System.Func<string, System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> ScopedRowsProvider;
@@ -165,7 +211,7 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             {
                 int n = Excel.Export(path, rows);
                 MessageDialog.Show(this, Strings.ExcelExport,
-                    string.Format(CultureInfo.InvariantCulture, "{0} ({1} سجل)",
+                    string.Format(CultureInfo.InvariantCulture, Strings.ExcelSavedCount,
                         string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path), n));
             }
             catch (System.Exception ex)
@@ -186,6 +232,10 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
                 ? Strings.SettingsDirectPrint + " - " + Strings.FormNo
                 : Strings.SettingsDirectPrint + " - " + Strings.FormYes;
             OffsetText.Text = _settings.Get(SettingKeys.PostponeOffsets);
+            OperatorBox.Text = _settings.Get(SettingKeys.OperatorName) ?? "";
+            DirectorateBox.Text = _settings.Get(SettingKeys.DirectorateName) ?? "";
+            StationBox.Text = _settings.Get(SettingKeys.StationName) ?? "";
+            HeaderBox.Text = _settings.Get(SettingKeys.RosterHeaderLine1) ?? "";
         }
 
         private void DirectClick(object sender, RoutedEventArgs e)

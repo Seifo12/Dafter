@@ -114,6 +114,113 @@ namespace CourtDesk.Tests
             });
         }
 
+[Fact]
+        public void ImportThenBackupScreenRowsProviderSeesThem()
+        {
+            using (var env = new DialogEnv())
+            {
+                env.Register.Filter = Filters.All;
+                var svc = new ExcelTransferService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.DefendantService);
+                string path = Out("roundtrip.xlsx");
+                List<XlsxColumn> cs = ExcelTransferService.Columns();
+                var lines = new List<List<string>>();
+                lines.Add(new List<string> { "مستورد واحد", "5150", "2026" });
+                lines.Add(new List<string> { "مستورد اثنين", "5151", "2026" });
+                Xlsx.Write(path, "x", cs, lines, "1B3A6B", "FFFFFF", "EEF1F5",
+                    "1B2430", 1);
+
+                List<List<string>> raw = Xlsx.Read(path);
+                Assert.True(raw.Count >= 3,
+                    "rows read back: " + raw.Count + " / first='"
+                    + (raw.Count > 0 && raw[0].Count > 0 ? raw[0][0] : "?") + "'");
+
+                // this is exactly what App.xaml.cs ScopedRowsProvider does
+                System.Func<string, IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> scoped =
+                    delegate(string scope)
+                    {
+                        env.Register.Filter = string.IsNullOrEmpty(scope) ? Filters.All : scope;
+                        env.Register.Refresh();
+                        return env.Register.Rows;
+                    };
+
+                int before = scoped("ALL").Count;
+                ImportReport r = svc.Import(path, false);
+                Assert.True(r.Problems.Count == 0,
+                    string.Join(" | ", r.Problems.ToArray()));
+                Assert.Equal(2, r.Added);
+
+                // App.xaml.cs must rebuild the search index after import,
+                // otherwise Refresh() re-reads stale rows and nothing shows up.
+                env.Index.Rebuild();
+                int after = scoped("ALL").Count;
+                Assert.Equal(before + 2, after);
+                Assert.Equal(after, scoped("ALL").Count);
+            }
+        }
+
+        [Fact]
+        public void ScopedRosterPrintsOnlyChosenSection()
+        {
+            using (var env = new DialogEnv())
+            {
+                var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                env.Add("محتجز واحد", "7001", env.Clock.Today);
+                env.Add("محتجز اثنين", "7002", env.Clock.Today);
+
+                RosterModel all = rosters.Build(env.Clock.Today);
+                Assert.Equal(2, all.Count);
+
+                RosterModel detained = rosters.Build(env.Clock.Today, Filters.Detained);
+                Assert.Equal(2, detained.Count);
+
+                RosterModel released = rosters.Build(env.Clock.Today, Filters.Released);
+                Assert.Equal(0, released.Count);
+            }
+        }
+
+        [Fact]
+        public void BackupScreenSavesOfficerNameAndSection()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new DialogEnv())
+                {
+                    var engine = new CourtDesk.Persistence.SqliteBackupEngine(env.Db, env.Clock, env.Home);
+                    var backups = new BackupService(env.Db, engine,
+                        new FakeDriveProvider(), new CourtDesk.Persistence.SqliteMetaStore(),
+                        env.Clock, env.Settings, BackupService.ForHome(env.Home),
+                        new NullLogger());
+                    var view = new CourtDesk.UI.Dialogs.BackupSettingsView(
+                        backups, env.Settings, env.Home);
+                    Assert.NotNull(view.FindName("OperatorBox"));
+                    Assert.NotNull(view.FindName("DirectorateBox"));
+                    Assert.NotNull(view.FindName("SaveOfficerButton"));
+                    Assert.NotNull(view.FindName("ScopeBox"));
+                    Assert.NotNull(view.FindName("ScopePrintButton"));
+                    Assert.NotNull(view.FindName("ScopePreviewButton"));
+
+                    var op = (System.Windows.Controls.TextBox)view.FindName("OperatorBox");
+                    var dir = (System.Windows.Controls.TextBox)view.FindName("DirectorateBox");
+                    op.Text = "عميد أحمد";
+                    dir.Text = "قسم البحث";
+                    view.UpdateLayout();
+                    var btn = (Button)view.FindName("SaveOfficerButton");
+                    Assert.True(btn.IsEnabled, "save officer button disabled");
+                    btn.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+                    Assert.Equal("عميد أحمد", env.Settings.Get(SettingKeys.OperatorName));
+                    Assert.Equal("قسم البحث", env.Settings.Get(SettingKeys.DirectorateName));
+
+                    RosterModel m = new RosterService(env.Db, env.Defendants, env.Events,
+                        env.Clock, env.Settings).Build(env.Clock.Today);
+                    Assert.Equal("عميد أحمد", m.OperatorName);
+                    Assert.Equal("قسم البحث", m.DirectorateName);
+                }
+            });
+        }
+
         [Fact]
         public void ImportRejectsMissingColumnAndReports()
         {

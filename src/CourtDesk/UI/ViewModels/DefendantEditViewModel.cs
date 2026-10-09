@@ -90,11 +90,11 @@ namespace CourtDesk.UI.ViewModels
                 }
                 return hasText && imgs > 0
                     ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "كشف طبي: {0} صورة", imgs)
+                        CourtDesk.Resources.Strings.MedicalImageCount, imgs)
                     : imgs > 0
                         ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                            "كشف طبي: {0} صورة", imgs)
-                        : "كشف طبي: ملاحظات";
+                            CourtDesk.Resources.Strings.MedicalImageCount, imgs)
+                        : CourtDesk.Resources.Strings.MedicalNoteOnly;
             }
         }
 

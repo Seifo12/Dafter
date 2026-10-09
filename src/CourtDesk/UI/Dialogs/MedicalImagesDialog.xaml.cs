@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using CourtDesk.Application;
+using CourtDesk.Application.Ports;
 using CourtDesk.UI.Dialogs;
 
 namespace CourtDesk.UI.Dialogs
@@ -102,7 +103,7 @@ namespace CourtDesk.UI.Dialogs
         {
             var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                Title = "اختر صور الكشف الطبي",
+                Title = CourtDesk.Resources.Strings.MedicalPick,
                 Filter = "Images (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif;*.tiff;*.webp|All Files (*.*)|*.*",
                 Multiselect = true,
                 CheckFileExists = true
@@ -128,9 +129,9 @@ namespace CourtDesk.UI.Dialogs
             Reload();
             if (failed > 0)
             {
-                MessageDialog.Show(this, "الكشف الطبي",
+                MessageDialog.Show(this, CourtDesk.Resources.Strings.MedicalTitle,
                     string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                        "تمت إضافة {0} صورة، وتعذر إضافة {1}.", added, failed));
+                        CourtDesk.Resources.Strings.MedicalSavedPartial, added, failed));
             }
         }
 
@@ -146,7 +147,11 @@ namespace CourtDesk.UI.Dialogs
             {
                 return;
             }
-            if (ConfirmDialog.Ask(this, "الكشف الطبي", "هل تريد حذف الصورة؟", "حذف", "إلغاء"))
+            if (ConfirmDialog.Ask(this,
+                    CourtDesk.Resources.Strings.MedicalTitle,
+                    CourtDesk.Resources.Strings.MedicalDeleteAsk,
+                    CourtDesk.Resources.Strings.MedicalDelete,
+                    CourtDesk.Resources.Strings.FormCancel))
             {
                 _medical.DeleteImage(img.Id);
                 Reload();

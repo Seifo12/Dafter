@@ -15,11 +15,12 @@
     <Compile Include="..\..\src\CourtDesk\Domain\**\*.cs" Link="Domain\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\src\CourtDesk\Persistence\**\*.cs" Link="Persistence\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Remove="..\..\src\CourtDesk\Persistence\SqliteRosterPrintLog.cs" />
-    <Compile Include="..\..\src\CourtDesk\Application\Ports\IChangeSeqSource.cs" Link="Ports\IChangeSeqSource.cs" />
     <Compile Include="..\..\src\CourtDesk\Application\Ports\**\*.cs" Link="Ports\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Remove="..\..\src\CourtDesk\Application\Ports\IPrintService.cs" />
+    <Compile Include="..\..\src\CourtDesk\Application\MedicalService.cs" Link="MedicalService.cs" />
     <Compile Include="..\..\src\CourtDesk\Resources\Strings.cs" Link="Resources\Strings.cs" />
     <EmbeddedResource Include="..\..\src\CourtDesk\Persistence\Migrations\001_initial.sql" Link="Migrations\001_initial.sql" />
+    <EmbeddedResource Include="..\..\src\CourtDesk\Persistence\Migrations\002_medical.sql" Link="Migrations\002_medical.sql" />
     <Reference Include="System.Data.SQLite">
       <HintPath>..\..\vendor\managed\System.Data.SQLite.dll</HintPath>
       <Private>true</Private>

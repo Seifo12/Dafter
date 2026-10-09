@@ -111,7 +111,42 @@ public void PrintDate(bool preview, LocalDate date)
 
         public event Action<bool, LocalDate> PrintRequested;
 
-private void DoPrint(bool preview, LocalDate date)
+public void PrintScope(bool preview, string scope)
+        {
+            if (C.Printing == null || C.Rosters == null || C.Settings == null)
+            {
+                TellSafe(Strings.SidePrint, Strings.PrintFail);
+                return;
+            }
+            LocalDate date = C.Clock != null ? C.Clock.Today : default(LocalDate);
+            RosterModel model;
+            try
+            {
+                model = C.Rosters.Build(date, scope);
+            }
+            catch (System.Exception)
+            {
+                TellSafe(Strings.SidePrint, Strings.PrintFail);
+                return;
+            }
+            if (model == null || model.Count == 0)
+            {
+                CourtDesk.UI.Dialogs.MessageDialog.Show(null,
+                    CourtDesk.Resources.Strings.PrintEmpty,
+                    CourtDesk.Resources.Strings.PrintEmpty);
+                return;
+            }
+            bool direct = !preview && C.Settings.Get(SettingKeys.PrintDirect) != "0";
+            if (preview)
+            {
+                new CourtDesk.UI.Dialogs.PrintPreviewWindow(
+                    C.Printing.BuildDocument(model)).ShowDialog();
+                return;
+            }
+            C.Printing.PrintRoster(model, direct);
+        }
+
+        private void DoPrint(bool preview, LocalDate date)
         {
             if (C.Printing == null || C.Rosters == null || C.Settings == null)
             {

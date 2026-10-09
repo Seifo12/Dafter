@@ -195,7 +195,7 @@ namespace CourtDesk.UI.ViewModels
             _tomorrow = string.Format(CourtDesk.Resources.Strings.SideTomorrow, snap.TomorrowCount);
             _hasOverdue = snap.Overdue.Count > 0;
             _overdueHeader = string.Format(CourtDesk.Resources.Strings.SideOverdue, snap.Overdue.Count);
-            _empty = snap.Total == 0 && snap.Overdue.Count == 0 && snap.Tomorrow.Count == 0;
+            _empty = snap.Total == 0 && snap.Overdue.Count == 0;
 
             _overdue.Clear();
             foreach (DefendantRow row in snap.Overdue)

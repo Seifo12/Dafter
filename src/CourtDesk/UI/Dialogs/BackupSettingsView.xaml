@@ -38,15 +38,24 @@
                       MinWidth="180" Margin="4,0,0,0" Click="ExportClick"
                       Content="{x:Static res:Strings.ExcelExport}" />
             </UniformGrid>
-            <TextBlock Text="نطاق التصدير" Style="{StaticResource MutedText}" Margin="0,12,0,4" />
+            <TextBlock Text="{x:Static res:Strings.ExcelScope}" Style="{StaticResource MutedText}" Margin="0,12,0,4" />
             <ComboBox x:Name="ScopeBox" MinHeight="48" HorizontalAlignment="Left" MinWidth="260"
                       SelectionChanged="ScopeChanged">
-              <ComboBoxItem Content="الكل" Tag="ALL" IsSelected="True" />
-              <ComboBoxItem Content="المحكوم عليهم (محتجزون)" Tag="DETAINED" />
-              <ComboBoxItem Content="المفرج عنهم" Tag="RELEASED" />
-              <ComboBoxItem Content="أصدر فيها حكم" Tag="JUDGED" />
-              <ComboBoxItem Content="بدون تاريخ جلسة" Tag="NO_DATE" />
+              <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeAll}" Tag="ALL" IsSelected="True" />
+              <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeDetained}" Tag="DETAINED" />
+              <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeReleased}" Tag="RELEASED" />
+              <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeJudged}" Tag="JUDGED" />
+              <ComboBoxItem Content="{x:Static res:Strings.ExcelScopeNoDate}" Tag="NO_DATE" />
             </ComboBox>
+            <TextBlock Text="{x:Static res:Strings.ExcelScopePrint}" Style="{StaticResource MutedText}"
+                       Margin="0,12,0,4" />
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="ScopePreviewButton" Style="{StaticResource SecondaryButton}"
+                      Content="{x:Static res:Strings.ExcelPreview}" Click="ScopePreviewClick" MinHeight="48" MinWidth="160"
+                      Margin="0,0,8,0" />
+              <Button x:Name="ScopePrintButton" Style="{StaticResource SecondaryButton}"
+                      Content="{x:Static res:Strings.ExcelPrint}" Click="ScopePrintClick" MinHeight="48" MinWidth="160" />
+            </StackPanel>
           </StackPanel>
         </Border>
         <Border Style="{StaticResource Card}" Padding="16" Margin="0,0,0,12">
@@ -76,6 +85,37 @@
               <Button Style="{StaticResource SecondaryButton}" MinHeight="48" Margin="4,0,0,0"
                       Click="OffsetPlus" Content="+" />
             </UniformGrid>
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Padding="16" Margin="0,12,0,12">
+          <StackPanel>
+            <TextBlock Text="{x:Static res:Strings.OfficerTitle}"
+                       Style="{StaticResource CardTitle}" />
+            <TextBlock Text="{x:Static res:Strings.OfficerHint}"
+                       Style="{StaticResource MutedText}" Margin="0,6,0,0" TextWrapping="Wrap" />
+            <UniformGrid Rows="1" Columns="2" Margin="0,10,0,0">
+              <StackPanel Margin="0,0,6,0">
+                <TextBlock Text="{x:Static res:Strings.OfficerName}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
+                <TextBox x:Name="OperatorBox" Style="{StaticResource InputBox}" MinHeight="48" />
+              </StackPanel>
+              <StackPanel Margin="6,0,0,0">
+                <TextBlock Text="{x:Static res:Strings.OfficerDirectorate}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
+                <TextBox x:Name="DirectorateBox" Style="{StaticResource InputBox}" MinHeight="48" />
+              </StackPanel>
+            </UniformGrid>
+            <UniformGrid Rows="1" Columns="2" Margin="0,10,0,0">
+              <StackPanel Margin="0,0,6,0">
+                <TextBlock Text="{x:Static res:Strings.OfficerStation}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
+                <TextBox x:Name="StationBox" Style="{StaticResource InputBox}" MinHeight="48" />
+              </StackPanel>
+              <StackPanel Margin="6,0,0,0">
+                <TextBlock Text="{x:Static res:Strings.OfficerHeader}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
+                <TextBox x:Name="HeaderBox" Style="{StaticResource InputBox}" MinHeight="48" />
+              </StackPanel>
+            </UniformGrid>
+            <Button x:Name="SaveOfficerButton" Style="{StaticResource PrimaryButton}"
+                    Content="{x:Static res:Strings.OfficerSave}" Click="SaveOfficerClick"
+                    MinHeight="48" MinWidth="180" Margin="0,10,0,0" HorizontalAlignment="Left" />
           </StackPanel>
         </Border>
       </StackPanel>

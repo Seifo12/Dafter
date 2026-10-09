@@ -224,6 +224,21 @@ namespace CourtDesk
             {
                 if (touched > 0)
                 {
+                    c.Main.Index.Rebuild();
+                    c.Main.RefreshAll();
+                }
+            };
+            view.ScopePrintRequested = delegate(bool preview, string scope)
+            {
+                if (c.Coordinator != null)
+                {
+                    c.Coordinator.PrintScope(preview, scope);
+                }
+            };
+            view.OfficerSaved = delegate
+            {
+                if (c.Main != null)
+                {
                     c.Main.RefreshAll();
                 }
             };

@@ -263,8 +263,8 @@ namespace CourtDesk.UI.Dialogs
             }
             if (_vm.Id <= 0)
             {
-                MessageDialog.Show(this, "الكشف الطبي",
-                    "احفظ السجل أولًا، ثم تقدر تضيف الصور.");
+                MessageDialog.Show(this, CourtDesk.Resources.Strings.MedicalTitle,
+                    CourtDesk.Resources.Strings.MedicalSaveFirst);
                 return;
             }
             var dlg = new MedicalImagesDialog(_medical, _vm.Id);

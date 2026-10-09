@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using CourtDesk.Application;
 using CourtDesk.Application.Ports;
 using CourtDesk.Persistence;
 
