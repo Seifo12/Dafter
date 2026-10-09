@@ -212,6 +212,14 @@ namespace CourtDesk
                 c.Main.Register.Refresh();
                 return c.Main.Register.Rows;
             };
+            view.ScopedRowsProvider = delegate(string scope)
+            {
+                c.Main.Register.Filter = string.IsNullOrEmpty(scope)
+                    ? CourtDesk.Application.Filters.All
+                    : scope;
+                c.Main.Register.Refresh();
+                return c.Main.Register.Rows;
+            };
             view.ImportDone = delegate(int touched)
             {
                 if (touched > 0)

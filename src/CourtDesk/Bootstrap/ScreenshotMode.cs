@@ -246,7 +246,9 @@ namespace CourtDesk.Bootstrap
         private static DefendantEditDialog OpenEdit(Composition c)
         {
             var vm = new DefendantEditViewModel(c.DefendantService, c.LookupService, c.Clock, null);
-            return new DefendantEditDialog(vm, c.LookupService, c.Clock, new PopupHost());
+            var dlg = new DefendantEditDialog(vm, c.LookupService, c.Clock, new PopupHost());
+            dlg.AttachMedical(c.Medical);
+            return dlg;
         }
 
         private static void ShootDialog(Composition c, string outDir, string name, Window dlg)

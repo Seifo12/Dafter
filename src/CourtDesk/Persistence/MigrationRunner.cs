@@ -24,8 +24,14 @@ namespace CourtDesk.Persistence
             if (v == 0)
             {
                 RunScript(conn, LoadEmbedded("001_initial.sql"), 1);
+                v = 1;
             }
+            if (v == 1)
+            {
+                RunScript(conn, LoadEmbedded("002_medical.sql"), 2);
+                v = 2;
             }
+        }
 
         public static int GetUserVersion(SQLiteConnection conn)
         {

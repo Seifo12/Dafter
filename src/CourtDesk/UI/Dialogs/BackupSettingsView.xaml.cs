@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using CourtDesk.Application;
 using CourtDesk.Resources;
 
@@ -26,6 +27,19 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
 
         public System.Func<System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> RowsProvider;
 
+        public System.Func<string, System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow>> ScopedRowsProvider;
+
+        private string _scope = "ALL";
+
+        private void ScopeChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = ScopeBox.SelectedItem as ComboBoxItem;
+            if (item != null && item.Tag != null)
+            {
+                _scope = Convert.ToString(item.Tag);
+            }
+        }
+
         public ExcelTransferService Excel;
 
         private string DefaultPath(string kind)
@@ -40,22 +54,30 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
                 + ".xlsx");
         }
 
-        private string AskPath(string title, string suggested)
+        private string SavePicker(string title, string kind)
         {
-            var dlg = new AskTextWindow(title, Strings.ExcelPick);
-            dlg.Left = -32000;
-            dlg.Top = -32000;
-            dlg.ShowActivated = false;
-            if (dlg.ShowDialog() != true || string.IsNullOrWhiteSpace(dlg.Value))
+            var dlg = new Microsoft.Win32.SaveFileDialog
             {
-                return null;
-            }
-            string v = dlg.Value.Trim();
-            if (!v.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+                Title = title,
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx|All Files (*.*)|*.*",
+                FileName = System.IO.Path.GetFileName(DefaultPath(kind)),
+                InitialDirectory = System.IO.Path.GetDirectoryName(DefaultPath(kind)),
+                AddExtension = true,
+                OverwritePrompt = true
+            };
+            return dlg.ShowDialog(this) == true ? dlg.FileName : null;
+        }
+
+        private string OpenPicker(string title)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
             {
-                v = v + ".xlsx";
-            }
-            return v;
+                Title = title,
+                Filter = "Excel Workbook (*.xlsx)|*.xlsx|All Files (*.*)|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+            return dlg.ShowDialog(this) == true ? dlg.FileName : null;
         }
 
         private void TemplateClick(object sender, RoutedEventArgs e)
@@ -66,7 +88,11 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             }
             try
             {
-                string path = DefaultPath("template");
+                string path = SavePicker(Strings.ExcelTemplate, "template");
+                if (string.IsNullOrEmpty(path))
+                {
+                    return;
+                }
                 Excel.WriteTemplate(path);
                 MessageDialog.Show(this, Strings.ExcelTitle,
                     string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path));
@@ -83,7 +109,7 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             {
                 return;
             }
-            string path = AskPath(Strings.ExcelImport, null);
+            string path = OpenPicker(Strings.ExcelImport);
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
                 return;
@@ -116,19 +142,31 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             {
                 return;
             }
-            System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow> rows =
-                RowsProvider == null ? null : RowsProvider();
+            System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow> rows;
+            if (ScopedRowsProvider != null)
+            {
+                rows = ScopedRowsProvider(_scope);
+            }
+            else
+            {
+                rows = RowsProvider == null ? null : RowsProvider();
+            }
             if (rows == null || rows.Count == 0)
             {
                 MessageDialog.Show(this, Strings.ExcelExport, Strings.ExcelNothing);
                 return;
             }
-            string path = DefaultPath("export");
+            string path = SavePicker(Strings.ExcelExport, "export");
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
             try
             {
                 int n = Excel.Export(path, rows);
                 MessageDialog.Show(this, Strings.ExcelExport,
-                    string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path));
+                    string.Format(CultureInfo.InvariantCulture, "{0} ({1} سجل)",
+                        string.Format(CultureInfo.InvariantCulture, Strings.ExcelSaved, path), n));
             }
             catch (System.Exception ex)
             {

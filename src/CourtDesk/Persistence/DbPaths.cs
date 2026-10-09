@@ -1,12 +1,12 @@
 using System;
+using System.Globalization;
 using System.IO;
-
 namespace CourtDesk.Persistence
 {
     public static class DbPaths
     {
         public const string DbFileName = "courtdesk.db";
-        public const int SupportedSchemaVersion = 1;
+        public const int SupportedSchemaVersion = 2;
 
         public static string ResolveHome(string homeArg)
         {
@@ -29,6 +29,12 @@ namespace CourtDesk.Persistence
         public static string QuarantineDir(string home) { return Path.Combine(home, "quarantine"); }
         public static string NativeDir(string home) { return Path.Combine(home, "native", "x86"); }
         public static string TmpDir(string home) { return Path.Combine(home, "tmp"); }
+        public static string MedicalDir(string home) { return Path.Combine(home, "medical"); }
+        public static string MedicalImagesDir(string home) { return Path.Combine(MedicalDir(home), "images"); }
+        public static string DefendantMedicalDir(string home, long defendantId)
+        {
+            return Path.Combine(MedicalImagesDir(home), defendantId.ToString(CultureInfo.InvariantCulture));
+        }
         public static string LogsDir(string home) { return Path.Combine(home, "logs"); }
         public static string RestoreMarker(string home) { return Path.Combine(home, "restore.pending"); }
 
@@ -37,7 +43,8 @@ namespace CourtDesk.Persistence
             foreach (string d in new string[]
             {
                 Path.Combine(home, "db"), AutoDir(home), ExitDir(home), PreOpDir(home),
-                QuarantineDir(home), NativeDir(home), TmpDir(home), LogsDir(home)
+                QuarantineDir(home), NativeDir(home), TmpDir(home), LogsDir(home),
+                MedicalDir(home), MedicalImagesDir(home)
             })
             {
                 if (!Directory.Exists(d))

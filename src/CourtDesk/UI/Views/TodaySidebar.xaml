@@ -28,12 +28,16 @@
         </Grid>
       </StackPanel>
 
-      <UniformGrid Grid.Row="1" Rows="1" Columns="3" Margin="12,0,12,6" x:Name="TabRow">
+      <UniformGrid Grid.Row="1" Rows="1" Columns="3" Margin="12,0,12,6" x:Name="TabRow"
+                   MinWidth="90" HorizontalAlignment="Stretch">
         <ToggleButton x:Name="TodayTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding TodayTabText}"
+                      MinWidth="0" Margin="0,0,3,0"
                       Command="{Binding TabCommand}" CommandParameter="today" />
         <ToggleButton x:Name="TomorrowTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding TomorrowTabText}"
+                      MinWidth="0" Margin="3,0"
                       Command="{Binding TabCommand}" CommandParameter="tomorrow" />
         <ToggleButton x:Name="OverdueTab" Style="{StaticResource SidebarTabCompact}" Content="{Binding OverdueTabText}"
+                      MinWidth="0" Margin="3,0,0,0"
                       Command="{Binding TabCommand}" CommandParameter="overdue" />
       </UniformGrid>
 

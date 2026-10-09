@@ -57,6 +57,9 @@ namespace CourtDesk.UI.ViewModels
                 if (!string.IsNullOrEmpty(key))
                 {
                     Tab = key;
+                    Raise("TomorrowTabText");
+                    Raise("TodayTabText");
+                    Raise("OverdueTabText");
                 }
             });
             ToggleDecidedCommand = new RelayCommand(delegate(object o)
@@ -192,7 +195,7 @@ namespace CourtDesk.UI.ViewModels
             _tomorrow = string.Format(CourtDesk.Resources.Strings.SideTomorrow, snap.TomorrowCount);
             _hasOverdue = snap.Overdue.Count > 0;
             _overdueHeader = string.Format(CourtDesk.Resources.Strings.SideOverdue, snap.Overdue.Count);
-            _empty = snap.Total == 0 && snap.Overdue.Count == 0;
+            _empty = snap.Total == 0 && snap.Overdue.Count == 0 && snap.Tomorrow.Count == 0;
 
             _overdue.Clear();
             foreach (DefendantRow row in snap.Overdue)
@@ -215,7 +218,7 @@ namespace CourtDesk.UI.ViewModels
                     Id = row.D.Id,
                     Name = row.D.FullName,
                     Line2 = string.Format(CourtDesk.Resources.Strings.CaseFormat, row.D.CaseNumber, row.D.CaseYear)
-                        + " Â· " + (row.CircuitName ?? ""),
+                        + " \u00b7 " + (row.CircuitName ?? ""),
                     Line3 = row.CourtName ?? "",
                     AccentKey = "TODAY"
                 });
@@ -243,7 +246,7 @@ namespace CourtDesk.UI.ViewModels
                     Name = row.D.FullName,
                     Line2 = LabelOf(row.DecisionCode),
                     Line3 = row.NextSessionDate ?? "",
-                    ResultSentence = LabelOf(row.DecisionCode) + " â† " + (row.NextSessionDate ?? ""),
+                    ResultSentence = LabelOf(row.DecisionCode) + " \u2192 " + (row.NextSessionDate ?? ""),
                     AccentKey = AccentFor(row.DecisionCode),
                     Accent = AccentBrush(AccentFor(row.DecisionCode)),
                     EventId = row.EventId,
@@ -251,7 +254,10 @@ namespace CourtDesk.UI.ViewModels
                 });
             }
             ApplyDecidedCollapse();
-            _dateLineText = _dateLong + " Â· " + string.Format(
+            _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
+            _overdueTabText = string.Format(
+                CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);
+            _dateLineText = _dateLong + " \u00b7 " + string.Format(
                 CourtDesk.Resources.Strings.TomorrowShort, snap.TomorrowCount);
             Raise("DateLong");
             Raise("DateLineText");
@@ -278,9 +284,7 @@ namespace CourtDesk.UI.ViewModels
             {
                 Set(ref _tab, "today", "Tab");
             }
-            _todayTabText = string.Format(CourtDesk.Resources.Strings.SideTabToday, _pending.Count);
-            _overdueTabText = string.Format(
-                CourtDesk.Resources.Strings.SideTabOverdue, _overdue.Count);        }
+        }
 
         public static string LabelOf(string code)
         {

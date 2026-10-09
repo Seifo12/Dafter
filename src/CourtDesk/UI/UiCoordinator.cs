@@ -75,7 +75,8 @@ namespace CourtDesk.UI
             public IClock Clock;
             public HistoryViewModel History;
         public CourtDesk.Printing.PrintService Printing;
-        public RosterService Rosters;
+public RosterService Rosters;
+        public MedicalService Medical;
         }
 
         public CompositionLike C { get; private set; }
@@ -167,6 +168,7 @@ private void DoPrint(bool preview, LocalDate date)
             Defendant existing = id == 0 ? null : C.Defendants.Get(id);
             var vm = new DefendantEditViewModel(C.Defendants, C.Lookups, C.Clock, existing);
             var dlg = new DefendantEditDialog(vm, C.Lookups, C.Clock, _popups);
+            dlg.AttachMedical(C.Medical);
             dlg.ShowDialog();
             MarkDirty(dlg.ViewModel.SavedId);
             return dlg;

@@ -38,6 +38,7 @@ namespace CourtDesk.Bootstrap
         public CourtDesk.UI.UiCoordinator Coordinator;
         public CourtDesk.Printing.PrintService PrintService;
         public CourtDesk.Application.ExcelTransferService Excel;
+        public MedicalService Medical;
     }
 
     public static class CompositionRoot
@@ -91,7 +92,9 @@ public static Composition Build(string home, IClock clock, SynchronizationContex
                 RosterService = new RosterService(db, defendants, events, clock, settings),
                 ClockSanity = new ClockSanityService(db, clock, meta, BuildDate.Value),
                 Integrity = new IntegrityService(db, engine, log),
-                CsvExport = new CsvExportService(db, defendants, clock)
+CsvExport = new CsvExportService(db, defendants, clock),
+                Medical = new MedicalService(new SqliteMedicalStore(db), home,
+                    () => clock.UtcNow)
             };
             var register = new RegisterViewModel(index, today,
                 delegate { return settings.Get(SettingKeys.LastFilter); },
@@ -120,6 +123,7 @@ c.PrintService = new CourtDesk.Printing.PrintService(db,
                 Clock = clock,
                 Printing = c.PrintService,
                 Rosters = c.RosterService,
+                Medical = c.Medical,
                 History = new CourtDesk.UI.ViewModels.HistoryViewModel(db, events, defendants)
             });
             db.DataChanged += delegate(long seq)

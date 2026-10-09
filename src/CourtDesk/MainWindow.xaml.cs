@@ -105,9 +105,38 @@ private void ApplyZoom(MainViewModel vm)
             ApplyWidthMode();
         }
 
+private string _lastSection = "register";
+
         private void ApplySection(MainViewModel vm)
         {
+            if (vm.CurrentSection == "backup")
+            {
+                if (vm.BackupCommand != null && vm.BackupCommand.CanExecute(null))
+                {
+                    vm.BackupCommand.Execute(null);
+                }
+                vm.CurrentSection = _lastSection;
+                return;
+            }
+            if (vm.CurrentSection == "help")
+            {
+                if (vm.HelpCommand != null && vm.HelpCommand.CanExecute(null))
+                {
+                    vm.HelpCommand.Execute(null);
+                }
+                vm.CurrentSection = _lastSection;
+                return;
+            }
             FrameworkElement next;
+            if (vm.IsRegister)
+            {
+                _lastSection = "register";
+            }
+            else if (_lastSection == "register" || _lastSection == "backup"
+                || _lastSection == "help")
+            {
+                _lastSection = vm.CurrentSection;
+            }
             if (vm.IsRegister)
             {
                 next = RegisterView;

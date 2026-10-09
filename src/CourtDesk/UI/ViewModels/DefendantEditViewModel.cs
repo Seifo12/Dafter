@@ -39,6 +39,105 @@ namespace CourtDesk.UI.ViewModels
         private bool _saved;
         private int _id;
 
+        private MedicalService _medical;
+        private string _medicalText = "";
+        private bool _hasMedicalImages;
+
+        public DefendantEditViewModel(DefendantEditViewModel unusedMarker) { }
+
+        public void AttachMedical(MedicalService medical)
+        {
+            _medical = medical;
+            ReloadMedical();
+        }
+
+        public string MedicalText
+        {
+            get { return _medicalText; }
+            set { _medicalText = value ?? ""; Raise("MedicalText"); }
+        }
+
+        public bool HasMedicalImages
+        {
+            get { return _hasMedicalImages; }
+        }
+
+        public int MedicalImageCount
+        {
+            get
+            {
+                if (_medical == null || _id <= 0)
+                {
+                    return 0;
+                }
+                return _medical.Images(_id).Count;
+            }
+        }
+
+        public string MedicalBadge
+        {
+            get
+            {
+                if (_medical == null || _id <= 0)
+                {
+                    return "";
+                }
+                int imgs = _medical.Images(_id).Count;
+                bool hasText = !string.IsNullOrWhiteSpace(_medicalText);
+                if (imgs == 0 && !hasText)
+                {
+                    return "";
+                }
+                return hasText && imgs > 0
+                    ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                        "كشف طبي: {0} صورة", imgs)
+                    : imgs > 0
+                        ? string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "كشف طبي: {0} صورة", imgs)
+                        : "كشف طبي: ملاحظات";
+            }
+        }
+
+        private void ReloadMedical()
+        {
+            _hasMedicalImages = false;
+            if (_medical != null && _id > 0)
+            {
+                List<MedicalImage> imgs = _medical.Images(_id);
+                _hasMedicalImages = imgs.Count > 0;
+                if (string.IsNullOrEmpty(_medicalText))
+                {
+                    List<MedicalNote> notes = _medical.Notes(_id);
+                    if (notes.Count > 0)
+                    {
+                        _medicalText = notes[0].Text ?? "";
+                    }
+                }
+            }
+            Raise("MedicalText");
+            Raise("HasMedicalImages");
+            Raise("MedicalImageCount");
+            Raise("MedicalBadge");
+        }
+
+        public void ReloadMedicalPublic()
+        {
+            ReloadMedical();
+        }
+
+        public void PersistMedical()
+        {
+            if (_medical == null || _id <= 0)
+            {
+                return;
+            }
+            if (!string.IsNullOrWhiteSpace(_medicalText))
+            {
+                _medical.SaveNoteText(_id, _medicalText);
+            }
+            ReloadMedical();
+        }
+
         public DefendantEditViewModel(DefendantService service, LookupService lookups,
             IClock clock, Defendant existing)
         {
@@ -331,6 +430,7 @@ namespace CourtDesk.UI.ViewModels
                     _service.Edit(_id, _version, input, Guid.NewGuid().ToString("N"));
                 }
                 _saved = true;
+                PersistMedical();
                 _lookups.RecordChargeUse(input.Charges);
                 Action s = Saved;
                 if (s != null)

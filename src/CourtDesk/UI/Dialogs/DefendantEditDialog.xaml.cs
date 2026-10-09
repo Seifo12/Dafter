@@ -16,6 +16,16 @@ namespace CourtDesk.UI.Dialogs
         private readonly LookupService _lookups;
         private readonly IClock _clock;
         private readonly PopupHost _popups;
+        private MedicalService _medical;
+
+        public void AttachMedical(MedicalService medical)
+        {
+            _medical = medical;
+            if (_vm != null)
+            {
+                _vm.AttachMedical(medical);
+            }
+        }
 
         public DefendantEditDialog(DefendantEditViewModel vm, LookupService lookups, IClock clock, PopupHost popups)
         {
@@ -243,6 +253,23 @@ namespace CourtDesk.UI.Dialogs
             base.OnContentRendered(e);
             CustodyBox.SelectionChanged += CustodyChanged;
             CircuitBox.SelectionChanged += CircuitChanged;
+        }
+
+        private void MedicalImagesClick(object sender, RoutedEventArgs e)
+        {
+            if (_medical == null || _vm == null)
+            {
+                return;
+            }
+            if (_vm.Id <= 0)
+            {
+                MessageDialog.Show(this, "الكشف الطبي",
+                    "احفظ السجل أولًا، ثم تقدر تضيف الصور.");
+                return;
+            }
+            var dlg = new MedicalImagesDialog(_medical, _vm.Id);
+            dlg.ShowDialog();
+            _vm.ReloadMedicalPublic();
         }
     }
 }
