@@ -23,6 +23,13 @@ namespace CourtDesk.UI.Dialogs
         private readonly LookupService _lookups;
         private readonly int _id;
         private long _undoEventId;
+        private MedicalService _photos;
+
+        public void AttachPhotos(MedicalService photos)
+        {
+            _photos = photos;
+            ReloadPhoto();
+        }
 
         public DefendantCardDialog(DefendantService defendants, UndoService undo,
             LookupService lookups, int id)
@@ -34,6 +41,48 @@ namespace CourtDesk.UI.Dialogs
             _id = id;
             Title = Strings.ActionCard;
             Reload();
+        }
+
+        private void ReloadPhoto()
+        {
+            string abs = null;
+            try
+            {
+                Defendant d = _defendants.Get(_id);
+                if (d != null && _photos != null && !string.IsNullOrEmpty(d.PhotoPath))
+                {
+                    string p = _photos.PhotoAbsolute(d.PhotoPath);
+                    if (!string.IsNullOrEmpty(p) && System.IO.File.Exists(p))
+                    {
+                        abs = p;
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+                abs = null;
+            }
+            PhotoFrame.Visibility = abs == null ? Visibility.Collapsed : Visibility.Visible;
+            if (abs == null)
+            {
+                CardPhoto.Source = null;
+                return;
+            }
+            try
+            {
+                var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bmp.UriSource = new System.Uri(abs);
+                bmp.EndInit();
+                bmp.Freeze();
+                CardPhoto.Source = bmp;
+            }
+            catch (System.Exception)
+            {
+                CardPhoto.Source = null;
+                PhotoFrame.Visibility = Visibility.Collapsed;
+            }
         }
 
         public event Action EditRequested;
@@ -72,6 +121,7 @@ namespace CourtDesk.UI.Dialogs
                 ? ArabicDateFormat.FormatShort(d.DetainedSince.Value) : "");
             Line(sb, Strings.FieldNotes, d.Notes);
             FieldsBox.Text = sb.ToString();
+            ReloadPhoto();
             var entries = new List<TimelineEntry>();
             List<SessionEvent> history = _defendants.History(_id);
             for (int i = history.Count - 1; i >= 0; i--)

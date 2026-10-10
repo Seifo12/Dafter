@@ -99,6 +99,41 @@ namespace CourtDesk.Application.Ports
                 return BitConverter.ToString(sha.ComputeHash(fs)).Replace("-", "").ToLowerInvariant();
             }
         }
+
+        public static string PhotosRoot(string home)
+        {
+            return Path.Combine(home, "photos");
+        }
+
+        public static string StorePhoto(string home, string sourcePath)
+        {
+            if (string.IsNullOrEmpty(sourcePath) || !File.Exists(sourcePath))
+            {
+                throw new FileNotFoundException("file not found", sourcePath);
+            }
+            string ext = IsAllowedImageExt(sourcePath);
+            if (string.IsNullOrEmpty(ext))
+            {
+                throw new InvalidOperationException("unsupported image type: " + Path.GetExtension(sourcePath));
+            }
+            if (new FileInfo(sourcePath).Length <= 0)
+            {
+                throw new InvalidOperationException("empty file");
+            }
+            string hash = Sha256(sourcePath);
+            string stored = "photos/" + hash.Substring(0, 16) + ext;
+            string abs = Absolute(home, stored);
+            Directory.CreateDirectory(Path.GetDirectoryName(abs));
+            if (!File.Exists(abs))
+            {
+                using (FileStream src = File.OpenRead(sourcePath))
+                using (FileStream dst = File.Create(abs))
+                {
+                    src.CopyTo(dst);
+                }
+            }
+            return stored;
+        }
     }
 
     public sealed class MedicalNote

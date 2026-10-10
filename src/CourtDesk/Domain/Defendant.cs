@@ -17,6 +17,7 @@ namespace CourtDesk.Domain
         public string Status;
         public LocalDate? DetainedSince;
         public string Notes;
+        public string PhotoPath;
         public bool IsDeleted;
         public int RowVersion;
 

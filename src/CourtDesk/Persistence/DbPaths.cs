@@ -6,7 +6,7 @@ namespace CourtDesk.Persistence
     public static class DbPaths
     {
         public const string DbFileName = "courtdesk.db";
-        public const int SupportedSchemaVersion = 2;
+        public const int SupportedSchemaVersion = 3;
 
         public static string ResolveHome(string homeArg)
         {
@@ -36,6 +36,7 @@ namespace CourtDesk.Persistence
             return Path.Combine(MedicalImagesDir(home), defendantId.ToString(CultureInfo.InvariantCulture));
         }
         public static string LogsDir(string home) { return Path.Combine(home, "logs"); }
+        public static string PhotosDir(string home) { return Path.Combine(home, "photos"); }
         public static string RestoreMarker(string home) { return Path.Combine(home, "restore.pending"); }
 
         public static void EnsureAll(string home)
@@ -44,7 +45,7 @@ namespace CourtDesk.Persistence
             {
                 Path.Combine(home, "db"), AutoDir(home), ExitDir(home), PreOpDir(home),
                 QuarantineDir(home), NativeDir(home), TmpDir(home), LogsDir(home),
-                MedicalDir(home), MedicalImagesDir(home)
+                MedicalDir(home), MedicalImagesDir(home), PhotosDir(home)
             })
             {
                 if (!Directory.Exists(d))

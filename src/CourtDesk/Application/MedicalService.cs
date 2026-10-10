@@ -85,6 +85,16 @@ namespace CourtDesk.Application
                 MedicalFiles.ContentTypeFor(sourcePath), byteSize, caption ?? "");
         }
 
+        public string StorePhoto(string sourcePath)
+        {
+            return MedicalFiles.StorePhoto(_home, sourcePath);
+        }
+
+        public string PhotoAbsolute(string relativePath)
+        {
+            return MedicalFiles.Absolute(_home, relativePath);
+        }
+
         public void DeleteImage(long imageId)
         {
             string rel;

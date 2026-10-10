@@ -82,6 +82,45 @@ namespace CourtDesk.Application
             return model;
         }
 
+        public RosterModel BuildSelected(LocalDate date, int[] ids)
+        {
+            var m = NewModel(date, false);
+            if (ids == null || ids.Length == 0)
+            {
+                Finish(m);
+                return m;
+            }
+            m.AllDates = true;
+            var want = new HashSet<int>(ids);
+            _db.Read(s =>
+            {
+                foreach (DefendantRow row in _defendants.ListRowsByIds(s, ids))
+                {
+                    if (!want.Contains(row.D.Id))
+                    {
+                        continue;
+                    }
+                    AddPending(m, row, null, false, new HashSet<int>());
+                }
+                foreach (DecidedRow row in _defendants.ListDecidedAll(s))
+                {
+                    if (!want.Contains(row.D.Id))
+                    {
+                        continue;
+                    }
+                    AddDecided(m, s, row, null, false, new HashSet<int>());
+                }
+                return 0;
+            });
+            var seen = new HashSet<int>();
+            foreach (RosterEntry e in m.Entries)
+            {
+                seen.Add(e.DefendantId);
+            }
+            Finish(m);
+            return m;
+        }
+
         private static void Finish(RosterModel model)
         {
             Sort(model);

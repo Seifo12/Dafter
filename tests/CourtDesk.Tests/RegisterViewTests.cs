@@ -41,7 +41,7 @@ namespace CourtDesk.Tests
                     view.Measure(new Size(1000, 700));
                     view.Arrange(new Rect(0, 0, 1000, 700));
                     view.UpdateLayout();
-                    Assert.Equal(5, view.Grid.Columns.Count);
+                    Assert.Equal(6, view.Grid.Columns.Count);
                     env.Register.Wide = true;
                     view.UpdateLayout();
                     Assert.True(view.Grid.Columns.Count >= 7);
@@ -117,6 +117,10 @@ namespace CourtDesk.Tests
                     Assert.True(buttons.Count >= 6);
                     foreach (Button b in buttons)
                     {
+                        if (b.Visibility != Visibility.Visible)
+                        {
+                            continue;
+                        }
                         if (b.Content == null)
                         {
                             Assert.True(IsInsideDataGrid(b), "button with null content outside grid chrome");

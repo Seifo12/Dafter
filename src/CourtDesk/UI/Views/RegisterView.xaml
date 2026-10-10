@@ -72,6 +72,7 @@
         <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="*" />
         <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <Button Grid.Column="0" x:Name="DecideButton" Style="{StaticResource PrimaryButton}" MinHeight="52" Height="52"
               MinWidth="180" Tag="decide" Click="ActionClick">
@@ -113,6 +114,17 @@
                      FontFamily="{StaticResource AppFont}" />
         </StackPanel>
       </Button>
+      <Button Grid.Column="4" x:Name="PrintCheckedButton" Style="{StaticResource SecondaryButton}"
+              MinHeight="52" Height="52" MinWidth="170" Click="PrintCheckedClick" Visibility="Collapsed">
+        <StackPanel Orientation="Horizontal">
+          <Path Data="{StaticResource IconPrinter}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="2"
+                Fill="Transparent" Width="24" Height="24" VerticalAlignment="Center" />
+          <TextBlock x:Name="PrintCheckedText" Text="{x:Static res:Strings.PrintSelectedNone}"
+                     Margin="8,0,0,0" VerticalAlignment="Center"
+                     Foreground="{StaticResource PrimaryBrush}" FontSize="20" FontWeight="Bold"
+                     FontFamily="{StaticResource AppFont}" />
+        </StackPanel>
+      </Button>
       <Button Grid.Column="5" x:Name="VoidButton" Style="{StaticResource DangerQuietButton}" MinHeight="52" Height="52"
               MinWidth="150" Tag="void" Click="ActionClick">
         <StackPanel Orientation="Horizontal">
@@ -129,7 +141,7 @@
             BorderThickness="1" CornerRadius="8" Padding="0">
       <Grid>
         <DataGrid x:Name="Grid" x:FieldModifier="public" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
-                  AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                  AutoGenerateColumns="False" SelectionMode="Single"
                   SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="{StaticResource GridLineBrush}"
                   FontFamily="{StaticResource AppFont}" FontSize="20"

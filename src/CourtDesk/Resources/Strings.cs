@@ -251,6 +251,11 @@ namespace CourtDesk.Resources
         public const string MedicalDeleteAsk = "هل تريد حذف الصورة؟";
         public const string MedicalSavedPartial = "تمت إضافة {0} صورة، وتعذر إضافة {1}.";
         public const string MedicalSaveFirst = "احفظ السجل أولًا، ثم تقدر تضيف الصور.";
+        public const string DefendantPhoto = "صورة المتهم";
+        public const string PrintSelected = "طباعة المحدد ({0})";
+        public const string PrintSelectedNone = "طباعة المحدد";
+        public const string PhotoChoose = "اختيار صورة";
+        public const string PhotoRemove = "إزالة الصورة";
         public const string MedicalImageCount = "كشف طبي: {0} صورة";
         public const string MedicalNoteOnly = "كشف طبي: ملاحظات";
         public const string SideMoreDecidedPlus = "+{0}";

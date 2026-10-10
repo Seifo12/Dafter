@@ -207,7 +207,7 @@ namespace CourtDesk.Tests
             {
                 Assert.Equal("wal", Scalar(c, "PRAGMA journal_mode;").ToLowerInvariant());
                 Assert.Equal(0x43444B31L, Convert.ToInt64(Scalar(c, "PRAGMA application_id;")));
-                Assert.Equal("2", Scalar(c, "PRAGMA user_version;"));
+                Assert.Equal("3", Scalar(c, "PRAGMA user_version;"));
                 Assert.Equal("ok", Scalar(c, "PRAGMA quick_check;"));
                 foreach (string t in new string[] { "app_meta", "settings", "courts", "circuits", "custody_locations", "postponement_reasons", "charge_suggestions", "defendants", "session_events", "roster_prints", "medical_notes", "medical_images" })
                 {

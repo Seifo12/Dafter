@@ -31,6 +31,11 @@ namespace CourtDesk.Persistence
                 RunScript(conn, LoadEmbedded("002_medical.sql"), 2);
                 v = 2;
             }
+            if (v == 2)
+            {
+                RunScript(conn, LoadEmbedded("003_photo.sql"), 3);
+                v = 3;
+            }
         }
 
         public static int GetUserVersion(SQLiteConnection conn)

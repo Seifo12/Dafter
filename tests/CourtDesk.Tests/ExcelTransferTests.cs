@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using CourtDesk.Application;
 using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
+using CourtDesk.Persistence;
 using Xunit;
 
 namespace CourtDesk.Tests
@@ -342,6 +343,78 @@ namespace CourtDesk.Tests
                     Assert.NotNull(doc);
                 }
             });
+        }
+
+        [Fact]
+        public void SelectedRowsSurviveRefreshAndBuildRoster()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    env.AddDefendant("محدد واحد", "8101", env.Clock.Today);
+                    env.AddDefendant("محدد اتنين", "8102", env.Clock.Today);
+                    env.AddDefendant("غير محدد", "8103", env.Clock.Today);
+                    env.Refresh();
+                    Assert.Equal(3, env.Register.Rows.Count);
+
+                    env.Register.Rows[0].Checked = true;
+                    env.Register.Rows[1].Checked = true;
+                    Assert.Equal(2, env.Register.CheckedCount);
+
+                    // selection must survive a refresh / filter change
+                    env.Register.Refresh();
+                    Assert.Equal(2, env.Register.CheckedIds.Count);
+
+                    int id1 = env.Register.Rows[0].Id;
+                    int id2 = env.Register.Rows[1].Id;
+                    var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                        env.Clock, env.Settings);
+                    var picked = new List<int>(env.Register.CheckedIds);
+                    picked.Sort();
+                    RosterModel m = rosters.BuildSelected(env.Clock.Today, picked.ToArray());
+                    Assert.Equal(2, m.Count);
+
+                    env.Register.ClearChecked();
+                    Assert.Equal(0, env.Register.CheckedCount);
+                    Assert.True(id1 > 0 && id2 > 0);
+                }
+            });
+        }
+
+        [Fact]
+        public void DefendantPhotoRoundTripsThroughEdit()
+        {
+            using (var env = new DialogEnv())
+            {
+                var medical = new MedicalService(new SqliteMedicalStore(env.Db),
+                    env.Home, () => env.Clock.UtcNow);
+                int id = env.Add("صورة色调", "8201", env.Clock.Today);
+                Defendant d = env.Db.Read(s => env.Defendants.GetById(s, id));
+                Assert.Equal("", d.PhotoPath ?? "");
+
+                string src = Path.Combine(Path.GetTempPath(), "courtdesk-photo-" + id + ".png");
+                File.WriteAllBytes(src, new byte[] { 1, 2, 3, 4 });
+                try
+                {
+                    string stored = MedicalFiles.StorePhoto(env.Home, src);
+                    Assert.True(File.Exists(MedicalFiles.Absolute(env.Home, stored)));
+
+                    env.Db.Write(s =>
+                    {
+                        Defendant row = env.Defendants.GetById(s, id);
+                        row.PhotoPath = stored;
+                        env.Defendants.UpdateFull(s, row);
+                        return 0;
+                    });
+                    Defendant after = env.Db.Read(s => env.Defendants.GetById(s, id));
+                    Assert.Equal(stored, after.PhotoPath);
+                }
+                finally
+                {
+                    File.Delete(src);
+                }
+            }
         }
 
         [Fact]

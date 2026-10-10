@@ -10,11 +10,11 @@ namespace CourtDesk.Persistence
     {
         private const string Cols = "id, full_name, name_norm, national_id, case_number, case_year, " +
             "case_type, charges, court_id, circuit_id, custody_location_id, session_date, status, " +
-            "detained_since, notes, is_deleted, row_version";
+            "detained_since, notes, is_deleted, row_version, photo_path";
 
         private const string ColsD = "d.id, d.full_name, d.name_norm, d.national_id, d.case_number, d.case_year, " +
             "d.case_type, d.charges, d.court_id, d.circuit_id, d.custody_location_id, d.session_date, d.status, " +
-            "d.detained_since, d.notes, d.is_deleted, d.row_version";
+            "d.detained_since, d.notes, d.is_deleted, d.row_version, d.photo_path";
 
         Defendant IDefendantStore.GetById(ISession s, int id) { return GetById((DbContext)s, id); }
         int IDefendantStore.Insert(ISession s, Defendant d) { return Insert((DbContext)s, d); }
@@ -279,8 +279,8 @@ namespace CourtDesk.Persistence
             const string sql =
                 "INSERT INTO defendants (full_name, name_norm, national_id, case_number, case_year, " +
                 "case_type, charges, court_id, circuit_id, custody_location_id, session_date, status, " +
-                "detained_since, notes, is_deleted, row_version, created_at_utc, updated_at_utc) " +
-                "VALUES (@n, @nn, @nid, @cn, @cy, @ct, @ch, @court, @circ, @cust, @sess, @st, @since, @notes, 0, 1, @now, @now)";
+                "detained_since, notes, is_deleted, row_version, photo_path, created_at_utc, updated_at_utc) " +
+                "VALUES (@n, @nn, @nid, @cn, @cy, @ct, @ch, @court, @circ, @cust, @sess, @st, @since, @notes, 0, 1, @photo, @now, @now)";
             using (var cmd = new SQLiteCommand(sql, ctx.Connection))
             {
                 cmd.Parameters.AddWithValue("@n", d.FullName);
@@ -297,6 +297,7 @@ namespace CourtDesk.Persistence
                 cmd.Parameters.AddWithValue("@st", d.Status);
                 cmd.Parameters.AddWithValue("@since", N(Iso(d.DetainedSince)));
                 cmd.Parameters.AddWithValue("@notes", d.Notes ?? "");
+                cmd.Parameters.AddWithValue("@photo", d.PhotoPath ?? "");
                 cmd.Parameters.AddWithValue("@now", ctx.UtcNowIso);
                 cmd.ExecuteNonQuery();
             }
@@ -312,7 +313,7 @@ namespace CourtDesk.Persistence
                 "UPDATE defendants SET full_name = @n, name_norm = @nn, national_id = @nid, " +
                 "case_number = @cn, case_year = @cy, case_type = @ct, charges = @ch, court_id = @court, " +
                 "circuit_id = @circ, custody_location_id = @cust, session_date = @sess, status = @st, " +
-                "detained_since = @since, notes = @notes, is_deleted = @del, " +
+                "detained_since = @since, notes = @notes, photo_path = @photo, is_deleted = @del, " +
                 "row_version = row_version + 1, updated_at_utc = @now " +
                 "WHERE id = @id AND row_version = @v";
             using (var cmd = new SQLiteCommand(sql, ctx.Connection))
@@ -331,6 +332,7 @@ namespace CourtDesk.Persistence
                 cmd.Parameters.AddWithValue("@st", d.Status);
                 cmd.Parameters.AddWithValue("@since", N(Iso(d.DetainedSince)));
                 cmd.Parameters.AddWithValue("@notes", d.Notes ?? "");
+                cmd.Parameters.AddWithValue("@photo", d.PhotoPath ?? "");
                 cmd.Parameters.AddWithValue("@del", d.IsDeleted ? 1 : 0);
                 cmd.Parameters.AddWithValue("@now", ctx.UtcNowIso);
                 cmd.Parameters.AddWithValue("@id", d.Id);
@@ -454,7 +456,9 @@ namespace CourtDesk.Persistence
                 DetainedSince = Date(Str(r, 13)),
                 Notes = r.GetString(14),
                 IsDeleted = r.GetInt32(15) != 0,
-                RowVersion = r.GetInt32(16)
+                RowVersion = r.GetInt32(16),
+                PhotoPath = r.FieldCount > 17 && r.GetName(17) == "photo_path" && !r.IsDBNull(17)
+                    ? r.GetString(17) : ""
             };
         }
 

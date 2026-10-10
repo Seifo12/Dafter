@@ -45,6 +45,10 @@ namespace CourtDesk.UI.Dialogs
                 {
                     PickDateButton.IsEnabled = vm.SessionEditable;
                 }
+                if (e.PropertyName == "PhotoPreviewPath")
+                {
+                    LoadPhotoPreview();
+                }
             };
             vm.Saved += delegate
             {
@@ -63,6 +67,7 @@ namespace CourtDesk.UI.Dialogs
             LoadLookups();
             PickDateButton.IsEnabled = vm.SessionEditable;
             Title = vm.Title;
+            LoadPhotoPreview();
             Loaded += delegate
             {
                 if (vm.IsNew)
@@ -75,6 +80,51 @@ namespace CourtDesk.UI.Dialogs
         public DefendantEditViewModel ViewModel
         {
             get { return _vm; }
+        }
+
+        private void ChoosePhotoClick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = Strings.DefendantPhoto,
+                Filter = "Images (*.jpg;*.jpeg;*.png;*.bmp;*.gif)|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files (*.*)|*.*",
+                Multiselect = false,
+                CheckFileExists = true
+            };
+            if (dlg.ShowDialog(this) != true)
+            {
+                return;
+            }
+            _vm.SetPendingPhoto(dlg.FileName);
+        }
+
+        private void RemovePhotoClick(object sender, RoutedEventArgs e)
+        {
+            _vm.RemovePhoto();
+        }
+
+        private void LoadPhotoPreview()
+        {
+            try
+            {
+                string path = _vm.PhotoPreviewPath;
+                if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+                {
+                    DefendantPhoto.Source = null;
+                    return;
+                }
+                var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bmp.UriSource = new System.Uri(path);
+                bmp.EndInit();
+                bmp.Freeze();
+                DefendantPhoto.Source = bmp;
+            }
+            catch (System.Exception)
+            {
+                DefendantPhoto.Source = null;
+            }
         }
 
         private void LoadLookups()
@@ -261,7 +311,7 @@ namespace CourtDesk.UI.Dialogs
             {
                 return;
             }
-            if (_vm.Id <= 0)
+            if (_vm.Id <= 0 && _medical == null)
             {
                 MessageDialog.Show(this, CourtDesk.Resources.Strings.MedicalTitle,
                     CourtDesk.Resources.Strings.MedicalSaveFirst);
@@ -269,6 +319,10 @@ namespace CourtDesk.UI.Dialogs
             }
             var dlg = new MedicalImagesDialog(_medical, _vm.Id);
             dlg.ShowDialog();
+            foreach (string src in dlg.PendingSources)
+            {
+                _vm.AddPendingMedicalSource(src);
+            }
             _vm.ReloadMedicalPublic();
         }
     }

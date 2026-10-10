@@ -111,7 +111,35 @@ public void PrintDate(bool preview, LocalDate date)
 
         public event Action<bool, LocalDate> PrintRequested;
 
-public void PrintScope(bool preview, string scope)
+public void PrintChecked(System.Collections.Generic.IReadOnlyList<int> ids)
+        {
+            if (C.Printing == null || C.Rosters == null || C.Settings == null || ids == null)
+            {
+                return;
+            }
+            LocalDate date = C.Clock != null ? C.Clock.Today : default(LocalDate);
+            RosterModel model;
+            try
+            {
+                model = C.Rosters.BuildSelected(date, System.Linq.Enumerable.ToArray(ids));
+            }
+            catch (System.Exception)
+            {
+                TellSafe(Strings.SidePrint, Strings.PrintFail);
+                return;
+            }
+            if (model == null || model.Count == 0)
+            {
+                CourtDesk.UI.Dialogs.MessageDialog.Show(null,
+                    CourtDesk.Resources.Strings.PrintEmpty,
+                    CourtDesk.Resources.Strings.PrintEmpty);
+                return;
+            }
+            new CourtDesk.UI.Dialogs.PrintPreviewWindow(
+                C.Printing.BuildDocument(model)).ShowDialog();
+        }
+
+        public void PrintScope(bool preview, string scope)
         {
             PrintScope(preview, scope, null);
         }
@@ -279,6 +307,7 @@ public void PrintScope(bool preview, string scope)
         public DefendantCardDialog OpenCard(int id)
         {
             var dlg = new DefendantCardDialog(C.Defendants, C.Undo, C.Lookups, id);
+            dlg.AttachPhotos(C.Medical);
             dlg.EditRequested += delegate { OpenEdit(id); dlg.Reload(); };
             dlg.DecideRequested += delegate { OpenWizard(id); dlg.Reload(); };
             dlg.UndoRequested += delegate

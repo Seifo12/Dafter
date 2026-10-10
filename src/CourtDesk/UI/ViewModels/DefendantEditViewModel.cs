@@ -42,6 +42,10 @@ namespace CourtDesk.UI.ViewModels
         private MedicalService _medical;
         private string _medicalText = "";
         private bool _hasMedicalImages;
+        private readonly List<string> _pendingMedicalSources = new List<string>();
+        private string _existingPhoto = "";
+        private string _pendingPhotoSource;
+        private bool _photoRemoved;
 
         public DefendantEditViewModel(DefendantEditViewModel unusedMarker) { }
 
@@ -66,11 +70,12 @@ namespace CourtDesk.UI.ViewModels
         {
             get
             {
-                if (_medical == null || _id <= 0)
+                int n = _pendingMedicalSources.Count;
+                if (_medical != null && _id > 0)
                 {
-                    return 0;
+                    n += _medical.Images(_id).Count;
                 }
-                return _medical.Images(_id).Count;
+                return n;
             }
         }
 
@@ -78,11 +83,11 @@ namespace CourtDesk.UI.ViewModels
         {
             get
             {
-                if (_medical == null || _id <= 0)
+                if (_medical == null)
                 {
                     return "";
                 }
-                int imgs = _medical.Images(_id).Count;
+                int imgs = MedicalImageCount;
                 bool hasText = !string.IsNullOrWhiteSpace(_medicalText);
                 if (imgs == 0 && !hasText)
                 {
@@ -96,6 +101,87 @@ namespace CourtDesk.UI.ViewModels
                             CourtDesk.Resources.Strings.MedicalImageCount, imgs)
                         : CourtDesk.Resources.Strings.MedicalNoteOnly;
             }
+        }
+
+        public System.Collections.Generic.IReadOnlyList<string> PendingMedicalSources
+        {
+            get { return _pendingMedicalSources.AsReadOnly(); }
+        }
+
+        public void AddPendingMedicalSource(string sourcePath)
+        {
+            if (string.IsNullOrEmpty(sourcePath))
+            {
+                return;
+            }
+            _pendingMedicalSources.Add(sourcePath);
+            Raise("MedicalImageCount");
+            Raise("MedicalBadge");
+        }
+
+        public void RemovePendingMedicalSource(string sourcePath)
+        {
+            _pendingMedicalSources.Remove(sourcePath);
+            Raise("MedicalImageCount");
+            Raise("MedicalBadge");
+        }
+
+        public string PhotoPreviewPath
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_pendingPhotoSource))
+                {
+                    return _pendingPhotoSource;
+                }
+                if (!string.IsNullOrEmpty(_existingPhoto) && _medical != null)
+                {
+                    return _medical.PhotoAbsolute(_existingPhoto);
+                }
+                return "";
+            }
+        }
+
+        public bool HasPhoto
+        {
+            get { return !string.IsNullOrEmpty(PhotoPreviewPath); }
+        }
+
+        public void SetPendingPhoto(string sourcePath)
+        {
+            _pendingPhotoSource = sourcePath;
+            _photoRemoved = false;
+            Raise("PhotoPreviewPath");
+            Raise("HasPhoto");
+        }
+
+        public void RemovePhoto()
+        {
+            _pendingPhotoSource = null;
+            _photoRemoved = true;
+            Raise("PhotoPreviewPath");
+            Raise("HasPhoto");
+        }
+
+        public string ResolvePhotoForSave()
+        {
+            if (_photoRemoved)
+            {
+                _existingPhoto = "";
+                return "";
+            }
+            if (!string.IsNullOrEmpty(_pendingPhotoSource))
+            {
+                if (_medical == null)
+                {
+                    return _existingPhoto ?? "";
+                }
+                _existingPhoto = _medical.StorePhoto(_pendingPhotoSource);
+                _pendingPhotoSource = null;
+                Raise("PhotoPreviewPath");
+                Raise("HasPhoto");
+            }
+            return _existingPhoto ?? "";
         }
 
         private void ReloadMedical()
@@ -135,7 +221,22 @@ namespace CourtDesk.UI.ViewModels
             {
                 _medical.SaveNoteText(_id, _medicalText);
             }
+            foreach (string src in _pendingMedicalSources)
+            {
+                try
+                {
+                    _medical.AddImage(_id, src, null, "");
+                }
+                catch (System.Exception)
+                {
+                }
+            }
+            _pendingMedicalSources.Clear();
+            _pendingPhotoSource = null;
+            _photoRemoved = false;
             ReloadMedical();
+            Raise("PhotoPreviewPath");
+            Raise("HasPhoto");
         }
 
         public DefendantEditViewModel(DefendantService service, LookupService lookups,
@@ -161,6 +262,7 @@ namespace CourtDesk.UI.ViewModels
                 CustodyId = existing.CustodyLocationId;
                 SessionDate = existing.SessionDate;
                 DetainedSince = existing.DetainedSince;
+                _existingPhoto = existing.PhotoPath ?? "";
             }
             else
             {
@@ -351,7 +453,8 @@ namespace CourtDesk.UI.ViewModels
                 CircuitId = CircuitId,
                 CustodyLocationId = CustodyId,
                 SessionDate = NoSessionDate ? (LocalDate?)null : SessionDate,
-                DetainedSince = DetainedSince
+                DetainedSince = DetainedSince,
+                PhotoPath = ResolvePhotoForSave()
             };
         }
 

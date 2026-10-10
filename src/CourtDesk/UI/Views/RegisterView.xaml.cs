@@ -13,8 +13,9 @@ namespace CourtDesk.UI.Views
     public partial class RegisterView : UserControl
     {
         private bool _compact;
-        private bool _narrow;
+private bool _narrow;
         private bool _chromeApplied;
+        private bool _selectAllHooked;
 
         public RegisterView()
         {
@@ -28,6 +29,37 @@ namespace CourtDesk.UI.Views
         public Action<int> DecideRequested;
         public Action<int> CardRequested;
         public Action<int> VoidRequested;
+        public Action<System.Collections.Generic.IReadOnlyList<int>> PrintCheckedRequested;
+
+        private void PrintCheckedClick(object sender, RoutedEventArgs e)
+        {
+            RegisterViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            System.Collections.Generic.IReadOnlyList<int> ids = vm.CheckedIds;
+            if (ids.Count == 0)
+            {
+                return;
+            }
+            if (PrintCheckedRequested != null)
+            {
+                PrintCheckedRequested(ids);
+            }
+        }
+
+        public void ApplyCheckedCount(int n)
+        {
+            bool show = n > 0;
+            PrintCheckedButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (show)
+            {
+                PrintCheckedText.Text = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    Strings.PrintSelected, n);
+            }
+        }
 
 public void SetCompact(bool compact)
         {
@@ -53,13 +85,63 @@ public void SetCompact(bool compact)
                 : System.Windows.Controls.ScrollBarVisibility.Hidden;
             if (Grid.Columns.Count > 3)
             {
-                SetWidth(Grid.Columns[0], narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
-                SetWidth(Grid.Columns[1], narrow ? 150 : (compact ? 190 : 268), narrow ? 150 : (compact ? 190 : 268));
-                SetWidth(Grid.Columns[2], narrow ? 110 : (compact ? 150 : 202), narrow ? 110 : (compact ? 150 : 202));
-                SetWidth(Grid.Columns[3], narrow ? 128 : (compact ? 150 : 186), narrow ? 128 : (compact ? 150 : 186));
-                var statusCol = Grid.Columns[4];
-            SetWidth(statusCol, narrow ? 96 : (compact ? 150 : 176), narrow ? 96 : (compact ? 150 : 176));
+                // widths by column role, never by position: inserted columns
+                // must not shift the layout of the existing ones
+                DataGridColumn indexCol = ColByHeader(Strings.GridIndex);
+                DataGridColumn checkCol = CheckCol();
+                DataGridColumn nameCol = ColByHeader(Strings.GridCase);
+                DataGridColumn courtCol = ColByHeader(Strings.GridCourt);
+                DataGridColumn sessionCol = ColByHeader(Strings.GridSession);
+                DataGridColumn stateCol = ColByHeader(Strings.GridState);
+                if (indexCol != null)
+                {
+                    SetWidth(indexCol, narrow ? 40 : (compact ? 52 : 68), narrow ? 40 : (compact ? 52 : 68));
+                }
+                if (checkCol != null)
+                {
+                    SetWidth(checkCol, narrow ? 40 : (compact ? 44 : 48), narrow ? 40 : (compact ? 44 : 48));
+                }
+                if (nameCol != null)
+                {
+                    SetWidth(nameCol, narrow ? 150 : (compact ? 190 : 236), narrow ? 150 : (compact ? 190 : 236));
+                }
+                if (courtCol != null)
+                {
+                    SetWidth(courtCol, narrow ? 110 : (compact ? 150 : 202), narrow ? 110 : (compact ? 150 : 202));
+                }
+                if (sessionCol != null)
+                {
+                    SetWidth(sessionCol, narrow ? 128 : (compact ? 150 : 186), narrow ? 128 : (compact ? 150 : 186));
+                }
+                if (stateCol != null)
+                {
+                    SetWidth(stateCol, narrow ? 96 : (compact ? 150 : 176), narrow ? 96 : (compact ? 150 : 176));
+                }
             }
+        }
+
+        private DataGridColumn ColByHeader(string header)
+        {
+            foreach (DataGridColumn c in Grid.Columns)
+            {
+                if ((c.Header as string) == header)
+                {
+                    return c;
+                }
+            }
+            return null;
+        }
+
+        private DataGridColumn CheckCol()
+        {
+            foreach (DataGridColumn c in Grid.Columns)
+            {
+                if (c.Header is CheckBox)
+                {
+                    return c;
+                }
+            }
+            return null;
         }
 
         private static void SetWidth(DataGridColumn col, double width, double min)
@@ -178,6 +260,7 @@ b.ClearValue(FrameworkElement.WidthProperty);
                 return;
             }
             Grid.Columns.Add(IndexColumn());
+            Grid.Columns.Add(CheckColumn());
             var nameCol = new DataGridTemplateColumn();
             nameCol.Header = Strings.GridCase;
             nameCol.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
@@ -209,12 +292,17 @@ b.ClearValue(FrameworkElement.WidthProperty);
                 {
                     ApplySearchBox(vm);
                 }
+                if (e.PropertyName == "CheckedCount")
+                {
+                    ApplyCheckedCount(vm.CheckedCount);
+                }
             };
-            ApplyWide(vm.Wide);
+ApplyWide(vm.Wide);
             ApplyBands(vm);
             ApplySearchBox(vm);
             SetCompact(_compact);
-            Loaded += delegate { SearchInput.Focus(); };
+            Grid.Loaded += delegate { HookSelectAll(); };
+            Loaded += delegate { SearchInput.Focus(); HookSelectAll(); };
         }
 
         private void ApplyGridChrome()
@@ -273,6 +361,71 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             selected.Setters.Add(new Setter(Control.BorderBrushProperty, UiRes.Brush(this, "PrimaryBrush", "#084A8F")));
             selected.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(2)));
             row.Triggers.Add(selected);
+        }
+
+        private void HookSelectAll()
+        {
+            if (_selectAllHooked)
+            {
+                return;
+            }
+            _selectAllHooked = true;
+            foreach (DataGridColumn c in Grid.Columns)
+            {
+                var box = c.Header as CheckBox;
+                if (box != null && "select-all" as string == box.Tag as string)
+                {
+                    box.Checked += SelectAllChecked;
+                    box.Unchecked += SelectAllUnchecked;
+                }
+            }
+        }
+
+        private void SelectAllChecked(object sender, RoutedEventArgs e)
+        {
+            RegisterViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            vm.SelectAllVisible(true);
+        }
+
+        private void SelectAllUnchecked(object sender, RoutedEventArgs e)
+        {
+            RegisterViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            vm.SelectAllVisible(false);
+        }
+
+        private DataGridTemplateColumn CheckColumn()
+        {
+            var col = new DataGridTemplateColumn();
+            col.Header = new CheckBox
+            {
+                MinWidth = 48,
+                MinHeight = 48,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Tag = "select-all"
+            };
+            col.Width = 56;
+            col.MinWidth = 56;
+            col.MaxWidth = 56;
+            var box = new FrameworkElementFactory(typeof(CheckBox));
+            box.SetBinding(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty,
+                new Binding("Checked") { Mode = BindingMode.TwoWay });
+            box.SetValue(FrameworkElement.MarginProperty, new Thickness(0));
+            box.SetValue(FrameworkElement.MinWidthProperty, 40.0);
+            box.SetValue(FrameworkElement.MinHeightProperty, 40.0);
+            box.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            box.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            box.SetValue(System.Windows.Controls.Primitives.ToggleButton.IsThreeStateProperty, false);
+            col.CellTemplate = new DataTemplate(typeof(CheckBox)) { VisualTree = box };
+            return col;
         }
 
         private DataGridTemplateColumn IndexColumn()
@@ -410,9 +563,22 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             }
             if (wide && !hasCharges)
             {
-                Grid.Columns.Insert(4, MakeColumn(Strings.GridCharges, 220, "ChargesText", "ChargesText", false, true));
+                int at = Grid.Columns.Count;
+                for (int i = 0; i < Grid.Columns.Count; i++)
+                {
+                    if ((Grid.Columns[i].Header as string) == Strings.GridSession)
+                    {
+                        at = i + 1;
+                        break;
+                    }
+                }
+                Grid.Columns.Insert(at, MakeColumn(Strings.GridCharges, 220, "ChargesText", "ChargesText", false, true));
                 Grid.Columns.Add(MakeColumn(Strings.GridCustody, 170, "CustodyText", "CustodyText", false, true));
-                Grid.Columns[3].MinWidth = 170;
+                DataGridColumn sessionCol = ColByHeader(Strings.GridSession);
+                if (sessionCol != null)
+                {
+                    sessionCol.MinWidth = 170;
+                }
             }
             if (!wide && hasCharges)
             {
@@ -424,7 +590,11 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
                         Grid.Columns.RemoveAt(i);
                     }
                 }
-                Grid.Columns[3].MinWidth = _compact ? 150 : 190;
+                DataGridColumn sessionCol = ColByHeader(Strings.GridSession);
+                if (sessionCol != null)
+                {
+                    sessionCol.MinWidth = _compact ? 150 : 190;
+                }
             }
         }
 

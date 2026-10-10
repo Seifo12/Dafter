@@ -7,6 +7,11 @@
         Width="820" Height="700" MinWidth="700" MinHeight="560">
   <DockPanel LastChildFill="True">
     <StackPanel DockPanel.Dock="Top" Background="{StaticResource CardBrush}" Margin="16,12">
+      <Border Background="{StaticResource HoverBrush}" Width="140" Height="140"
+              CornerRadius="4" ClipToBounds="True" Margin="0,0,0,8"
+              x:Name="PhotoFrame" Visibility="Collapsed">
+        <Image x:Name="CardPhoto" Stretch="UniformToFill" />
+      </Border>
       <TextBlock x:Name="NameText" Style="{StaticResource TitleDialog}" TextWrapping="Wrap" />
       <TextBlock x:Name="CaseText" Style="{StaticResource BaseText}" />
       <TextBlock x:Name="CourtText" Style="{StaticResource BaseText}" />

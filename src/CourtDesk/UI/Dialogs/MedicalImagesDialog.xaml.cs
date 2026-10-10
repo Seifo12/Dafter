@@ -10,11 +10,32 @@ using CourtDesk.UI.Dialogs;
 
 namespace CourtDesk.UI.Dialogs
 {
+    public sealed class PendingShot
+    {
+        public string FileName { get; set; }
+        public string SourcePath { get; set; }
+        public string Caption { get { return ""; } }
+    }
+
     public partial class MedicalImagesDialog : Window
     {
         private readonly MedicalService _medical;
         private readonly int _defendantId;
         private readonly List<MedicalImage> _images = new List<MedicalImage>();
+        private readonly List<PendingShot> _pending = new List<PendingShot>();
+
+        public System.Collections.Generic.IReadOnlyList<string> PendingSources
+        {
+            get
+            {
+                var outp = new List<string>();
+                foreach (PendingShot p in _pending)
+                {
+                    outp.Add(p.SourcePath);
+                }
+                return outp.AsReadOnly();
+            }
+        }
 
         public MedicalImagesDialog(MedicalService medical, int defendantId)
         {
@@ -31,18 +52,40 @@ namespace CourtDesk.UI.Dialogs
             {
                 _images.AddRange(_medical.Images(_defendantId));
             }
-            List.ItemsSource = null;
-            List.ItemsSource = _images;
-            EmptyText.Visibility = _images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-            List.UpdateLayout();
-            foreach (object o in _images)
+            var all = new List<object>();
+            foreach (MedicalImage m in _images)
             {
+                all.Add(m);
+            }
+            foreach (PendingShot p in _pending)
+            {
+                all.Add(p);
+            }
+            List.ItemsSource = null;
+            List.ItemsSource = all;
+            EmptyText.Visibility = all.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            List.UpdateLayout();
+            foreach (object o in all)
+            {
+                string path = null;
                 MedicalImage img = o as MedicalImage;
-                if (img == null)
+                if (img != null)
+                {
+                    path = img.AbsolutePath;
+                }
+                else
+                {
+                    PendingShot shot = o as PendingShot;
+                    if (shot != null)
+                    {
+                        path = shot.SourcePath;
+                    }
+                }
+                if (path == null)
                 {
                     continue;
                 }
-                var panel = List.ItemContainerGenerator.ContainerFromItem(img) as FrameworkElement;
+                var panel = List.ItemContainerGenerator.ContainerFromItem(o) as FrameworkElement;
                 if (panel == null)
                 {
                     continue;
@@ -50,7 +93,7 @@ namespace CourtDesk.UI.Dialogs
                 Image image = FindImage(panel);
                 if (image != null)
                 {
-                    TryLoad(image, img.AbsolutePath);
+                    TryLoad(image, path);
                 }
             }
         }
@@ -116,6 +159,23 @@ namespace CourtDesk.UI.Dialogs
             int failed = 0;
             foreach (string f in dlg.FileNames)
             {
+                if (_defendantId <= 0)
+                {
+                    if (File.Exists(f) && CourtDesk.Application.Ports.MedicalFiles.IsAllowedImage(f))
+                    {
+                        _pending.Add(new PendingShot
+                        {
+                            FileName = Path.GetFileName(f),
+                            SourcePath = f
+                        });
+                        added++;
+                    }
+                    else
+                    {
+                        failed++;
+                    }
+                    continue;
+                }
                 try
                 {
                     _medical.AddImage(_defendantId, f, null, "");
@@ -142,6 +202,20 @@ namespace CourtDesk.UI.Dialogs
             {
                 return;
             }
+            PendingShot shot = b.Tag as PendingShot;
+            if (shot != null)
+            {
+                if (ConfirmDialog.Ask(this,
+                        CourtDesk.Resources.Strings.MedicalTitle,
+                        CourtDesk.Resources.Strings.MedicalDeleteAsk,
+                        CourtDesk.Resources.Strings.MedicalDelete,
+                        CourtDesk.Resources.Strings.FormCancel))
+                {
+                    _pending.Remove(shot);
+                    Reload();
+                }
+                return;
+            }
             MedicalImage img = b.Tag as MedicalImage;
             if (img == null)
             {
@@ -165,14 +239,27 @@ namespace CourtDesk.UI.Dialogs
             {
                 return;
             }
-            MedicalImage img = b.Tag as MedicalImage;
-            if (img == null || string.IsNullOrEmpty(img.AbsolutePath))
+            string path = null;
+            PendingShot shot = b.Tag as PendingShot;
+            if (shot != null)
+            {
+                path = shot.SourcePath;
+            }
+            else
+            {
+                MedicalImage img = b.Tag as MedicalImage;
+                if (img != null)
+                {
+                    path = img.AbsolutePath;
+                }
+            }
+            if (string.IsNullOrEmpty(path))
             {
                 return;
             }
             try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(img.AbsolutePath)
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path)
                 {
                     UseShellExecute = true
                 });

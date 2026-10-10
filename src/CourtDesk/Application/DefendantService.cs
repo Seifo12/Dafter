@@ -30,6 +30,7 @@ namespace CourtDesk.Application
         public LocalDate? SessionDate;
         public LocalDate? DetainedSince;
         public string Notes;
+        public string PhotoPath;
     }
 
     public sealed class CreateResult
@@ -164,12 +165,15 @@ namespace CourtDesk.Application
                 edited.RowVersion = row.RowVersion;
                 edited.IsDeleted = row.IsDeleted;
                 edited.Status = row.Status;
+                edited.PhotoPath = input.PhotoPath ?? row.PhotoPath ?? "";
                 edited.DetainedSince = input.DetainedSince.HasValue
                     ? input.DetainedSince : row.DetainedSince;
                 edited.SessionDate = row.Status == DefendantStatuses.Detained
                     ? (input.SessionDate.HasValue ? input.SessionDate : row.SessionDate)
                     : row.SessionDate;
-                if (SameState(before, DefendantSnapshot.FromDefendant(edited)))
+                if (SameState(before, DefendantSnapshot.FromDefendant(edited))
+                    && string.Equals(row.PhotoPath ?? "", edited.PhotoPath ?? "",
+                        StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -304,6 +308,7 @@ namespace CourtDesk.Application
                 Status = DefendantStatuses.Detained,
                 DetainedSince = input.DetainedSince.HasValue ? input.DetainedSince : today,
                 Notes = Clean(input.Notes),
+                PhotoPath = input.PhotoPath ?? "",
                 IsDeleted = false,
                 RowVersion = 0
             };

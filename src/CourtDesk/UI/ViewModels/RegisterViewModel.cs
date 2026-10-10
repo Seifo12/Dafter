@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CourtDesk.Application;
@@ -7,8 +8,34 @@ using CourtDesk.Domain;
 
 namespace CourtDesk.UI.ViewModels
 {
-    public sealed class RegisterRow : ObservableObject
+public sealed class RegisterRow : ObservableObject
     {
+        private bool _checked;
+        private RegisterViewModel _owner;
+
+        internal void BindOwner(RegisterViewModel owner)
+        {
+            _owner = owner;
+        }
+
+        public bool Checked
+        {
+            get { return _checked; }
+            set
+            {
+                if (_checked == value)
+                {
+                    return;
+                }
+                _checked = value;
+                Raise("Checked");
+                if (_owner != null)
+                {
+                    _owner.OnRowChecked(this);
+                }
+            }
+        }
+
         public int Id { get; set; }
         public int Number { get; set; }
         public string Name { get; set; }
@@ -148,6 +175,55 @@ namespace CourtDesk.UI.ViewModels
             }
         }
 
+        private readonly HashSet<int> _checkedIds = new HashSet<int>();
+
+        public System.Collections.Generic.IReadOnlyList<int> CheckedIds
+        {
+            get
+            {
+                var outp = new System.Collections.Generic.List<int>(_checkedIds);
+                outp.Sort();
+                return outp.AsReadOnly();
+            }
+        }
+
+        public int CheckedCount
+        {
+            get { return _checkedIds.Count; }
+        }
+
+        public void OnRowChecked(RegisterRow row)
+        {
+            if (row.Checked)
+            {
+                _checkedIds.Add(row.Id);
+            }
+            else
+            {
+                _checkedIds.Remove(row.Id);
+            }
+            Raise("CheckedCount");
+        }
+
+        public void SelectAllVisible(bool on)
+        {
+            foreach (RegisterRow row in _rows)
+            {
+                row.Checked = on;
+            }
+            Raise("CheckedCount");
+        }
+
+        public void ClearChecked()
+        {
+            _checkedIds.Clear();
+            foreach (RegisterRow row in _rows)
+            {
+                row.Checked = false;
+            }
+            Raise("CheckedCount");
+        }
+
         public RegisterRow Selected
         {
             get { return _selected; }
@@ -201,10 +277,13 @@ namespace CourtDesk.UI.ViewModels
             _index.Filter(_search, _filter, _scratch);
             _rows.Clear();
             int i = 0;
-            foreach (SearchRow hit in _scratch)
+foreach (SearchRow hit in _scratch)
             {
                 i++;
-                _rows.Add(ToRow(i, hit));
+                RegisterRow row = ToRow(i, hit);
+                row.BindOwner(this);
+                row.Checked = _checkedIds.Contains(row.Id);
+                _rows.Add(row);
             }
             ApplySort();
             RefreshChips();

@@ -21,6 +21,21 @@
     </StackPanel>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="16,8,16,8">
       <StackPanel MaxWidth="640" HorizontalAlignment="Center">
+        <TextBlock Text="{x:Static res:Strings.DefendantPhoto}" Style="{StaticResource MutedText}" Margin="0,8,0,6" />
+        <StackPanel Orientation="Horizontal">
+          <Border Background="{StaticResource HoverBrush}" Width="140" Height="140"
+                  CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
+            <Image x:Name="DefendantPhoto" Stretch="UniformToFill" />
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <Button x:Name="ChoosePhotoButton" Content="{x:Static res:Strings.PhotoChoose}"
+                    Style="{StaticResource SecondaryButton}" Click="ChoosePhotoClick"
+                    MinHeight="48" MinWidth="160" Margin="0,0,0,8" />
+            <Button x:Name="RemovePhotoButton" Content="{x:Static res:Strings.PhotoRemove}"
+                    Style="{StaticResource QuietButton}" Click="RemovePhotoClick"
+                    MinHeight="48" MinWidth="160" />
+          </StackPanel>
+        </StackPanel>
         <TextBlock Text="{x:Static res:Strings.FieldName}" Style="{StaticResource MutedText}" Margin="0,8,0,6" />
         <TextBox x:Name="NameBox" Style="{StaticResource InputBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Style="{StaticResource MutedText}" Text="{x:Static res:Strings.FieldRequired}" Margin="8,2,0,0" />

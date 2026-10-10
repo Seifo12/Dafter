@@ -36,6 +36,11 @@ namespace CourtDesk
                     AfterSave(dlg.ViewModel.SavedId);
                 };
                 RegisterView.DecideRequested = delegate(int id) { composition.Coordinator.OpenWizard(id); };
+                RegisterView.PrintCheckedRequested = delegate(
+                    System.Collections.Generic.IReadOnlyList<int> ids)
+                {
+                    composition.Coordinator.PrintChecked(ids);
+                };
                 RegisterView.CardRequested = delegate(int id) { composition.Coordinator.OpenCard(id); };
                 RegisterView.VoidRequested = delegate(int id) { composition.Coordinator.VoidRecord(id); };
                 vm.Sidebar.RecordRequested += delegate(SessionCard c)
