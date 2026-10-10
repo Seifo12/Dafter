@@ -238,6 +238,8 @@ namespace CourtDesk.Resources
         public const string OfficerHeader = "رأس الغلاف (اختياري)";
         public const string OfficerSave = "حفظ البيانات";
         public const string OfficerSaved = "تم حفظ البيانات.";
+        public const string OfficerPreparer = "القائم بالتحضير";
+        public const string OfficerCustody = "ضابط الحجز";
         public const string MedicalTitle = "الكشف الطبي";
         public const string MedicalField = "الكشف الطبي (اختياري)";
         public const string MedicalImagesButton = "الصور والتحاليل";
@@ -355,7 +357,6 @@ namespace CourtDesk.Resources
         public const string RosterPrinted = "طُبع بتاريخ {0} الساعة {1}";
         public const string RosterSigPrepared = "القائم بالتحضير";
         public const string RosterSigCustody = "ضابط الحجز";
-        public const string RosterSigEscort = "رئيس قوة الترحيل (استلام)";
         public const string RosterSigChief = "مأمور / رئيس القسم";
         public const string RosterSigCaption = "الاسم والتوقيع";
         public const string RosterReceipt = "وقت التسليم: ______ تاريخ: ______";

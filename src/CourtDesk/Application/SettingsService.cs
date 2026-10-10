@@ -12,6 +12,8 @@ namespace CourtDesk.Application
         public const string DirectorateName = "directorate_name";
         public const string RosterHeaderLine1 = "roster_header_line1";
         public const string OperatorName = "operator_name";
+        public const string PreparerName = "preparer_name";
+        public const string CustodyOfficerName = "custody_officer_name";
         public const string FontScale = "font_scale";
         public const string GridWideMode = "grid_wide_mode";
         public const string LastFilter = "last_filter";
@@ -56,7 +58,8 @@ namespace CourtDesk.Application
         public static readonly string[] Keys = new string[]
         {
             SettingKeys.FirstRunDone, SettingKeys.StationName, SettingKeys.DirectorateName,
-            SettingKeys.RosterHeaderLine1, SettingKeys.OperatorName, SettingKeys.FontScale,
+            SettingKeys.RosterHeaderLine1, SettingKeys.OperatorName, SettingKeys.PreparerName,
+            SettingKeys.CustodyOfficerName, SettingKeys.FontScale,
             SettingKeys.GridWideMode, SettingKeys.LastFilter, SettingKeys.QuickOffsets,
             SettingKeys.PrintDirect, SettingKeys.UsbBackupReminderDays, SettingKeys.LastUsbBackupUtc,
             SettingKeys.SecondaryBackupDir, SettingKeys.ShortcutCreated

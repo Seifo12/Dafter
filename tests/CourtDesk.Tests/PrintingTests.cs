@@ -199,6 +199,47 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void PreparerAndCustodyNamesRenderInTheirOwnBoxes()
+        {
+            StaRunner.Run(delegate
+            {
+                RosterModel m = Fake(1, 99);
+                m.PreparerName = "أمين شرطة سامي";
+                m.CustodyOfficerName = "ملازم كريم";
+                m.OfficerName = "عميد اختبار";
+                var builder = new RosterDocumentBuilder(m);
+                FixedDocument doc = builder.Build();
+                var texts = new List<string>();
+                foreach (PageContent pc in doc.Pages)
+                {
+                    var flat = new List<DependencyObject>();
+                    Flatten(pc.Child, flat);
+                    foreach (DependencyObject d in flat)
+                    {
+                        var tb = d as TextBlock;
+                        if (tb != null)
+                        {
+                            texts.Add(tb.Text ?? "");
+                        }
+                    }
+                }
+                int prepAt = texts.IndexOf(CourtDesk.Resources.Strings.RosterSigPrepared);
+                int custAt = texts.IndexOf(CourtDesk.Resources.Strings.RosterSigCustody);
+                int chiefAt = texts.IndexOf(CourtDesk.Resources.Strings.RosterSigChief);
+                Assert.True(prepAt >= 0 && custAt >= 0 && chiefAt >= 0, "sig captions missing");
+                int prepNameAt = texts.IndexOf("أمين شرطة سامي");
+                int custNameAt = texts.IndexOf("ملازم كريم");
+                int chiefNameAt = texts.IndexOf("عميد اختبار");
+                Assert.True(prepNameAt > prepAt && prepNameAt <= prepAt + 3,
+                    "preparer name not inside prepared box");
+                Assert.True(custNameAt > custAt && custNameAt <= custAt + 3,
+                    "custody name not inside custody box");
+                Assert.True(chiefNameAt > chiefAt && chiefNameAt <= chiefAt + 3,
+                    "officer name not inside chief box");
+            });
+        }
+
+        [Fact]
         public void DocumentPaginatorPageCountMatchesPagination()
         {
             StaRunner.Run(delegate

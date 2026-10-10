@@ -31,6 +31,8 @@ namespace CourtDesk.Application
         public string StationName;
         public string OperatorName;
         public string OfficerName;
+        public string PreparerName;
+        public string CustodyOfficerName;
         public string PrintedAtDateIso;
         public string PrintedAtTimeHm;
         public readonly List<RosterEntry> Entries = new List<RosterEntry>();
@@ -102,7 +104,9 @@ namespace CourtDesk.Application
                 DirectorateName = _settings.Get(SettingKeys.DirectorateName),
                 StationName = _settings.Get(SettingKeys.StationName),
                 OperatorName = _settings.OperatorOrUnknown(),
-                OfficerName = _settings.Get(SettingKeys.OperatorName) ?? ""
+                OfficerName = _settings.Get(SettingKeys.OperatorName) ?? "",
+                PreparerName = _settings.Get(SettingKeys.PreparerName) ?? "",
+                CustodyOfficerName = _settings.Get(SettingKeys.CustodyOfficerName) ?? ""
             };
         }
 

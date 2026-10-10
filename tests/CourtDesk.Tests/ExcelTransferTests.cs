@@ -298,6 +298,8 @@ namespace CourtDesk.Tests
                         backups, env.Settings, env.Home);
                     Assert.NotNull(view.FindName("OperatorBox"));
                     Assert.NotNull(view.FindName("DirectorateBox"));
+                    Assert.NotNull(view.FindName("PreparerBox"));
+                    Assert.NotNull(view.FindName("CustodyOfficerBox"));
                     Assert.NotNull(view.FindName("SaveOfficerButton"));
                     Assert.NotNull(view.FindName("ScopeBox"));
                     Assert.NotNull(view.FindName("ScopePrintButton"));
@@ -308,8 +310,12 @@ namespace CourtDesk.Tests
 
                     var op = (System.Windows.Controls.TextBox)view.FindName("OperatorBox");
                     var dir = (System.Windows.Controls.TextBox)view.FindName("DirectorateBox");
+                    var prep = (System.Windows.Controls.TextBox)view.FindName("PreparerBox");
+                    var cust = (System.Windows.Controls.TextBox)view.FindName("CustodyOfficerBox");
                     op.Text = "عميد أحمد";
                     dir.Text = "قسم البحث";
+                    prep.Text = "أمين شرطة سامي";
+                    cust.Text = "ملازم كريم";
                     view.UpdateLayout();
                     var btn = (Button)view.FindName("SaveOfficerButton");
                     Assert.True(btn.IsEnabled, "save officer button disabled");
@@ -317,6 +323,8 @@ namespace CourtDesk.Tests
 
                     Assert.Equal("عميد أحمد", env.Settings.Get(SettingKeys.OperatorName));
                     Assert.Equal("قسم البحث", env.Settings.Get(SettingKeys.DirectorateName));
+                    Assert.Equal("أمين شرطة سامي", env.Settings.Get(SettingKeys.PreparerName));
+                    Assert.Equal("ملازم كريم", env.Settings.Get(SettingKeys.CustodyOfficerName));
 
                     // the roster preview window is built from the model, not the
                     // dialog, so make sure the model carries the values too.
@@ -324,6 +332,8 @@ namespace CourtDesk.Tests
                         env.Clock, env.Settings).Build(env.Clock.Today);
                     Assert.Equal("عميد أحمد", m.OperatorName);
                     Assert.Equal("قسم البحث", m.DirectorateName);
+                    Assert.Equal("أمين شرطة سامي", m.PreparerName);
+                    Assert.Equal("ملازم كريم", m.CustodyOfficerName);
 
                     // and the printed page must contain them, not blank boxes
                     var printer = new CourtDesk.Printing.PrintService(env.Db,

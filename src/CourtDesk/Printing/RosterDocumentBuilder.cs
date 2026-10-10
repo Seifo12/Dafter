@@ -358,10 +358,10 @@ namespace CourtDesk.Printing
             string[] captions = new string[]
             {
                 Strings.RosterSigPrepared, Strings.RosterSigCustody,
-                Strings.RosterSigEscort, Strings.RosterSigChief
+                Strings.RosterSigChief
             };
             var grid = new Grid { FlowDirection = FlowDirection.RightToLeft };
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
             {
                 grid.ColumnDefinitions.Add(new ColumnDefinition
                 {
@@ -382,7 +382,15 @@ namespace CourtDesk.Printing
                 var inner = new StackPanel();
                 inner.Children.Add(Line(captions[i], 12, false));
                 inner.Children.Add(Line(Strings.RosterSigCaption, 11, false));
-                if (i == 3)
+                if (i == 0)
+                {
+                    inner.Children.Add(Line(_model.PreparerName ?? "", 12, true));
+                }
+                if (i == 1)
+                {
+                    inner.Children.Add(Line(_model.CustodyOfficerName ?? "", 12, true));
+                }
+                if (i == 2)
                 {
                     inner.Children.Add(Line(_model.OfficerName ?? "", 12, true));
                 }

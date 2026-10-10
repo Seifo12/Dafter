@@ -58,6 +58,8 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             _settings.Set(SettingKeys.DirectorateName, DirectorateBox.Text.Trim());
             _settings.Set(SettingKeys.StationName, StationBox.Text.Trim());
             _settings.Set(SettingKeys.RosterHeaderLine1, HeaderBox.Text.Trim());
+            _settings.Set(SettingKeys.PreparerName, PreparerBox.Text.Trim());
+            _settings.Set(SettingKeys.CustodyOfficerName, CustodyOfficerBox.Text.Trim());
             System.Action h = OfficerSaved;
             if (h != null)
             {
@@ -250,6 +252,8 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
             DirectorateBox.Text = _settings.Get(SettingKeys.DirectorateName) ?? "";
             StationBox.Text = _settings.Get(SettingKeys.StationName) ?? "";
             HeaderBox.Text = _settings.Get(SettingKeys.RosterHeaderLine1) ?? "";
+            PreparerBox.Text = _settings.Get(SettingKeys.PreparerName) ?? "";
+            CustodyOfficerBox.Text = _settings.Get(SettingKeys.CustodyOfficerName) ?? "";
         }
 
         private void DirectClick(object sender, RoutedEventArgs e)
