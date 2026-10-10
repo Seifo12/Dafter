@@ -225,6 +225,43 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void BuildAllIncludesEveryDateRegardlessOfScopeDate()
+        {
+            using (var env = new DialogEnv())
+            {
+                var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                var decisions = new DecisionService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                env.Add("محتجز اليوم", "7201", env.Clock.Today);
+                env.Add("محتجز الغد", "7202", env.Clock.Today.AddDays(1));
+                int id = env.Add("مفرج اليوم", "7203", env.Clock.Today);
+                int version = env.Db.Read(s => env.Defendants.GetById(s, id).RowVersion);
+                decisions.Decide(new DecisionRequest
+                {
+                    DefendantId = id,
+                    ExpectedVersion = version,
+                    RequestUuid = Guid.NewGuid().ToString("N"),
+                    Code = DecisionCodes.Release
+                });
+
+                // dated build sees only today's rows
+                RosterModel dated = rosters.Build(env.Clock.Today);
+                Assert.Equal(2, dated.Count);
+                Assert.False(dated.AllDates);
+
+                // all-dates build sees every date together
+                RosterModel every = rosters.BuildAll(env.Clock.Today, null);
+                Assert.True(every.AllDates);
+                Assert.Equal(3, every.Count);
+
+                // scope still narrows inside the all-dates build
+                RosterModel rel = rosters.BuildAll(env.Clock.Today, Filters.Released);
+                Assert.Equal(1, rel.Count);
+            }
+        }
+
+        [Fact]
         public void ScopedRosterPrintsOnlyChosenSection()
         {
             using (var env = new DialogEnv())

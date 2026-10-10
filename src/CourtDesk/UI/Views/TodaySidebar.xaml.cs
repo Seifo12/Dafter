@@ -45,6 +45,19 @@ namespace CourtDesk.UI.Views
             ApplyBands(vm);
         }
 
+        private void AllDatesChanged(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModels.TodaySidebarViewModel vm = Vm;
+            if (vm == null)
+            {
+                return;
+            }
+            vm.PrintAllDates = AllDatesBox.IsChecked == true;
+            bool dated = !vm.PrintAllDates;
+            ScopePrevDay.IsEnabled = dated;
+            ScopeNextDay.IsEnabled = dated;
+        }
+
         private void ScopePrevDayClick(object sender, System.Windows.RoutedEventArgs e)
         {
             ViewModels.TodaySidebarViewModel vm = Vm;

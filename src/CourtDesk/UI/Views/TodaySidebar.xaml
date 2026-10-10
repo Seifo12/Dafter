@@ -217,7 +217,7 @@
 
       <StackPanel Grid.Row="3" Margin="12,0,12,8" x:Name="Footer">
         <TextBlock Text="{x:Static res:Strings.ScopeDateLabel}" Style="{StaticResource MutedText}" Margin="0,0,0,4" />
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" x:Name="ScopeDateRow">
           <Button x:Name="ScopePrevDay" Style="{StaticResource QuietButton}" Content="-"
                   Click="ScopePrevDayClick" MinHeight="48" MinWidth="64" Margin="0,0,6,0" />
           <TextBlock x:Name="ScopeDateText" Style="{StaticResource GridStrong}"
@@ -225,6 +225,9 @@
           <Button x:Name="ScopeNextDay" Style="{StaticResource QuietButton}" Content="+"
                   Click="ScopeNextDayClick" MinHeight="48" MinWidth="64" Margin="6,0,0,0" />
         </StackPanel>
+        <CheckBox x:Name="AllDatesBox" Content="{x:Static res:Strings.ExcelAllDates}"
+                  FontSize="18" MinHeight="48" VerticalContentAlignment="Center"
+                  Margin="0,0,0,8" Checked="AllDatesChanged" Unchecked="AllDatesChanged" />
         <TextBlock Text="{x:Static res:Strings.ExcelScope}" Style="{StaticResource MutedText}"
                    Margin="0,0,0,4" />
         <ComboBox x:Name="PrintScopeBox" Style="{StaticResource BigCombo}" MinHeight="48" Margin="0,0,0,8"

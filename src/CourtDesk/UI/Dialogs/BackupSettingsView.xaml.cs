@@ -25,7 +25,7 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
 
         public System.Action<int> ImportDone;
 
-        public System.Action<bool, string> ScopePrintRequested;
+        public System.Action<bool, string, bool> ScopePrintRequested;
 
         private System.Collections.Generic.IReadOnlyList<CourtDesk.UI.ViewModels.RegisterRow> ScopeRows()
         {
@@ -40,7 +40,7 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
         {
             if (ScopePrintRequested != null)
             {
-                ScopePrintRequested(true, _scope);
+                ScopePrintRequested(true, _scope, AllDatesBox.IsChecked == true);
             }
         }
 
@@ -48,7 +48,7 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
         {
             if (ScopePrintRequested != null)
             {
-                ScopePrintRequested(false, _scope);
+                ScopePrintRequested(false, _scope, AllDatesBox.IsChecked == true);
             }
         }
 

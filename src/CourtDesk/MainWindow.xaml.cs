@@ -53,8 +53,10 @@ namespace CourtDesk
             vm.Sidebar.PrintScopeRequested += delegate(bool preview, string scope,
                 CourtDesk.Domain.LocalDate date)
             {
-                // print only the selected section, for the selected date
-                composition.Coordinator.PrintScope(preview, scope, date);
+                // print only the selected section, for the selected date -
+                // or every date when the all-dates box is checked
+                composition.Coordinator.PrintScope(preview, scope, date,
+                    vm.Sidebar.PrintAllDates);
             };
             }
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)

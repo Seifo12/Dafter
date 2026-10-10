@@ -218,6 +218,7 @@ namespace CourtDesk.Resources
         public const string ExcelRowProblem = "سطر";
         public const string ExcelTitle = "الملف الطبي والاستيراد";
         public const string ExcelScope = "نطاق التصدير";
+        public const string ExcelAllDates = "كل التواريخ";
         public const string ScopeDateLabel = "تاريخ الكشف";
         public const string ExcelScopeAll = "الكل";
         public const string ExcelScopeDetained = "المحكوم عليهم (محتجزون)";
@@ -348,6 +349,7 @@ namespace CourtDesk.Resources
         public const string RosterStation = "قسم شرطة {0}";
         public const string RosterTitle = "كشف ترحيل المحبوسين إلى المحاكم";
         public const string RosterDate = "ليوم {0} الموافق {1}";
+        public const string RosterAllDates = "كل التواريخ";
         public const string RosterCount = "إجمالي عدد المحبوسين: {0}‏";
         public const string RosterPage = "صفحة {0} من {1}";
         public const string RosterPrinted = "طُبع بتاريخ {0} الساعة {1}";

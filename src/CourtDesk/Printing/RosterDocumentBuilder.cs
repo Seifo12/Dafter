@@ -212,10 +212,12 @@ namespace CourtDesk.Printing
             {
                 panel.Children.Add(new TextBlock
                 {
-                    Text = string.Format(CultureInfo.InvariantCulture, Strings.RosterDate,
-                        WeekdayOf(_model.Date),
-                        _model.Date.Day.ToString("00") + "/" + _model.Date.Month.ToString("00")
-                            + "/" + _model.Date.Year),
+                    Text = _model.AllDates
+                        ? Strings.RosterAllDates
+                        : string.Format(CultureInfo.InvariantCulture, Strings.RosterDate,
+                            WeekdayOf(_model.Date),
+                            _model.Date.Day.ToString("00") + "/" + _model.Date.Month.ToString("00")
+                                + "/" + _model.Date.Year),
                     FontSize = 16,
                     FontWeight = FontWeights.Bold,
                     TextAlignment = TextAlignment.Center,

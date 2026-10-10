@@ -24,8 +24,10 @@ namespace CourtDesk.Application.Ports
         int CountActive(ISession s);
         List<Defendant> ListActive(ISession s);
         List<DefendantRow> ListPendingOn(ISession s, string dateIso);
+        List<DefendantRow> ListPendingAll(ISession s);
         List<DefendantRow> ListOverdueRows(ISession s, string dateIso);
         List<DecidedRow> ListDecidedOn(ISession s, string heldDateIso);
+        List<DecidedRow> ListDecidedAll(ISession s);
         List<DefendantRow> ListActiveRows(ISession s);
         List<DefendantRow> ListRowsByIds(ISession s, int[] ids);
         List<Defendant> ListDeleted(ISession s);

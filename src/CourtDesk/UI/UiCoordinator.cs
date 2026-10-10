@@ -118,6 +118,11 @@ public void PrintScope(bool preview, string scope)
 
         public void PrintScope(bool preview, string scope, CourtDesk.Domain.LocalDate? dateOverride)
         {
+            PrintScope(preview, scope, dateOverride, false);
+        }
+
+        public void PrintScope(bool preview, string scope, CourtDesk.Domain.LocalDate? dateOverride, bool allDates)
+        {
             if (C.Printing == null || C.Rosters == null || C.Settings == null)
             {
                 TellSafe(Strings.SidePrint, Strings.PrintFail);
@@ -131,7 +136,9 @@ public void PrintScope(bool preview, string scope)
             RosterModel model;
             try
             {
-                model = C.Rosters.Build(date, scope);
+                model = allDates
+                    ? C.Rosters.BuildAll(date, scope)
+                    : C.Rosters.Build(date, scope);
             }
             catch (System.Exception)
             {

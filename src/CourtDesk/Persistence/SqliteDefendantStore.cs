@@ -27,8 +27,10 @@ namespace CourtDesk.Persistence
         int IDefendantStore.CountActive(ISession s) { return CountActive((DbContext)s); }
         List<Defendant> IDefendantStore.ListActive(ISession s) { return ListActive((DbContext)s); }
         List<DefendantRow> IDefendantStore.ListPendingOn(ISession s, string d) { return ListPendingOn((DbContext)s, d); }
+        List<DefendantRow> IDefendantStore.ListPendingAll(ISession s) { return ListPendingAll((DbContext)s); }
         List<DefendantRow> IDefendantStore.ListOverdueRows(ISession s, string d) { return ListOverdueRows((DbContext)s, d); }
         List<DecidedRow> IDefendantStore.ListDecidedOn(ISession s, string d) { return ListDecidedOn((DbContext)s, d); }
+        List<DecidedRow> IDefendantStore.ListDecidedAll(ISession s) { return ListDecidedAll((DbContext)s); }
         List<DefendantRow> IDefendantStore.ListActiveRows(ISession s) { return ListActiveRows((DbContext)s); }
         List<DefendantRow> IDefendantStore.ListRowsByIds(ISession s, int[] ids) { return ListRowsByIds((DbContext)s, ids); }
         List<Defendant> IDefendantStore.ListDeleted(ISession s) { return ListDeleted((DbContext)s); }
@@ -46,6 +48,18 @@ namespace CourtDesk.Persistence
                 "ORDER BY COALESCE(c.sort_order, 9999), COALESCE(c.name_norm, ''), " +
                 "COALESCE(cc.name_norm, ''), d.name_norm";
             return RowQuery(ctx, sql, "@d", dateIso);
+        }
+
+        public List<DefendantRow> ListPendingAll(DbContext ctx)
+        {
+            const string sql = "SELECT " + ColsD + ", c.name, cc.name, cu.name FROM defendants d " +
+                "LEFT JOIN courts c ON c.id = d.court_id " +
+                "LEFT JOIN circuits cc ON cc.id = d.circuit_id " +
+                "LEFT JOIN custody_locations cu ON cu.id = d.custody_location_id " +
+                "WHERE d.is_deleted = 0 AND d.status = 'DETAINED' " +
+                "ORDER BY COALESCE(c.sort_order, 9999), COALESCE(c.name_norm, ''), " +
+                "COALESCE(cc.name_norm, ''), d.name_norm";
+            return RowQuery(ctx, sql, null, null);
         }
 
         public List<DefendantRow> ListOverdueRows(DbContext ctx, string dateIso)
@@ -78,21 +92,51 @@ namespace CourtDesk.Persistence
                 {
                     while (r.Read())
                     {
-                        out_.Add(new DecidedRow
-                        {
-                            D = ReadRow(r),
-                            EventId = r.GetInt64(17),
-                            DecisionCode = Str(r, 18),
-                            NextSessionDate = Str(r, 19),
-                            CourtNameAtEvent = Str(r, 20),
-                            CircuitNameAtEvent = Str(r, 21),
-                            BailAmount = r.FieldCount > 22 && !r.IsDBNull(22)
-                                ? (int?)r.GetInt32(22) : null
-                        });
+                        out_.Add(ReadDecidedRow(r));
                     }
                 }
             }
             return out_;
+        }
+
+        public List<DecidedRow> ListDecidedAll(DbContext ctx)
+        {
+            var out_ = new List<DecidedRow>();
+            const string sql =
+                "SELECT d.id, d.full_name, d.name_norm, d.national_id, d.case_number, d.case_year, " +
+                "d.case_type, d.charges, d.court_id, d.circuit_id, d.custody_location_id, d.session_date, " +
+                "d.status, d.detained_since, d.notes, d.is_deleted, d.row_version, " +
+                "e.id, e.decision_code, e.next_session_date, e.court_name_at_event, e.circuit_name_at_event, e.bail_amount " +
+                "FROM session_events e JOIN defendants d ON d.id = e.defendant_id " +
+                "WHERE e.event_type = 'DECISION' AND e.decision_code <> 'REOPEN' " +
+                "AND e.undone_by_event_id IS NULL AND d.is_deleted = 0 " +
+                "ORDER BY e.id";
+            using (var cmd = new SQLiteCommand(sql, ctx.Connection))
+            {
+                using (SQLiteDataReader r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        out_.Add(ReadDecidedRow(r));
+                    }
+                }
+            }
+            return out_;
+        }
+
+        private static DecidedRow ReadDecidedRow(SQLiteDataReader r)
+        {
+            return new DecidedRow
+            {
+                D = ReadRow(r),
+                EventId = r.GetInt64(17),
+                DecisionCode = Str(r, 18),
+                NextSessionDate = Str(r, 19),
+                CourtNameAtEvent = Str(r, 20),
+                CircuitNameAtEvent = Str(r, 21),
+                BailAmount = r.FieldCount > 22 && !r.IsDBNull(22)
+                    ? (int?)r.GetInt32(22) : null
+            };
         }
 
         public List<DefendantRow> ListActiveRows(DbContext ctx)

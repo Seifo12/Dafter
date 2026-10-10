@@ -76,6 +76,7 @@ namespace CourtDesk.UI.ViewModels
         public ObservableCollection<SessionCard> DecidedCards { get { return _decided; } }
         public ObservableCollection<SessionCard> TomorrowCards { get { return _tomorrowCards; } }
         private string _printScope = "ALL";
+        private bool _printAllDates;
 
         private CourtDesk.Domain.LocalDate _scopeDate;
 
@@ -94,6 +95,12 @@ namespace CourtDesk.UI.ViewModels
         {
             get { return _printScope; }
             set { Set(ref _printScope, value ?? "ALL", "PrintScope"); }
+        }
+
+        public bool PrintAllDates
+        {
+            get { return _printAllDates; }
+            set { Set(ref _printAllDates, value, "PrintAllDates"); }
         }
 
         public ICommand RecordCommand { get; private set; }

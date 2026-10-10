@@ -228,11 +228,11 @@ namespace CourtDesk
                     c.Main.RefreshAll();
                 }
             };
-            view.ScopePrintRequested = delegate(bool preview, string scope)
+            view.ScopePrintRequested = delegate(bool preview, string scope, bool allDates)
             {
                 if (c.Coordinator != null)
                 {
-                    c.Coordinator.PrintScope(preview, scope);
+                    c.Coordinator.PrintScope(preview, scope, null, allDates);
                 }
             };
             view.OfficerSaved = delegate

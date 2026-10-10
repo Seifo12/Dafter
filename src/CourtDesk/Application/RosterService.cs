@@ -25,6 +25,7 @@ namespace CourtDesk.Application
     public sealed class RosterModel
     {
         public LocalDate Date;
+        public bool AllDates;
         public string HeaderLine1;
         public string DirectorateName;
         public string StationName;
@@ -66,6 +67,21 @@ namespace CourtDesk.Application
             bool scoped = !string.IsNullOrEmpty(scope)
                 && !string.Equals(scope, Filters.All, StringComparison.Ordinal);
             RosterModel model = _db.Read(s => BuildEntries(s, date, scope, scoped));
+            Finish(model);
+            return model;
+        }
+
+        public RosterModel BuildAll(LocalDate date, string scope)
+        {
+            bool scoped = !string.IsNullOrEmpty(scope)
+                && !string.Equals(scope, Filters.All, StringComparison.Ordinal);
+            RosterModel model = _db.Read(s => BuildEntriesAll(s, date, scope, scoped));
+            Finish(model);
+            return model;
+        }
+
+        private static void Finish(RosterModel model)
+        {
             Sort(model);
             foreach (RosterEntry e in model.Entries)
             {
@@ -74,74 +90,104 @@ namespace CourtDesk.Application
                 model.PerCourtCounts.TryGetValue(key, out n);
                 model.PerCourtCounts[key] = n + 1;
             }
-            return model;
         }
 
-        private RosterModel BuildEntries(ISession s, LocalDate date, string scope, bool scoped)
+        private RosterModel NewModel(LocalDate date, bool allDates)
         {
-            string iso = date.ToIso();
-            var m = new RosterModel
+            return new RosterModel
             {
                 Date = date,
+                AllDates = allDates,
                 HeaderLine1 = _settings.Get(SettingKeys.RosterHeaderLine1),
                 DirectorateName = _settings.Get(SettingKeys.DirectorateName),
                 StationName = _settings.Get(SettingKeys.StationName),
                 OperatorName = _settings.OperatorOrUnknown(),
                 OfficerName = _settings.Get(SettingKeys.OperatorName) ?? ""
             };
+        }
+
+        private RosterModel BuildEntries(ISession s, LocalDate date, string scope, bool scoped)
+        {
+            string iso = date.ToIso();
+            var m = NewModel(date, false);
             var seen = new HashSet<int>();
             foreach (DefendantRow row in _defendants.ListPendingOn(s, iso))
             {
-                if (scoped && !InScope(scope, row.D.Status))
-                {
-                    continue;
-                }
-                seen.Add(row.D.Id);
-                m.Entries.Add(new RosterEntry
-                {
-                    DefendantId = row.D.Id,
-                    FullName = row.D.FullName,
-                    CaseNumber = row.D.CaseNumber,
-                    CaseYear = row.D.CaseYear,
-                    Charges = row.D.Charges,
-                    CourtName = row.CourtName,
-                    CircuitName = row.CircuitName,
-                    CustodyName = row.CustodyName,
-                    FromDecision = false
-                });
+                AddPending(m, row, scope, scoped, seen);
             }
             foreach (DecidedRow row in _defendants.ListDecidedOn(s, iso))
             {
-                if (scoped && !InScope(scope, row.D.Status))
-                {
-                    continue;
-                }
-                if (!seen.Add(row.D.Id))
-                {
-                    continue;
-                }
-                m.Entries.Add(new RosterEntry
-                {
-                    DefendantId = row.D.Id,
-                    FullName = row.D.FullName,
-                    CaseNumber = row.D.CaseNumber,
-                    CaseYear = row.D.CaseYear,
-                    Charges = row.D.Charges,
-                    CourtName = row.CourtNameAtEvent,
-                    CircuitName = row.CircuitNameAtEvent,
-                    CustodyName = _defendants.CustodyName(s, row.D.CustodyLocationId),
-                    FromDecision = true,
-                    DecisionCode = row.DecisionCode,
-                    DecisionLabel = CourtDesk.UI.ViewModels.DecisionWizardViewModel
-                        .LabelOf(row.DecisionCode),
-                    BailAmount = row.BailAmount.HasValue
-                        ? row.BailAmount.Value.ToString("0.##",
-                            System.Globalization.CultureInfo.InvariantCulture) : "",
-                    DetainedSince = row.D.DetainedSince.HasValue
-                        ? ArabicDateFormat.FormatShort(row.D.DetainedSince.Value) : ""
-                });
+                AddDecided(m, s, row, scope, scoped, seen);
             }
             return m;
+        }
+
+        private RosterModel BuildEntriesAll(ISession s, LocalDate date, string scope, bool scoped)
+        {
+            var m = NewModel(date, true);
+            var seen = new HashSet<int>();
+            foreach (DefendantRow row in _defendants.ListPendingAll(s))
+            {
+                AddPending(m, row, scope, scoped, seen);
+            }
+            foreach (DecidedRow row in _defendants.ListDecidedAll(s))
+            {
+                AddDecided(m, s, row, scope, scoped, seen);
+            }
+            return m;
+        }
+
+        private static void AddPending(RosterModel m, DefendantRow row, string scope, bool scoped, HashSet<int> seen)
+        {
+            if (scoped && !InScope(scope, row.D.Status))
+            {
+                return;
+            }
+            seen.Add(row.D.Id);
+            m.Entries.Add(new RosterEntry
+            {
+                DefendantId = row.D.Id,
+                FullName = row.D.FullName,
+                CaseNumber = row.D.CaseNumber,
+                CaseYear = row.D.CaseYear,
+                Charges = row.D.Charges,
+                CourtName = row.CourtName,
+                CircuitName = row.CircuitName,
+                CustodyName = row.CustodyName,
+                FromDecision = false
+            });
+        }
+
+        private void AddDecided(RosterModel m, ISession s, DecidedRow row, string scope, bool scoped, HashSet<int> seen)
+        {
+            if (scoped && !InScope(scope, row.D.Status))
+            {
+                return;
+            }
+            if (!seen.Add(row.D.Id))
+            {
+                return;
+            }
+            m.Entries.Add(new RosterEntry
+            {
+                DefendantId = row.D.Id,
+                FullName = row.D.FullName,
+                CaseNumber = row.D.CaseNumber,
+                CaseYear = row.D.CaseYear,
+                Charges = row.D.Charges,
+                CourtName = row.CourtNameAtEvent,
+                CircuitName = row.CircuitNameAtEvent,
+                CustodyName = _defendants.CustodyName(s, row.D.CustodyLocationId),
+                FromDecision = true,
+                DecisionCode = row.DecisionCode,
+                DecisionLabel = CourtDesk.UI.ViewModels.DecisionWizardViewModel
+                    .LabelOf(row.DecisionCode),
+                BailAmount = row.BailAmount.HasValue
+                    ? row.BailAmount.Value.ToString("0.##",
+                        System.Globalization.CultureInfo.InvariantCulture) : "",
+                DetainedSince = row.D.DetainedSince.HasValue
+                    ? ArabicDateFormat.FormatShort(row.D.DetainedSince.Value) : ""
+            });
         }
 
         private static bool InScope(string scope, string status)
