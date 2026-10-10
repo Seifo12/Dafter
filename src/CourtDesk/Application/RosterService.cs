@@ -29,6 +29,7 @@ namespace CourtDesk.Application
         public string DirectorateName;
         public string StationName;
         public string OperatorName;
+        public string OfficerName;
         public string PrintedAtDateIso;
         public string PrintedAtTimeHm;
         public readonly List<RosterEntry> Entries = new List<RosterEntry>();
@@ -85,7 +86,8 @@ namespace CourtDesk.Application
                 HeaderLine1 = _settings.Get(SettingKeys.RosterHeaderLine1),
                 DirectorateName = _settings.Get(SettingKeys.DirectorateName),
                 StationName = _settings.Get(SettingKeys.StationName),
-                OperatorName = _settings.OperatorOrUnknown()
+                OperatorName = _settings.OperatorOrUnknown(),
+                OfficerName = _settings.Get(SettingKeys.OperatorName) ?? ""
             };
             var seen = new HashSet<int>();
             foreach (DefendantRow row in _defendants.ListPendingOn(s, iso))

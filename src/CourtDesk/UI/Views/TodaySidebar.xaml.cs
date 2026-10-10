@@ -26,8 +26,14 @@ namespace CourtDesk.UI.Views
                 return;
             }
             ApplyScopeDate(vm);
+            SyncPrintScopeBox(vm.PrintScope);
             vm.PropertyChanged += delegate(object s, System.ComponentModel.PropertyChangedEventArgs e)
             {
+                if (e.PropertyName == "PrintScope")
+                {
+                    SyncPrintScopeBox(vm.PrintScope);
+                    return;
+                }
                 if (e.PropertyName == "DateLong" || e.PropertyName == "Empty" || e.PropertyName == "Tab"
                     || e.PropertyName == "MoreDecided" || e.PropertyName == "MoreDecidedText"
                     || e.PropertyName == "HasMoreDecided" || e.PropertyName == "DecidedToggleText"
@@ -75,6 +81,22 @@ namespace CourtDesk.UI.Views
             if (item != null && item.Tag != null)
             {
                 vm.PrintScope = System.Convert.ToString(item.Tag);
+            }
+        }
+
+        private void SyncPrintScopeBox(string scope)
+        {
+            foreach (object o in PrintScopeBox.Items)
+            {
+                var item = o as System.Windows.Controls.ComboBoxItem;
+                if (item != null && System.Convert.ToString(item.Tag) == scope)
+                {
+                    if (!ReferenceEquals(PrintScopeBox.SelectedItem, item))
+                    {
+                        PrintScopeBox.SelectedItem = item;
+                    }
+                    return;
+                }
             }
         }
 

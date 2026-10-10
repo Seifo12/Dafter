@@ -167,7 +167,21 @@ public BackupSettingsView(BackupService backups, SettingsService settings, strin
                     Strings.ExcelDone, report.Added, report.Skipped);
                 if (report.Problems.Count > 0)
                 {
-                    body = body + "\n" + string.Join("\n", report.Problems.ToArray());
+                    // the dialog cannot scroll, so keep the list short and
+                    // readable no matter how many rows were imported
+                    int shown = System.Math.Min(5, report.Problems.Count);
+                    var lines = new System.Collections.Generic.List<string>();
+                    for (int i = 0; i < shown; i++)
+                    {
+                        lines.Add(report.Problems[i]);
+                    }
+                    body = body + "\n" + string.Join("\n", lines.ToArray());
+                    if (report.Problems.Count > shown)
+                    {
+                        body = body + "\n" + string.Format(
+                            CultureInfo.InvariantCulture, Strings.ExcelMoreProblems,
+                            report.Problems.Count - shown);
+                    }
                 }
                 MessageDialog.Show(this, Strings.ExcelImport, body);
                 System.Action<int> h = ImportDone;

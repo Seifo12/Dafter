@@ -228,6 +228,7 @@ namespace CourtDesk.Resources
         public const string ExcelPreview = "معاينة";
         public const string ExcelPrint = "طباعة";
         public const string ExcelSavedCount = "{0} ({1} سجل)";
+        public const string ExcelMoreProblems = "… (+{0} سطور أخرى)";
         public const string OfficerTitle = "بيانات المأمور";
         public const string OfficerHint = "اكتب اسم المأمور والقسم عشان يظهروا في كشف الجلسة المطبوع";
         public const string OfficerName = "اسم المأمور";

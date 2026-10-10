@@ -380,9 +380,9 @@ namespace CourtDesk.Printing
                 var inner = new StackPanel();
                 inner.Children.Add(Line(captions[i], 12, false));
                 inner.Children.Add(Line(Strings.RosterSigCaption, 11, false));
-                if (i == 0)
+                if (i == 3)
                 {
-                    inner.Children.Add(Line(_model.OperatorName ?? "", 12, true));
+                    inner.Children.Add(Line(_model.OfficerName ?? "", 12, true));
                 }
                 box.Child = inner;
                 Grid.SetColumn(box, i);

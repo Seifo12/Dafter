@@ -187,6 +187,37 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void MedicalImagesDialogOpensWithoutMissingResources()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new Env())
+                {
+                    int id = env.Add("صاحب صورة", "7200", new LocalDate(2026, 10, 7));
+                    var medical = new MedicalService(new SqliteMedicalStore(env.Db),
+                        env.Home, () => env.Clock.UtcNow);
+                    var dlg = new MedicalImagesDialog(medical, id);
+                    dlg.Left = -32000;
+                    dlg.Top = -32000;
+                    dlg.ShowActivated = false;
+                    try
+                    {
+                        dlg.Show();
+                        Pump();
+                        dlg.UpdateLayout();
+                        Pump();
+                        Assert.NotNull(dlg.FindName("List"));
+                        Assert.NotNull(dlg.FindName("AddButton"));
+                    }
+                    finally
+                    {
+                        dlg.Close();
+                    }
+                }
+            });
+        }
+
+        [Fact]
         public void OffsetButtonsChangeTheChosenDate()
         {
             StaRunner.Run(delegate

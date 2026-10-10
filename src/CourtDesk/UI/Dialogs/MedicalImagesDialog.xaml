@@ -4,7 +4,7 @@
         xmlns:res="clr-namespace:CourtDesk.Resources"
         Title="{x:Static res:Strings.MedicalTitle}" Height="620" Width="880"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-        Background="{StaticResource AppBgBrush}" FlowDirection="RightToLeft">
+        Background="{StaticResource CanvasBrush}" FlowDirection="RightToLeft">
   <Grid Margin="16">
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
@@ -25,7 +25,7 @@
             <DataTemplate>
               <Border Style="{StaticResource Card}" Width="248" Margin="0,0,10,10" Padding="8">
                 <StackPanel>
-                  <Border Background="{StaticResource MutedBgBrush}" Height="150"
+                  <Border Background="{StaticResource HoverBrush}" Height="150"
                           CornerRadius="4" ClipToBounds="True">
                     <Image x:Name="Thumb" Stretch="Uniform" />
                   </Border>

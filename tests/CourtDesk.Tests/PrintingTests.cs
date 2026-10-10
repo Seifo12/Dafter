@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Xps.Packaging;
@@ -151,7 +152,53 @@ namespace CourtDesk.Tests
             });
         }
 
-[Fact]
+        [Fact]
+        public void OfficerNameRendersInChiefBoxNotPreparedBox()
+        {
+            StaRunner.Run(delegate
+            {
+                RosterModel m = Fake(1, 99);
+                m.OfficerName = "عميد اختبار";
+                m.OperatorName = "عميد اختبار";
+                var builder = new RosterDocumentBuilder(m);
+                FixedDocument doc = builder.Build();
+                var texts = new List<string>();
+                foreach (PageContent pc in doc.Pages)
+                {
+                    var flat = new List<DependencyObject>();
+                    Flatten(pc.Child, flat);
+                    foreach (DependencyObject d in flat)
+                    {
+                        var tb = d as TextBlock;
+                        if (tb != null)
+                        {
+                            texts.Add(tb.Text ?? "");
+                        }
+                    }
+                }
+                int nameHits = 0;
+                int chiefAt = -1;
+                int preparedAt = -1;
+                int nameAt = -1;
+                for (int i = 0; i < texts.Count; i++)
+                {
+                    if (texts[i] == "عميد اختبار") { nameHits++; nameAt = i; }
+                    if (texts[i] == CourtDesk.Resources.Strings.RosterSigChief) { chiefAt = i; }
+                    if (texts[i] == CourtDesk.Resources.Strings.RosterSigPrepared) { preparedAt = i; }
+                }
+                Assert.Equal(1, nameHits);
+                Assert.True(chiefAt >= 0 && preparedAt >= 0, "sig captions missing");
+                // the name sits inside the chief box: chief caption, then the
+                // shared caption, then the name itself
+                Assert.True(nameAt > chiefAt && nameAt <= chiefAt + 3,
+                    "officer name not inside chief box");
+                Assert.False(nameAt > preparedAt && nameAt <= preparedAt + 3
+                    && preparedAt < chiefAt,
+                    "officer name leaked into prepared box");
+            });
+        }
+
+        [Fact]
         public void DocumentPaginatorPageCountMatchesPagination()
         {
             StaRunner.Run(delegate
