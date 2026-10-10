@@ -380,5 +380,57 @@ public void PrintChecked(System.Collections.Generic.IReadOnlyList<int> ids)
                 return false;
             }
         }
+
+        public int VoidChecked(System.Collections.Generic.IReadOnlyList<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return 0;
+            }
+            bool ok = _popups.Confirm(System.Windows.Application.Current == null ? null : System.Windows.Application.Current.MainWindow,
+                Strings.VoidTitle,
+                string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    Strings.VoidManyAsk, ids.Count),
+                Strings.VoidYes, Strings.VoidNo);
+            if (!ok)
+            {
+                return 0;
+            }
+            return VoidMany(ids);
+        }
+
+        public int VoidMany(System.Collections.Generic.IReadOnlyList<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return 0;
+            }
+            int done = 0;
+            int stale = 0;
+            foreach (int id in ids)
+            {
+                try
+                {
+                    Defendant d = C.Defendants.Get(id);
+                    if (d == null)
+                    {
+                        continue;
+                    }
+                    C.Defendants.Void(id, d.RowVersion, Guid.NewGuid().ToString("N"));
+                    MarkDirty(id);
+                    done++;
+                }
+                catch (StaleRecordException)
+                {
+                    stale++;
+                }
+            }
+            if (stale > 0)
+            {
+                _popups.Tell(System.Windows.Application.Current == null ? null : System.Windows.Application.Current.MainWindow,
+                    Strings.VoidTitle, Strings.ErrStale);
+            }
+            return done;
+        }
     }
 }

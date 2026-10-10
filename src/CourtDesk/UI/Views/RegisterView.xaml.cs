@@ -13,9 +13,8 @@ namespace CourtDesk.UI.Views
     public partial class RegisterView : UserControl
     {
         private bool _compact;
-private bool _narrow;
+        private bool _narrow;
         private bool _chromeApplied;
-        private bool _selectAllHooked;
 
         public RegisterView()
         {
@@ -29,6 +28,7 @@ private bool _narrow;
         public Action<int> DecideRequested;
         public Action<int> CardRequested;
         public Action<int> VoidRequested;
+        public Action<System.Collections.Generic.IReadOnlyList<int>> VoidCheckedRequested;
         public Action<System.Collections.Generic.IReadOnlyList<int>> PrintCheckedRequested;
 
         private void PrintCheckedClick(object sender, RoutedEventArgs e)
@@ -301,8 +301,7 @@ ApplyWide(vm.Wide);
             ApplyBands(vm);
             ApplySearchBox(vm);
             SetCompact(_compact);
-            Grid.Loaded += delegate { HookSelectAll(); };
-            Loaded += delegate { SearchInput.Focus(); HookSelectAll(); };
+            Loaded += delegate { SearchInput.Focus(); };
         }
 
         private void ApplyGridChrome()
@@ -363,24 +362,6 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             row.Triggers.Add(selected);
         }
 
-        private void HookSelectAll()
-        {
-            if (_selectAllHooked)
-            {
-                return;
-            }
-            _selectAllHooked = true;
-            foreach (DataGridColumn c in Grid.Columns)
-            {
-                var box = c.Header as CheckBox;
-                if (box != null && "select-all" as string == box.Tag as string)
-                {
-                    box.Checked += SelectAllChecked;
-                    box.Unchecked += SelectAllUnchecked;
-                }
-            }
-        }
-
         private void SelectAllChecked(object sender, RoutedEventArgs e)
         {
             RegisterViewModel vm = Vm;
@@ -404,20 +385,24 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
         private DataGridTemplateColumn CheckColumn()
         {
             var col = new DataGridTemplateColumn();
-            col.Header = new CheckBox
+            var head = new CheckBox
             {
                 MinWidth = 48,
                 MinHeight = 48,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Tag = "select-all"
+                HorizontalAlignment = HorizontalAlignment.Center
             };
+            head.Checked += SelectAllChecked;
+            head.Unchecked += SelectAllUnchecked;
+            col.Header = head;
             col.Width = 56;
             col.MinWidth = 56;
             col.MaxWidth = 56;
             var box = new FrameworkElementFactory(typeof(CheckBox));
             box.SetBinding(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty,
                 new Binding("Checked") { Mode = BindingMode.TwoWay });
+            box.AddHandler(CheckBox.CheckedEvent, new RoutedEventHandler(OnCellCheckChanged));
+            box.AddHandler(CheckBox.UncheckedEvent, new RoutedEventHandler(OnCellCheckChanged));
             box.SetValue(FrameworkElement.MarginProperty, new Thickness(0));
             box.SetValue(FrameworkElement.MinWidthProperty, 40.0);
             box.SetValue(FrameworkElement.MinHeightProperty, 40.0);
@@ -426,6 +411,17 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
             box.SetValue(System.Windows.Controls.Primitives.ToggleButton.IsThreeStateProperty, false);
             col.CellTemplate = new DataTemplate(typeof(CheckBox)) { VisualTree = box };
             return col;
+        }
+
+        private void OnCellCheckChanged(object sender, RoutedEventArgs e)
+        {
+            var box = sender as CheckBox;
+            RegisterRow row = box == null ? null : box.DataContext as RegisterRow;
+            if (row == null)
+            {
+                return;
+            }
+            row.Checked = box.IsChecked == true;
         }
 
         private DataGridTemplateColumn IndexColumn()
@@ -666,7 +662,17 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
                     if (NeedRow(vm, id)) { if (CardRequested != null) CardRequested(id); }
                     break;
                 case "void":
-                    if (NeedRow(vm, id)) { if (VoidRequested != null) VoidRequested(id); }
+                    if (vm != null && vm.CheckedCount > 0)
+                    {
+                        if (VoidCheckedRequested != null)
+                        {
+                            VoidCheckedRequested(vm.CheckedIds);
+                        }
+                    }
+                    else if (NeedRow(vm, id))
+                    {
+                        if (VoidRequested != null) VoidRequested(id);
+                    }
                     break;
             }
         }

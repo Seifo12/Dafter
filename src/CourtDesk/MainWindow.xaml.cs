@@ -43,6 +43,14 @@ namespace CourtDesk
                 };
                 RegisterView.CardRequested = delegate(int id) { composition.Coordinator.OpenCard(id); };
                 RegisterView.VoidRequested = delegate(int id) { composition.Coordinator.VoidRecord(id); };
+                RegisterView.VoidCheckedRequested = delegate(
+                    System.Collections.Generic.IReadOnlyList<int> ids)
+                {
+                    if (composition.Coordinator.VoidChecked(ids) > 0)
+                    {
+                        vm.Register.ClearChecked();
+                    }
+                };
                 vm.Sidebar.RecordRequested += delegate(SessionCard c)
                 {
                     composition.Coordinator.OpenWizard(c.Id);

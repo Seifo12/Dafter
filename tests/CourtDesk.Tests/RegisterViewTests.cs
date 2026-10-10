@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using CourtDesk.Application;
+using CourtDesk.Application.Ports;
 using CourtDesk.Domain;
 using CourtDesk.UI.Controls;
 using CourtDesk.UI.Views;
@@ -13,6 +14,114 @@ namespace CourtDesk.Tests
     [Trait("Category", "UI")]
     public sealed class RegisterViewTests
     {
+        private static CheckBox FindRowCheckBox(DataGrid grid, int rowIndex)
+        {
+            var container = grid.ItemContainerGenerator.ContainerFromIndex(rowIndex) as DependencyObject;
+            if (container == null)
+            {
+                return null;
+            }
+            var stack = new System.Collections.Generic.Stack<DependencyObject>();
+            stack.Push(container);
+            while (stack.Count > 0)
+            {
+                DependencyObject cur = stack.Pop();
+                var box = cur as CheckBox;
+                if (box != null && box.DataContext is CourtDesk.UI.ViewModels.RegisterRow)
+                {
+                    return box;
+                }
+                int n = VisualTreeHelper.GetChildrenCount(cur);
+                for (int i = 0; i < n; i++)
+                {
+                    stack.Push(VisualTreeHelper.GetChild(cur, i));
+                }
+            }
+            return null;
+        }
+
+        private static CheckBox FindHeaderCheckBox(DataGrid grid)
+        {
+            foreach (DataGridColumn c in grid.Columns)
+            {
+                var box = c.Header as CheckBox;
+                if (box != null)
+                {
+                    return box;
+                }
+            }
+            return null;
+        }
+
+        [Fact]
+        public void RowCheckboxClickUpdatesCheckedCountAndLeavesNoPhantomRow()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    env.AddDefendant("نقرة واحد", "9101", new LocalDate(2026, 10, 7));
+                    env.AddDefendant("نقرة اتنين", "9102", new LocalDate(2026, 10, 7));
+                    env.Refresh();
+                    var view = new RegisterView { DataContext = env.Register };
+                    view.Measure(new Size(1200, 800));
+                    view.Arrange(new Rect(0, 0, 1200, 800));
+                    view.UpdateLayout();
+                    Assert.Equal(env.Register.Rows.Count, view.Grid.Items.Count);
+                    CheckBox box = FindRowCheckBox(view.Grid, 0);
+                    Assert.NotNull(box);
+                    box.IsChecked = true;
+                    Assert.Equal(1, env.Register.CheckedCount);
+                    Assert.Equal(1, env.Register.CheckedIds.Count);
+                    box.IsChecked = false;
+                    Assert.Equal(0, env.Register.CheckedCount);
+                }
+            });
+        }
+
+        [Fact]
+        public void HeaderCheckboxSelectsAndClearsAllVisible()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    env.AddDefendant("كل واحد", "9111", new LocalDate(2026, 10, 7));
+                    env.AddDefendant("كل اتنين", "9112", new LocalDate(2026, 10, 7));
+                    env.Refresh();
+                    var view = new RegisterView { DataContext = env.Register };
+                    view.Measure(new Size(1200, 800));
+                    view.Arrange(new Rect(0, 0, 1200, 800));
+                    view.UpdateLayout();
+                    CheckBox head = FindHeaderCheckBox(view.Grid);
+                    Assert.NotNull(head);
+                    head.IsChecked = true;
+                    Assert.Equal(2, env.Register.CheckedCount);
+                    head.IsChecked = false;
+                    Assert.Equal(0, env.Register.CheckedCount);
+                }
+            });
+        }
+
+        [Fact]
+        public void BulkVoidRemovesEveryCheckedRecord()
+        {
+            using (var env = new DialogEnv())
+            {
+                int a = env.Add("حذف واحد", "9201", env.Clock.Today);
+                int b = env.Add("حذف اتنين", "9202", env.Clock.Today);
+                int c = env.Add("يبقى", "9203", env.Clock.Today);
+                var like = new CourtDesk.UI.UiCoordinator.CompositionLike();
+                like.Defendants = new DefendantService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings, new NullLogger());
+                var coord = new CourtDesk.UI.UiCoordinator(like);
+                int done = coord.VoidMany(new System.Collections.Generic.List<int> { a, b });
+                Assert.Equal(2, done);
+                Assert.Equal(1, env.Db.Read(s => env.Defendants.CountActive(s)));
+                Assert.True(c > 0);
+            }
+        }
+
         [Fact]
         public void RendersZeroThreeAndTwoHundredRows()
         {

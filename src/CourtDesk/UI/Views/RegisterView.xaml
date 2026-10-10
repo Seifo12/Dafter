@@ -141,7 +141,7 @@
             BorderThickness="1" CornerRadius="8" Padding="0">
       <Grid>
         <DataGrid x:Name="Grid" x:FieldModifier="public" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
-                  AutoGenerateColumns="False" SelectionMode="Single"
+                  AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False"
                   SelectionUnit="FullRow" HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                   HorizontalGridLinesBrush="{StaticResource GridLineBrush}"
                   FontFamily="{StaticResource AppFont}" FontSize="20"

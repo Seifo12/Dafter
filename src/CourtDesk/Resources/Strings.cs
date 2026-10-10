@@ -124,6 +124,7 @@ namespace CourtDesk.Resources
         public const string VoidReason2 = "مكرر";
         public const string VoidYes = "أيوه، إلغاء السجل";
         public const string VoidNo = "لأ، سيبه";
+        public const string VoidManyAsk = "سيتم حذف {0} سجلات محددة نهائيًا. متابعة؟";
 
         public const string TrashRestore = "استرجاع السجل";
 
