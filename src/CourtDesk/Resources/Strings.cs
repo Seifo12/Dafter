@@ -255,6 +255,7 @@ namespace CourtDesk.Resources
         public const string DefendantPhoto = "صورة المتهم";
         public const string PrintSelected = "طباعة المحدد ({0})";
         public const string PrintSelectedNone = "طباعة المحدد";
+        public const string MadeBy = "Made By Saif Mohamed";
         public const string PhotoChoose = "اختيار صورة";
         public const string PhotoRemove = "إزالة الصورة";
         public const string MedicalImageCount = "كشف طبي: {0} صورة";

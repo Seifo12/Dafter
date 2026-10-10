@@ -602,10 +602,12 @@ header.Setters.Add(new Setter(System.Windows.Controls.Primitives.DataGridColumnH
                     ? string.Format(Strings.SearchNoneInFilter, FilterLabel(), vm.AllCount)
                     : Strings.SearchNone;
                 EmptyText.Visibility = Visibility.Visible;
+                WatermarkText.Visibility = Visibility.Visible;
             }
             else
             {
                 EmptyText.Visibility = Visibility.Collapsed;
+                WatermarkText.Visibility = Visibility.Collapsed;
             }
         }
 

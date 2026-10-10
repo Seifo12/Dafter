@@ -54,6 +54,29 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void WatermarkShowsOnlyOnEmptyRegister()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new UiEnv())
+                {
+                    var view = new RegisterView { DataContext = env.Register };
+                    view.Measure(new Size(1200, 800));
+                    view.Arrange(new Rect(0, 0, 1200, 800));
+                    view.UpdateLayout();
+                    var mark = view.FindName("WatermarkText") as TextBlock;
+                    Assert.NotNull(mark);
+                    Assert.Equal(Visibility.Visible, mark.Visibility);
+                    Assert.Equal("Made By Saif Mohamed", mark.Text);
+                    env.AddDefendant("توقيع", "9301", new LocalDate(2026, 10, 7));
+                    env.Refresh();
+                    view.UpdateLayout();
+                    Assert.Equal(Visibility.Collapsed, mark.Visibility);
+                }
+            });
+        }
+
+        [Fact]
         public void RowCheckboxClickUpdatesCheckedCountAndLeavesNoPhantomRow()
         {
             StaRunner.Run(delegate

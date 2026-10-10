@@ -153,6 +153,9 @@
         <TextBlock x:Name="EmptyText" Style="{StaticResource MutedText}" TextWrapping="Wrap"
                    VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520"
                    TextAlignment="Center" Visibility="Collapsed" IsHitTestVisible="False" />
+        <TextBlock x:Name="WatermarkText" Text="{x:Static res:Strings.MadeBy}" Style="{StaticResource MutedText}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,12"
+                   Opacity="0.45" Visibility="Collapsed" IsHitTestVisible="False" />
       </Grid>
     </Border>
   </Grid>
