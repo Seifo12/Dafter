@@ -418,6 +418,45 @@ namespace CourtDesk.Tests
         }
 
         [Fact]
+        public void RosterCustodyColumnShowsCustodyNotCircuit()
+        {
+            using (var env = new DialogEnv())
+            {
+                var lookups = new LookupService(env.Db, new SqliteLookupStore());
+                int courtId = lookups.AddCourt("محكمة الاختبار");
+                int circuitId = lookups.AddCircuit(courtId, "دائرة الاختبار");
+                int custodyId = lookups.AddCustody("حجز الاختبار");
+                int id = env.DefendantService.Create(new DefendantInput
+                {
+                    FullName = "صاحب حجز",
+                    CaseNumber = "7501",
+                    CaseYear = "2026",
+                    SessionDate = env.Clock.Today,
+                    CourtId = courtId,
+                    CircuitId = circuitId,
+                    CustodyLocationId = custodyId
+                }, Guid.NewGuid().ToString("N"), true).Id;
+
+                var rosters = new RosterService(env.Db, env.Defendants, env.Events,
+                    env.Clock, env.Settings);
+                RosterModel m = rosters.Build(env.Clock.Today);
+                RosterEntry found = null;
+                foreach (RosterEntry e in m.Entries)
+                {
+                    if (e.DefendantId == id) { found = e; }
+                }
+                Assert.NotNull(found);
+                Assert.Equal("محكمة الاختبار", found.CourtName);
+                Assert.Equal("حجز الاختبار", found.CustodyName);
+
+                var rows = env.Db.Read(s => env.Defendants.ListRowsByIds(s, new int[] { id }));
+                Assert.Equal(1, rows.Count);
+                Assert.Equal("دائرة الاختبار", rows[0].CircuitName);
+                Assert.Equal("حجز الاختبار", rows[0].CustodyName);
+            }
+        }
+
+        [Fact]
         public void ImportRejectsMissingColumnAndReports()
         {
             using (var env = new DialogEnv())

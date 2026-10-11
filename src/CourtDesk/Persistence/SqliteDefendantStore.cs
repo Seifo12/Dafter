@@ -181,13 +181,7 @@ namespace CourtDesk.Persistence
                 {
                     while (r.Read())
                     {
-                        out_.Add(new DefendantRow
-                        {
-                            D = ReadRow(r),
-                            CourtName = Str(r, 17),
-                            CircuitName = Str(r, 18),
-                            CustodyName = Str(r, 19)
-                        });
+                        out_.Add(ReadJoinedRow(r));
                     }
                 }
             }
@@ -241,18 +235,24 @@ namespace CourtDesk.Persistence
                 {
                     while (r.Read())
                     {
-                        out_.Add(new DefendantRow
-                        {
-                            D = ReadRow(r),
-                            CourtName = Str(r, 17),
-                            CircuitName = Str(r, 18),
-                            CustodyName = Str(r, 19)
-                        });
+                        out_.Add(ReadJoinedRow(r));
                     }
                 }
             }
             return out_;
         }
+
+        private static DefendantRow ReadJoinedRow(SQLiteDataReader r)
+        {
+            return new DefendantRow
+            {
+                D = ReadRow(r),
+                CourtName = Str(r, 18),
+                CircuitName = Str(r, 19),
+                CustodyName = Str(r, 20)
+            };
+        }
+
         List<DuplicateHit> IDefendantStore.FindDuplicates(ISession s, string n, string c, int y, int e)
         {
             return FindDuplicates((DbContext)s, n, c, y, e);
