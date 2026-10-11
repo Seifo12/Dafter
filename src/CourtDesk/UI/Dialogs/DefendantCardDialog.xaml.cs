@@ -85,6 +85,50 @@ namespace CourtDesk.UI.Dialogs
             }
         }
 
+        private string MedicalSummary(int id)
+        {
+            if (_photos == null)
+            {
+                return "";
+            }
+            int imgs = 0;
+            string note = "";
+            try
+            {
+                imgs = _photos.Images(id).Count;
+                System.Collections.Generic.List<CourtDesk.Application.Ports.MedicalNote> notes =
+                    _photos.Notes(id);
+                if (notes.Count > 0)
+                {
+                    note = notes[0].Text ?? "";
+                }
+            }
+            catch (System.Exception)
+            {
+                return "";
+            }
+            if (imgs == 0 && string.IsNullOrWhiteSpace(note))
+            {
+                return "";
+            }
+            string shortNote = note ?? "";
+            if (shortNote.Length > 60)
+            {
+                shortNote = shortNote.Substring(0, 60) + "...";
+            }
+            if (imgs > 0 && !string.IsNullOrWhiteSpace(shortNote))
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    Strings.MedicalImageCount, imgs) + " - " + shortNote;
+            }
+            if (imgs > 0)
+            {
+                return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    Strings.MedicalImageCount, imgs);
+            }
+            return shortNote;
+        }
+
         public event Action EditRequested;
         public event Action DecideRequested;
         public event Action UndoRequested;
@@ -101,7 +145,7 @@ namespace CourtDesk.UI.Dialogs
             string state = d.Status == DefendantStatuses.Released ? Strings.StatusReleased
                 : d.Status == DefendantStatuses.Judged ? Strings.StatusJudged
                 : Strings.StatusDetained;
-            CourtText.Text = Strings.GridCourt + ": " + LookupName(d.CourtId) + " / " + LookupName(d.CircuitId);
+            CourtText.Text = Strings.GridCourt + ": " + CourtNameOf(d.CourtId) + " / " + CircuitNameOf(d.CircuitId);
             StateText.Text = Strings.GridState + ": " + state
                 + (d.SessionDate.HasValue
                     ? " — " + Strings.GridSession + ": " + ArabicDateFormat.FormatShort(d.SessionDate.Value)
@@ -112,14 +156,19 @@ namespace CourtDesk.UI.Dialogs
             Line(sb, Strings.GridCase, string.Format(Strings.CaseFormat, d.CaseNumber, d.CaseYear));
             Line(sb, Strings.FieldCaseType, d.CaseType);
             Line(sb, Strings.FieldCharges, d.Charges);
-            Line(sb, Strings.FieldCourt, LookupName(d.CourtId));
+            Line(sb, Strings.FieldCourt, CourtNameOf(d.CourtId));
             Line(sb, Strings.FieldCircuit, CircuitNameOf(d.CircuitId));
-            Line(sb, Strings.FieldCustody, LookupName(d.CustodyLocationId));
+            Line(sb, Strings.FieldCustody, CustodyNameOf(d.CustodyLocationId));
             Line(sb, Strings.GridSession, d.SessionDate.HasValue
                 ? ArabicDateFormat.FormatShort(d.SessionDate.Value) : Strings.FieldNoDate);
             Line(sb, Strings.FieldDetainedSince, d.DetainedSince.HasValue
                 ? ArabicDateFormat.FormatShort(d.DetainedSince.Value) : "");
             Line(sb, Strings.FieldNotes, d.Notes);
+            string med = MedicalSummary(d.Id);
+            if (!string.IsNullOrEmpty(med))
+            {
+                Line(sb, Strings.MedicalTitle, med);
+            }
             FieldsBox.Text = sb.ToString();
             ReloadPhoto();
             var entries = new List<TimelineEntry>();
@@ -146,7 +195,7 @@ namespace CourtDesk.UI.Dialogs
             UndoButton.IsEnabled = _undoEventId != 0;
         }
 
-        private string LookupName(int? id)
+        private string CourtNameOf(int? id)
         {
             if (!id.HasValue)
             {
@@ -158,6 +207,15 @@ namespace CourtDesk.UI.Dialogs
                 {
                     return c.Name;
                 }
+            }
+            return "";
+        }
+
+        private string CustodyNameOf(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return "";
             }
             foreach (CustodyRow c in _lookups.CustodyLocations(false))
             {
@@ -222,8 +280,8 @@ namespace CourtDesk.UI.Dialogs
         private static string EventDetail(SessionEvent ev)
         {
             var sb = new StringBuilder();
-            sb.Append(ev.OccurredAtUtc);
-            sb.Append(" — ");
+            sb.Append(FormatStamp(ev));
+            sb.Append(" - ");
             sb.Append(ev.OperatorName);
             if (!string.IsNullOrEmpty(ev.DecisionCode))
             {
@@ -241,6 +299,33 @@ namespace CourtDesk.UI.Dialogs
                 sb.Append(ev.Note);
             }
             return sb.ToString();
+        }
+
+        private static string FormatStamp(SessionEvent ev)
+        {
+            string when = ev.OccurredAtUtc ?? "";
+            try
+            {
+                if (when.Length >= 16)
+                {
+                    LocalDate d = LocalDate.Parse(when.Substring(0, 10));
+                    return ArabicDateFormat.FormatShort(d) + " " + when.Substring(11, 5);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            try
+            {
+                if (!string.IsNullOrEmpty(ev.OccurredLocalDate))
+                {
+                    return ArabicDateFormat.FormatShort(LocalDate.Parse(ev.OccurredLocalDate));
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return when;
         }
 
         private void EditClick(object sender, RoutedEventArgs e)

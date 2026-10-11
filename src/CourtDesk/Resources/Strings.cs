@@ -234,8 +234,8 @@ namespace CourtDesk.Resources
         public const string OfficerTitle = "بيانات المأمور";
         public const string OfficerHint = "اكتب اسم المأمور والقسم عشان يظهروا في كشف الجلسة المطبوع";
         public const string OfficerName = "اسم المأمور";
-        public const string OfficerDirectorate = "القسم";
-        public const string OfficerStation = "المحطة";
+        public const string OfficerDirectorate = "مديرية الأمن";
+        public const string OfficerStation = "قسم الشرطة";
         public const string OfficerHeader = "رأس الغلاف (اختياري)";
         public const string OfficerSave = "حفظ البيانات";
         public const string OfficerSaved = "تم حفظ البيانات.";

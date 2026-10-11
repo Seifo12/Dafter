@@ -188,16 +188,16 @@ namespace CourtDesk.Printing
             var panel = new StackPanel { FlowDirection = FlowDirection.RightToLeft };
             if (page.HasPageHeader)
             {
-                panel.Children.Add(Line(Strings.RosterMinistry, 16, true));
+                panel.Children.Add(HeadLine(Strings.RosterMinistry));
                 if (!string.IsNullOrEmpty(_model.DirectorateName))
                 {
-                    panel.Children.Add(Line(string.Format(CultureInfo.InvariantCulture,
-                        Strings.RosterDirectorate, _model.DirectorateName), 16, true));
+                    panel.Children.Add(HeadLine(string.Format(CultureInfo.InvariantCulture,
+                        Strings.RosterDirectorate, _model.DirectorateName)));
                 }
                 if (!string.IsNullOrEmpty(_model.StationName))
                 {
-                    panel.Children.Add(Line(string.Format(CultureInfo.InvariantCulture,
-                        Strings.RosterStation, _model.StationName), 16, true));
+                    panel.Children.Add(HeadLine(string.Format(CultureInfo.InvariantCulture,
+                        Strings.RosterStation, _model.StationName)));
                 }
             }
             panel.Children.Add(new TextBlock
@@ -333,6 +333,16 @@ namespace CourtDesk.Printing
                 TextAlignment = TextAlignment.Right,
                 FlowDirection = FlowDirection.RightToLeft
             };
+        }
+
+        private static TextBlock HeadLine(string text)
+        {
+            // measured on a 1032px page: TextAlignment.Left lands on the
+            // physical right edge (x=1008) while Right lands left (x=44),
+            // so the header lines use Left to print on the right side
+            TextBlock tb = Line(text, 16, true);
+            tb.TextAlignment = TextAlignment.Left;
+            return tb;
         }
 
         private FrameworkElement BuildSummary()

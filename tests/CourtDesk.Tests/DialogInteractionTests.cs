@@ -88,6 +88,61 @@ namespace CourtDesk.Tests
             }
         }
 
+        [Fact]
+        public void CardShowsCircuitNameNotIdAndFormattedDates()
+        {
+            StaRunner.Run(delegate
+            {
+                using (var env = new Env())
+                {
+                    var courts = env.Lookups.Courts(false);
+                    Assert.True(courts.Count > 0, "no seeded courts");
+                    int circuitId = env.Lookups.AddCircuit(courts[0].Id, "دائرة الاختبار");
+                    var circuits = env.Lookups.Circuits(courts[0].Id, false);
+                    Assert.True(circuits.Count > 0, "no seeded circuits");
+                    string circuitName = circuits[0].Name;
+                    int id = env.DefendantService.Create(new DefendantInput
+                    {
+                        FullName = "صاحب دائرة",
+                        CaseNumber = "7401",
+                        CaseYear = "2026",
+                        SessionDate = new LocalDate(2026, 10, 7),
+                        CourtId = courts[0].Id,
+                        CircuitId = circuitId
+                    }, Guid.NewGuid().ToString("N"), true).Id;
+
+                    var dlg = new DefendantCardDialog(env.DefendantService, env.Undo, env.Lookups, id);
+                    dlg.Left = -32000;
+                    dlg.Top = -32000;
+                    dlg.ShowActivated = false;
+                    try
+                    {
+                        dlg.Show();
+                        Pump();
+                        dlg.UpdateLayout();
+                        Pump();
+                        TextBlock court = FindByName(dlg, "CourtText") as TextBlock;
+                        Assert.True(court != null, "CourtText not found");
+                        Assert.Contains(circuitName, court.Text);
+                        TextBox fields = FindByName(dlg, "FieldsBox") as TextBox;
+                        Assert.True(fields != null, "FieldsBox not found");
+                        Assert.Contains(circuitName, fields.Text);
+                        ItemsControl timeline = FindByName(dlg, "Timeline") as ItemsControl;
+                        Assert.True(timeline != null && timeline.Items.Count > 0, "no timeline");
+                        foreach (TimelineEntry e in timeline.Items)
+                        {
+                            Assert.DoesNotContain("T", e.Detail);
+                            Assert.Contains("/", e.Detail);
+                        }
+                    }
+                    finally
+                    {
+                        dlg.Close();
+                    }
+                }
+            });
+        }
+
         private static void Pump()
         {
             Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Loaded, new Action(delegate { }));
