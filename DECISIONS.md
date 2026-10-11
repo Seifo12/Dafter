@@ -3,7 +3,7 @@
 Append-only log: `date · decision · reason`. [FIXED] items from SPEC are not re-decided here.
 
 - 2026-10-07 · Stack C# 10 / net462 / WPF software rendering / SQLite 1.0.118 WAL+FULL+EXCLUSIVE / single x86 exe · reason: SPEC §2 [FIXED].
-- 2026-10-07 · SPEC.md v1.0 is the design doc and implementation plan; no separate docs/superpowers spec/plan files · reason: avoid duplication per user order of strict SPEC adherence.
+- 2026-10-07 · SPEC.md v1.0 is the design doc and implementation plan; no separate spec/plan files · reason: avoid duplication per user order of strict SPEC adherence.
 - 2026-10-07 · Build host missing .NET SDK 8.0.x → wrote BLOCKED.md per SPEC §0.2.4, then auto-installed SDK 8.0.425 via winget with user approval and removed the block · reason: hard prerequisite, no stack change.
 - 2026-10-07 · Offline feed = harvest exact nupkgs from project.assets.json after one online restore · reason: transitive-closure correctness, repeatable offline builds.
 - 2026-10-07 · Arch tests scan src/CourtDesk (.cs + .xaml); test files may carry Arabic fixtures as test data only · reason: SPEC §0.1 intent is UI-text consistency; ArabicText.Normalize cannot be tested without Arabic input.
